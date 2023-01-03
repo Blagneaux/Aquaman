@@ -72,15 +72,6 @@ cycle = range(0, 23/24*period, length=24)
 			aspect_ratio=:equal, legend=false, border=:none)
 end
 
-
-# plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
-# function plot_vorticity(sim)
-# 	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-# 	contourf(sim.flow.σ',
-# 			 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
-# 			 aspect_ratio=:equal, legend=false, border=:none)
-# end
-
 function plot_pressure(sim)
 	contourf(sim.flow.p',
 			 clims=(-1, 1), linewidth=0,
@@ -93,24 +84,3 @@ end
 	# plot_vorticity(swimmer)
 	plot_pressure(swimmer)
 end
-
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=true)
-# 	pressure = swimmer.flow.p[L÷2,:]
-# 	scatter(cycle./period, pressure,
-# 		labels=permutedims(["side to side force"]),
-# 		xlabel="scaled time",
-# 		ylabel="scaled pressure")
-# end
-
-# function get_force(sim, t)
-# 	sim_step!(sim, t, remeasure=true)
-# 	print(t, " computing\n")
-# 	return sim.flow.p[2,L:2L]
-# end
-# pressure = [get_force(swimmer, t) for t ∈ sim_time(swimmer) .+ cycle]
-
-# scatter(cycle./period, pressure,
-# 		labels=permutedims(["side to side force"]),
-# 		xlabel="scaled time",
-# 		ylabel="scaled pressure")
