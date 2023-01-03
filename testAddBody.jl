@@ -76,7 +76,7 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=5430)
 
 	# make the fish simulation
 	return Simulation((6L+2,2L+2), [U,0.], L;
-		Δt=0.025, ν=U*L/Re, body=AutoBody(sdfFish,map))
+		Δt=0.025, ν=U*L/Re, body=AutoBody(sdf,map))
 end
 
 # Create the swimming shark
@@ -85,7 +85,7 @@ swimmer = fish(thk, amp; L, A, St);
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 23*period/24, length=24)
+cycle = range(0, 8*period, length=24*8)
 
 @gif for t ∈ cycle
 	measure!(swimmer, t*swimmer.L/swimmer.U)
@@ -99,18 +99,9 @@ sim_time(swimmer)
 
 # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
 function plot_vorticity(sim)
-	# @inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-	# contourf(sim.flow.σ',
-	# 		 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
-	# 		 aspect_ratio=:equal, legend=true, border=:none)
-
-	# contourf(sim.flow.u[:,:,2]', color=cgrad(:roma, rev=true),
-	# 		 clims=(-1, 1), linewidth=0,
-	# 		 aspect_ratio=:equal, legend=true, border=:none)
-
-
-	contourf(sim.flow.p',
-			 clims=(-2, 2), linewidth=0,
+	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
+	contourf(sim.flow.σ',
+			 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
 			 aspect_ratio=:equal, legend=true, border=:none)
 end
 
@@ -120,29 +111,3 @@ end
 	sim_step!(swimmer, t, remeasure=true, verbose=true)
 	plot_vorticity(swimmer)
 end
-
-
-
-
-@gif for t ∈ sim_time(swimmer) .+ cycle
-	sim_step!(swimmer, t, remeasure=true, verbose=false)
-	pressure = swimmer.flow.p'[2,:]
-	scatter([i for i in range(1,length(pressure))], pressure,
-		labels=permutedims(["pressure at L"]),
-		xlabel="scaled distance",
-		ylabel="scaled pressure",
-		ylims=(-0.4,0.4))
-end
-
-# function get_force(sim, t)
-# 	sim_step!(sim, t, remeasure=true)
-# 	return WaterLily.∮nds(sim.flow.p, sim.body, t*sim.L/sim.U) ./ (0.5*sim.L*sim.U^2)
-# end
-# forces = [get_force(swimmer, t) for t ∈ sim_time(swimmer) .+ cycle]
-
-# scatter(cycle, [first.(forces), last.(forces)],
-# 		labels=permutedims(["thrust", "side"]),
-# 		xlabel="scaled time",
-# 		ylabel="scaled force")
-
-# print(mean(first.(forces)))
