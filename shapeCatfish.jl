@@ -72,15 +72,15 @@ cycle = range(0, 23/24*period, length=24)
 			aspect_ratio=:equal, legend=false, border=:none)
 end
 
-function plot_pressure(sim)
-	contourf(sim.flow.p',
-			 clims=(-1, 1), linewidth=0,
-			 aspect_ratio=:equal, legend=true, border=:none)
-end
+# function plot_pressure(sim)
+# 	contourf(sim.flow.p',
+# 			 clims=(-1, 1), linewidth=0,
+# 			 aspect_ratio=:equal, legend=true, border=:none)
+# end
 
-# make a gif over a swimming cycle
-@gif for t ∈ sim_time(swimmer) .+ cycle
-	sim_step!(swimmer, t, remeasure=true, verbose=false)
-	# plot_vorticity(swimmer)
-	plot_pressure(swimmer)
-end
+# # make a gif over a swimming cycle
+# @gif for t ∈ sim_time(swimmer) .+ cycle
+# 	sim_step!(swimmer, t, remeasure=true, verbose=false)
+# 	# plot_vorticity(swimmer)
+# 	plot_pressure(swimmer)
+# end
