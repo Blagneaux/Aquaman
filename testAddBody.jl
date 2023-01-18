@@ -58,18 +58,28 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=5430)
 	# fish motion: travelling wave
 	U = 1
 	ω = 2π * St * U/(2A * L)
+
+	function mapFish(x,t)
+        xc = x
+        return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
+    end
+
+    function mapCircle(x,t)
+        return x - [t,0.]
+    end
+	
+	@fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
+    μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
+
 	function map(x, t)
 		xc = x - [2L,L] # shift origin
-		if xc[2]< L/4
-	
-			return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
-		else
-			return xc - [t,0.]
-		end
+        coeffFish = μ₀(sdfCircle(mapCircle(xc,t),t)-sdfFish(mapFish(xc,t),t),1)
+        coeffCircle = μ₀(sdfFish(mapFish(xc,t),t)-sdfCircle(mapCircle(xc,t),t),1)
+		return mapCircle(xc,t)*coeffCircle + mapFish(xc,t)*coeffFish
 	end
 
     # parameters of the circle
-    radius = L/10
+    radius = L/5
     sdfCircle(x,t) = (norm2(x - [radius-2L+2, radius+L/2]) - radius) 
 
     sdf(x,t) = minimum([sdfCircle(x,t), sdfFish(x,t)])
@@ -92,10 +102,6 @@ cycle = range(0, 8*period, length=24*8)
 	contour(swimmer.flow.μ₀[:,:,1]',
 			aspect_ratio=:equal, legend=true, border=:none)
 end
-
-# run the simulation a few cycles (this takes few seconds)
-sim_step!(swimmer, 10, remeasure=true)
-sim_time(swimmer)
 
 # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
 function plot_vorticity(sim)

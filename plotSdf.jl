@@ -19,44 +19,29 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
 	sdfFish(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
     
     # parameters of the circle
-    radius = L/10
-    sdfCircle(x,t) = (norm2(x - [radius-2L+2, radius+L/2]) - radius) 
+    radius = L/5
+    sdfCircle(x,t) = (norm2(x - [radius+2-4L, radius+L/2]) - radius) 
 
 	# fish motion: travelling wave
 	U = 1
 	ω = 2π * St * U/(2A * L)
 
     function mapFish(x,t)
-        xc = x
-        return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
+        return x - SVector(0., A * L * amp(s(x)) * sin(k*s(x)-ω*t)) + [t,0.0]
     end
 
     function mapCircle(x,t)
-        return x - [t,0.]
+        return x 
     end
 
+    @fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
+    μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
+
 	function map(x, t)
-		xc = x - [2L,L] # shift origin
-		# if sdfFish(mapFish(xc,t),t) < 1
-		# 	return mapFish(xc,t)
-        # elseif sdfCircle(mapCircle(xc,t),t) < 1
-        #     return mapCircle(xc,t)
-        # else
-        #     return xc + (mapFish(xc,t)-xc)*exp(-abs(sdfFish(mapFish(xc,t),t)/(sdfCircle(xc- [t,0.],t)))) + (mapCircle(xc,t)-xc)*exp(-abs(sdfCircle(xc- [t,0.],t)/(sdfFish(mapFish(xc,t),t))))
-        # end
-        if sdfFish(mapFish(xc,t),t) < sdfCircle(mapCircle(xc,t),t)
-            if sdfFish(mapFish(xc,t),t) <= 100
-                return mapFish(xc,t)
-            else
-                return mapFish(xc,t)/(sdfFish(mapFish(xc,t),t)-100)
-            end
-        else
-            if sdfCircle(mapCircle(xc,t),t) <= 100
-                return mapCircle(xc,t)
-            else
-                return mapCircle(xc,t)/(sdfCircle(mapCircle(xc,t),t)-100)
-            end
-        end
+		xc = x - [4L,L] # shift origin
+        coeffFish = μ₀(sdfCircle(mapCircle(xc,t),t)-sdfFish(mapFish(xc,t),t),1)
+        coeffCircle = μ₀(sdfFish(mapFish(xc,t),t)-sdfCircle(mapCircle(xc,t),t),1)
+		return mapCircle(xc,t)*coeffCircle + mapFish(xc,t)*coeffFish
 	end
 
     
@@ -83,7 +68,7 @@ function computeSDF(sim, t)
         x = loc(0, I)
         s[I] = sim.body.sdf(x,t*swimmer.L/swimmer.U)::Float64
     end
-    contourf(s', clims=(-L,2L), linewidth=0,
+    contourf(s', clims=(-L,3L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
 end
 
@@ -91,7 +76,3 @@ end
     sim_step!(swimmer, t, remeasure=true, verbose=true)
     computeSDF(swimmer, t)
 end
-
-# grid = -1:0.05:2
-# contourf(grid, grid, segment_sdf, clim=(-L,2L), linewidth=0)
-# contour!(grid, grid, segment_sdf, levels=[0], color=:black)  # zero contour
