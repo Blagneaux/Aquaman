@@ -15,33 +15,42 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
 	# fraction along fish length
 	s(x) = clamp(x[1]/L, 0, 1)
 
-	# fish geometry: thickened line SDF
-	sdfFish(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
-    
-    # parameters of the circle
-    radius = L/5
-    sdfCircle(x,t) = (norm2(x - [radius+2-4L, radius+L/2]) - radius) 
-
 	# fish motion: travelling wave
 	U = 1
 	ω = 2π * St * U/(2A * L)
 
+	# fish geometry: thickened line SDF
+	function sdfFish(x,t)
+        xc = x - SVector(0., A * L * amp(s(x)) * sin(k*s(x)-ω*t))
+        return √sum(abs2, xc - L * SVector(s(xc), 0.)) - L * thk(s(xc))
+    end
+    
+    # parameters of the circle
+    radius = L/5
+    sdfCircle(x,t) = (norm2(x - [radius+2-2L, radius+L/2]) - radius) 
+
     function mapFish(x,t)
-        return x - SVector(0., A * L * amp(s(x)) * sin(k*s(x)-ω*t)) + [t,0.0]
+        return x + [t, 0.]
     end
 
     function mapCircle(x,t)
-        return x 
+        return x - [t, 0.]
     end
 
-    @fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
-    μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
+    function map∅(x,t)
+        return x
+    end
+
+    @fastmath kern₀(d) = 0.5+0.5cos(π*d)
+    μ₀(d,ϵ) = kern₀(clamp(d/(2ϵ),0,1))
 
 	function map(x, t)
 		xc = x - [4L,L] # shift origin
-        coeffFish = μ₀(sdfCircle(mapCircle(xc,t),t)-sdfFish(mapFish(xc,t),t),1)
-        coeffCircle = μ₀(sdfFish(mapFish(xc,t),t)-sdfCircle(mapCircle(xc,t),t),1)
-		return mapCircle(xc,t)*coeffCircle + mapFish(xc,t)*coeffFish
+        len = 1
+        coef🐠 = μ₀(sdfCircle(mapCircle(xc,t),t),len)
+        coef⚪ = μ₀(sdfFish(mapFish(xc,t),t),len)
+        coef∅ = μ₀(2len - min(sdfCircle(mapCircle(xc,t),t),sdfFish(mapFish(xc,t),t)),len)
+		return mapCircle(xc,t)*coef🐠 + mapFish(xc,t)*coef⚪ + map∅(xc,t)*coef∅
 	end
 
     
@@ -58,7 +67,7 @@ swimmer = fish(thk, amp; L, A, St);
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 8*period, length=24*8)
+cycle = range(0, 8*period, length=24)
 
 
 
