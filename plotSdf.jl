@@ -34,24 +34,25 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
     end
 
     function mapCircle(x,t)
-        return x - [t, 0.]
+        return x
     end
 
     function map∅(x,t)
         return x
     end
 
-    @fastmath kern₀(d) = 0.5+0.5cos(π*d)
-    μ₀(d,ϵ) = kern₀(clamp(d/(2ϵ),0,1))
+    @fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
+    μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
 
-	function map(x, t)
+    function map(x, t)
 		xc = x - [4L,L] # shift origin
-        len = 1
-        coef🐠 = μ₀(sdfCircle(mapCircle(xc,t),t),len)
-        coef⚪ = μ₀(sdfFish(mapFish(xc,t),t),len)
-        coef∅ = μ₀(2len - min(sdfCircle(mapCircle(xc,t),t),sdfFish(mapFish(xc,t),t)),len)
-		return mapCircle(xc,t)*coef🐠 + mapFish(xc,t)*coef⚪ + map∅(xc,t)*coef∅
-	end
+        len∿ = 1
+
+        coef🐠 = μ₀(min(sdfCircle(mapCircle(xc,t),t),75)-sdfFish(mapFish(xc,t),t),len∿)
+        coef🔴 = μ₀(min(sdfFish(mapFish(xc,t),t),75)-sdfCircle(mapCircle(xc,t),t),len∿)
+
+		return mapCircle(xc,t)*coef🔴 + mapFish(xc,t)*coef🐠
+    end
 
     
     sdf(x,t) = minimum([sdfCircle(x,t), sdfFish(x,t)])
@@ -67,7 +68,7 @@ swimmer = fish(thk, amp; L, A, St);
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 8*period, length=24)
+cycle = range(0, 23*period/3, length=24*8)
 
 
 
@@ -77,7 +78,7 @@ function computeSDF(sim, t)
         x = loc(0, I)
         s[I] = sim.body.sdf(x,t*swimmer.L/swimmer.U)::Float64
     end
-    contourf(s', clims=(-L,3L), linewidth=0,
+    contourf(s', clims=(-L/2,2L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
 end
 
