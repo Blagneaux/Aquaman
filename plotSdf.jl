@@ -21,20 +21,21 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
 
 	# fish geometry: thickened line SDF
 	function sdfFish(x,t)
-        xc = x - SVector(0., A * L * amp(s(x)) * sin(k*s(x)-ω*t))
+        xc = x - [0., 100L]
         return √sum(abs2, xc - L * SVector(s(xc), 0.)) - L * thk(s(xc))
     end
     
     # parameters of the circle
     radius = L/5
-    sdfCircle(x,t) = (norm2(x - [radius+2-2L, radius+L/2]) - radius) 
+    sdfCircle(x,t) = (norm2(x - [radius+2-2L, radius+L/2 - 100L]) - radius) 
 
     function mapFish(x,t)
-        return x + [t, 0.]
+        xc = x + [t, 100L]
+        return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
     end
 
     function mapCircle(x,t)
-        return x
+        return x - [0., 100L]
     end
 
     function map∅(x,t)
@@ -48,8 +49,8 @@ function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
 		xc = x - [4L,L] # shift origin
         len∿ = 1
 
-        coef🐠 = μ₀(min(sdfCircle(mapCircle(xc,t),t),75)-sdfFish(mapFish(xc,t),t),len∿)
-        coef🔴 = μ₀(min(sdfFish(mapFish(xc,t),t),75)-sdfCircle(mapCircle(xc,t),t),len∿)
+        coef🐠 = μ₀(sdfCircle(mapCircle(xc,t),t)-sdfFish(mapFish(xc,t),t),len∿)
+        coef🔴 = μ₀(sdfFish(mapFish(xc,t),t)-sdfCircle(mapCircle(xc,t),t),len∿)
 
 		return mapCircle(xc,t)*coef🔴 + mapFish(xc,t)*coef🐠
     end
@@ -70,7 +71,7 @@ swimmer = fish(thk, amp; L, A, St);
 period = 2A/St
 cycle = range(0, 23*period/3, length=24*8)
 
-
+foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
 function computeSDF(sim, t)
     s = copy(sim.flow.p)
@@ -80,9 +81,32 @@ function computeSDF(sim, t)
     end
     contourf(s', clims=(-L/2,2L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
+    savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
 
 @gif for t ∈ sim_time(swimmer) .+ cycle
     sim_step!(swimmer, t, remeasure=true, verbose=true)
     computeSDF(swimmer, t)
 end
+
+# @gif for t ∈ cycle
+# 	measure!(swimmer, t*swimmer.L/swimmer.U)
+# 	contour(swimmer.flow.μ₀[:,:,1]',
+# 			aspect_ratio=:equal, legend=true, border=:none)
+# end
+
+# # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
+# function plot_vorticity(sim,t)
+# 	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
+# 	contourf(sim.flow.σ',
+# 			 color=palette(:roma), clims=(-1, 1), linewidth=0,
+# 			 aspect_ratio=:equal, legend=true, border=:none)
+#     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
+# end
+
+
+# # make a gif over a swimming cycle
+# @gif for t ∈ sim_time(swimmer) .+ cycle
+# 	sim_step!(swimmer, t, remeasure=true, verbose=true)
+# 	plot_vorticity(swimmer,t)
+# end
