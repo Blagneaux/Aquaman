@@ -1,6 +1,8 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
 
+include("testAddBody.jl")
+
 fit = y -> scale(
         interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
         range(0,1,length=length(y))
@@ -11,61 +13,46 @@ thk = fit(width)
 envelope = [0.2,0.21,0.23,0.4,0.88,1.0]
 amp = fit(envelope)
 
+function circle(radius, offset)
+	# circle geometry
+	sdf(x,t) = (norm2(x - [radius+offset[1], radius+offset[2]]) - radius) 
+
+	# circle motion
+	function map(x, t)
+		xc = x - [2L,L] # shift origin
+		return xc - [t,0.]
+	end
+
+	# make the circle body
+	return SVector(sdf,map)
+end
+
 function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
 	# fraction along fish length
 	s(x) = clamp(x[1]/L, 0, 1)
 
+	# fish geometry: thickened line SDF
+	sdf(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
+
 	# fish motion: travelling wave
 	U = 1
 	ω = 2π * St * U/(2A * L)
+	function map(x, t)
+		xc = x - [2L,L]# shift origin
+		return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
+	end
 
-	# fish geometry: thickened line SDF
-	function sdfFish(x,t)
-        xc = x - [0., 100L]
-        return √sum(abs2, xc - L * SVector(s(xc), 0.)) - L * thk(s(xc))
-    end
-    
-    # parameters of the circle
-    radius = L/5
-    sdfCircle(x,t) = (norm2(x - [radius+2-2L, radius+L/2 - 100L]) - radius) 
-
-    function mapFish(x,t)
-        xc = x + [t, 100L]
-        return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
-    end
-
-    function mapCircle(x,t)
-        return x - [0., 100L]
-    end
-
-    function map∅(x,t)
-        return x
-    end
-
-    @fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
-    μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
-
-    function map(x, t)
-		xc = x - [4L,L] # shift origin
-        len∿ = 1
-
-        coef🐠 = μ₀(sdfCircle(mapCircle(xc,t),t)-sdfFish(mapFish(xc,t),t),len∿)
-        coef🔴 = μ₀(sdfFish(mapFish(xc,t),t)-sdfCircle(mapCircle(xc,t),t),len∿)
-
-		return mapCircle(xc,t)*coef🔴 + mapFish(xc,t)*coef🐠
-    end
-
-    
-    sdf(x,t) = minimum([sdfCircle(x,t), sdfFish(x,t)])
-
-	# make the fish simulation
-	return Simulation((6L+2,2L+2), [U,0.], L;
-		Δt=0.025, ν=U*L/Re, body=AutoBody(sdf,map))
+	# make the fish body
+	return SVector(sdf,map)
 end
 
 # Create the swimming shark
 L,A,St = 3*2^5,0.1,0.3
-swimmer = fish(thk, amp; L, A, St);
+fishBody = fish(thk, amp; L, A, St);
+circleBody = circle(20, [-2L+2,L/2])
+
+swimmerBody = addBody([fishBody, circleBody])
+swimmer = Simulation((6L+2,2L+2), [U,0.], L; U, Δt=0.025, ν=U*L/5430, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
