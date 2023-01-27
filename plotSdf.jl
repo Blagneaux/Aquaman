@@ -48,10 +48,11 @@ end
 
 # Create the swimming shark
 L,A,St = 3*2^5,0.1,0.3
-fishBody = fish(thk, amp; L, A, St);
+fishBody = fish(thk, amp; L, A, St)
 circleBody = circle(20, [-2L+2,L/2])
+circleBody2 = circle(10,[-2L+2,-3L/4])
 
-swimmerBody = addBody([fishBody, circleBody])
+swimmerBody = addBody([fishBody, circleBody, circleBody2])
 swimmer = Simulation((6L+2,2L+2), [U,0.], L; U, Δt=0.025, ν=U*L/5430, body=swimmerBody)
 
 # Save a time span for one swimming cycle

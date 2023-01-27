@@ -24,9 +24,13 @@ using WaterLily
 	return (sdfList, mapList)
 end
 
-function addBody(Bodies)
+function addBody(Bodies::Array{SVector{Function, Function}})
 	# The default distance between two independent bodies is set to 10000. It impacts both their placement to not disturbe the other maps,
-	# in the function 'Gurvan', and the selection of the second closest body to a given point in the function 'min_excluding_i'
+	# in the function 'Gurvan', and the selection of the second closest body to a given point in the function 'min_excluding_i'.
+	# The coefficients are computed to determine where each map should be used, therefore creating a global map that impacts the 
+	# whole simulation window.
+
+	# The output can directly be used as the body argument in the Simulation function provided by WaterLily.
 
 	sdfList, mapList = Gurvan(Bodies)
 
