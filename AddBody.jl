@@ -4,7 +4,7 @@ using WaterLily
 μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
 
 @fastmath function Gurvan(Bodies)
-	# Create a different offset for each of the bodies so that when the general map is computed, there is no problem of
+	# Creates a different offset for each of the bodies so that when the general map is computed, there is no problem of
 	# body spontaneous generation. This offset is then substracted when the individual map is applied where it needs to be thus
 	# hiding its existence.
 	
