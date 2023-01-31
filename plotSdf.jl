@@ -1,8 +1,6 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
 
-include("AddBody.jl")
-
 fit = y -> scale(
         interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
         range(0,1,length=length(y))

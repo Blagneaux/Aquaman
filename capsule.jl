@@ -18,27 +18,10 @@ function capsule(radius1, radius2, h)
     end
     
     function map(x,t)
-        return x - [h,h]
+        xc = x - [7h,258/2]
+        return xc + [t, 0]
     end
 
 	# make the simulation
-	Simulation((202,122), [1.,0.], radius1; ν=radius1/250, body=AutoBody(sdf,map))
-end
-
-swimmer = capsule(9.5,0.5,60)
-
-function computeSDF(sim, t)
-    s = copy(sim.flow.p)
-    for I ∈ inside(s)
-        x = loc(0, I)
-        s[I] = sim.body.sdf(x,t*swimmer.L/swimmer.U)::Float64
-    end
-    contourf(s', clims=(-10,50), linewidth=0,
-            aspect_ratio=:equal, legend=true, border=:none)
-    savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
-end
-
-@gif for t ∈ sim_time(swimmer)
-    sim_step!(swimmer, t, remeasure=true, verbose=true)
-    computeSDF(swimmer, t)
+	return SVector(sdf,map)
 end

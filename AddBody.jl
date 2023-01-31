@@ -3,7 +3,7 @@ using WaterLily
 @fastmath kern₀(d) = 0.5+0.5d+0.5sin(π*d)/π
 μ₀(d,ϵ) = kern₀(clamp(d/ϵ,-1,1))
 
-@fastmath function Gurvan(Bodies)
+function Gurvan(Bodies)
 	# Creates a different offset for each of the bodies so that when the general map is computed, there is no problem of
 	# body spontaneous generation. This offset is then substracted when the individual map is applied where it needs to be thus
 	# hiding its existence.
