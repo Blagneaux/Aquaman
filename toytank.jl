@@ -1,5 +1,6 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
+
 include("capsule.jl")
 
 function wall(a, b)
