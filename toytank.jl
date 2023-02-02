@@ -19,49 +19,6 @@ function wall(a, b)
     return SVector(sdf, map)
 end
 
-# function circle(radius=8;Re=250,n=10,m=6)
-#     center, ν = radius*m/2, radius/Re
-#     a = [-3n*radius,2m*radius/3]
-#     b = [2n*radius,2m*radius/3]
-
-#     c = [-3n*radius,-2m*radius/3]
-#     d = [2n*radius,-2m*radius/3]
-
-#     function sdfRect(x,t)
-#         xa = x-a
-#         ba = b-a
-#         h = clamp(dot(xa,ba)/dot(ba,ba), 0.0, 1.0)
-#         return norm2(xa - ba*h) - 10
-#     end
-
-#     function sdfRect2(x,t)
-#         xa = x-a
-#         ca = c-a
-#         h = clamp(dot(xa,ca)/dot(ca,ca), 0.0, 1.0)
-#         return norm2(xa - ca*h) - 15
-#     end
-
-#     function sdfRect3(x,t)
-#         xc = x-c
-#         dc = d-c
-#         h = clamp(dot(xc,dc)/dot(dc,dc), 0.0, 1.0)
-#         return norm2(xc - dc*h) - 10
-#     end
-
-#     function sdfRect4(x,t)
-#         xb = x-b
-#         db = d-b
-#         h = clamp(dot(xb,db)/dot(db,db), 0.0, 1.0)
-#         return norm2(xb - db*h) - 10
-#     end
-
-#     sdfTank(x,t) = minimum([sdfRect(x,t),sdfRect(x,t), sdfRect3(x,t), sdfRect(x,t)])
-
-#     sdf(x,t) = minimum([sdfTank(x,t), sdfCercle(x,t)])
-
-#     Simulation((6L+2,2L+2), [0.,0.], radius, U=1; ν, body=AutoBody(sdf,map))
-# end
-
 capsuleShape = capsule(9.5, 0.5, 60)
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
