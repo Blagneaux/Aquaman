@@ -1,72 +1,57 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
-using Statistics
 
-fit = y -> scale(
-        interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
-        range(0,1,length=length(y))
-    )
+include("capsule.jl")
 
-width = [0.005, 0.05, 0.065, 0.07, 0.075, 0.078, 0.078, 0.075, 0.075, 0.0725, 0.072 ,0.0715,0.071,0.07,0.065,0.0625,0.0575,0.053,0.05,0.0475,0.0425,0.04,0.035,0.03,0.025,0.02,0.0175,0.0175,0.017,0.0165,0.016,0.0155,0.015,0.015,0.015,0.015,0.015,0.015]
-thk = fit(width)
+function wall(a, b)
+    function sdf(x,t)
+        xa = x-a
+        ba = b-a
+        h = clamp(dot(xa,ba)/dot(ba,ba), 0.0, 1.0)
+        return norm2(xa - ba*h) - 10
+    end
 
-envelope = [0.2,0.21,0.23,0.4,0.88,1.0]
-amp = fit(envelope)
+    function map(x,t)
+        xc = x - [5L, 258/2]
+        return xc
+    end
 
-function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=5430)
-	# fraction along fish length
-	s(x) = clamp(x[1]/L, 0, 1)
-
-	# fish geometry: thickened line SDF
-	sdfFish(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
-
-	# fish motion: travelling wave
-	U = 1
-	ω = 2π * St * U/(2A * L)
-	function map(x, t)
-		xc = x - [2L,L] # shift origin
-		if xc[2]< L/4
-	
-			return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
-		else
-			return xc - [t,0.]
-		end
-	end
-
-    # parameters of the circle
-    radius = L/10
-    sdfCircle(x,t) = (norm2(x - [radius-2L+2, radius+L/2]) - radius) 
-
-    sdf(x,t) = minimum([sdfCircle(x,t), sdfFish(x,t)])
-
-	# make the fish simulation
-	return Simulation((6L+2,2L+2), [U,0.], L;
-		Δt=0.025, ν=U*L/Re, body=AutoBody(sdfFish,map))
+    return SVector(sdf, map)
 end
 
-# Create the swimming shark
+capsuleShape = capsule(9.5, 0.5, 60)
+wallShape1 = wall([-600,110], [400,110])
+wallShape2 = wall([-600,-110], [400,-110])
+
 L,A,St = 3*2^5,0.1,0.3
-swimmer = fish(thk, amp; L, A, St);
+swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
+
+swimmer = Simulation((642,258), [0.,0.], 70, U=1; ν=70/20461, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 23*period/24, length=24)
+cycle = range(0, period*23/12, length=24*2)
 
-@gif for t ∈ cycle
-	measure!(swimmer, t*swimmer.L/swimmer.U)
-	contour(swimmer.flow.μ₀[:,:,1]',
-			aspect_ratio=:equal, legend=true, border=:none)
-end
 
-# run the simulation a few cycles (this takes few seconds)
-sim_step!(swimmer, 10, remeasure=true)
-sim_time(swimmer)
+# @gif for t ∈ cycle
+# 	measure!(swimmer, t*swimmer.L/swimmer.U)
+# 	contour(swimmer.flow.μ₀[:,:,1]',
+# 			aspect_ratio=:equal, legend=true, border=:none)
+# 	plot!(Shape([0,642,642,0],[9,9,29,29]), legend=false, c=:black)
+# 	plot!(Shape([0,642,642,0],[229,229,249,249]), legend=false, c=:black)
+# end
+
+# # run the simulation a few cycles (this takes few seconds)
+# sim_step!(swimmer, 10, remeasure=true)
+# sim_time(swimmer)
 
 # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
 function plot_vorticity(sim)
 	contourf(sim.flow.p',
 			 clims=(-2, 2), linewidth=0,
 			 aspect_ratio=:equal, legend=true, border=:none)
+	plot!(Shape([0,642,642,0],[9,9,29,29]), legend=false, c=:black)
+	plot!(Shape([0,642,642,0],[229,229,249,249]), legend=false, c=:black)
 end
 
 
@@ -78,10 +63,10 @@ end
 
 @gif for t ∈ sim_time(swimmer) .+ cycle
 	sim_step!(swimmer, t, remeasure=true, verbose=false)
-	pressure = swimmer.flow.p'[2,:]
+	pressure = swimmer.flow.p'[30,:]
 	scatter([i for i in range(1,length(pressure))], pressure,
-		labels=permutedims(["pressure at L"]),
+		labels=permutedims(["pressure on the walls"]),
 		xlabel="scaled distance",
 		ylabel="scaled pressure",
-		ylims=(-0.4,0.4))
+		ylims=(-0.3,0.3))
 end
