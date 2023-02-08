@@ -30,7 +30,7 @@ swimmer = Simulation((642,258), [0.,0.], L, U=1.; ν=U*L/6820, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, period*23/6, length=24*4)
+cycle = range(0, period*23/3, length=24*8)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
