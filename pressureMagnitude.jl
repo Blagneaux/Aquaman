@@ -19,7 +19,7 @@ function wall(a, b)
     return SVector(sdf, map)
 end
 
-L,A,St,U = 71.2,0.1,0.3,1.0
+L,A,St,U = 71.2,0.466,0.61,0.89
 capsuleShape = capsule(L, St, A, 1.5)
 
 wallShape1 = wall([-600,110], [400,110])
@@ -27,11 +27,11 @@ wallShape2 = wall([-600,-110], [400,-110])
 
 swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
 
-swimmer = Simulation((642,258), [0.,0.], L, U=1.; ν=U*L/6820, body=swimmerBody)
+swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, period*23/24, length=24)
+cycle = range(0, period*23/5, length=24*4)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -66,14 +66,14 @@ end
 # 	plot_vorticity(swimmer, t)
 # end
 
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=true)
-# 	pressure1 = swimmer.flow.p'[30,:]
-# 	pressure2 = swimmer.flow.p'[228,:]
-# 	scatter([i for i in range(1,length(pressure1))], [pressure1, pressure2],
-# 		labels=permutedims(["pressure on the bottom wall", "pressure on the top wall"]),
-# 		xlabel="scaled distance",
-# 		ylabel="scaled pressure",
-# 		ylims=(-2,2))
-# 	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
-# end
+@gif for t ∈ sim_time(swimmer) .+ cycle
+	sim_step!(swimmer, t, remeasure=true, verbose=true)
+	pressure1 = swimmer.flow.p'[30,:]
+	pressure2 = swimmer.flow.p'[228,:]
+	scatter([i for i in range(1,length(pressure1))], [pressure1, pressure2],
+		labels=permutedims(["pressure on the bottom wall", "pressure on the top wall"]),
+		xlabel="scaled distance",
+		ylabel="scaled pressure",
+		ylims=(-2,2))
+	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
+end

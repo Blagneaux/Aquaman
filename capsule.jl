@@ -20,12 +20,12 @@ function capsule(L, St, A, k)
 	sdf(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
 
     # fish motion: travelling wave
-	U = 1
+	U = 0.89
 	ω = 2π * St * U/(2A * L)
     
     function map(x,t)
-        xc = x - [7L,258/2] + [t,0.]
-        return xc - SVector(0., 0.42 * L * amp(s(xc)) * sin(-ω*t)) 
+        xc = x - [517,258/2] + [U*t,0.]
+        return xc - SVector(0., 22.5 * amp(s(xc)) * sin(-ω*t)) 
     end
 
 	# make the simulation
