@@ -19,18 +19,18 @@ function wall(a, b)
     return SVector(sdf, map)
 end
 
-L,A,St,U = 71.2,0.1,0.21,1.0
-capsuleShape = capsule(L, St, A, 1.5);
+L,A,St,U = 71.2,0.466,0.61,0.89
+capsuleShape = capsule(L, St, A);
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
 
 swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
 
-swimmer = Simulation((642,258), [0.,0.], L, U=1.; ν=U*L/6820, body=swimmerBody)
+swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, period*23/3, length=24*8)
+cycle = range(0, period*23/6, length=24*8)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -38,7 +38,7 @@ foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 function plot_vorticity(sim,t)
 	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
 	contourf(sim.flow.σ',
-			 color=palette(:BuGn), clims=(-5, 5), linewidth=0,
+			 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
 			 aspect_ratio=:equal, legend=true, border=:none)
     plot!(Shape([0,642,642,0],[9,9,29,29]), legend=false, c=:black)
     plot!(Shape([0,642,642,0],[229,229,249,249]), legend=false, c=:black)

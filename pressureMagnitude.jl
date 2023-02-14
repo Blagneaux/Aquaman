@@ -20,7 +20,7 @@ function wall(a, b)
 end
 
 L,A,St,U = 71.2,0.466,0.61,0.89
-capsuleShape = capsule(L, St, A, 1.5)
+capsuleShape = capsule(L, St, A)
 
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
@@ -49,22 +49,22 @@ end
 # sim_time(swimmer)
 
 
-# # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
-# function plot_vorticity(sim, t)
-# 	contourf(sim.flow.p',
-# 			 clims=(-0.5, 0.5), linewidth=0.1,
-# 			 aspect_ratio=:equal, legend=true, border=:none)
-# 	plot!(Shape([0,642,642,0],[9,9,29,29]), legend=false, c=:black)
-# 	plot!(Shape([0,642,642,0],[229,229,249,249]), legend=false, c=:black)
-#   savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
-# end
+# plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
+function plot_vorticity(sim, t)
+	contourf(sim.flow.p',
+			 clims=(-0.5, 0.5), linewidth=0.1,
+			 aspect_ratio=:equal, legend=true, border=:none)
+	plot!(Shape([0,642,642,0],[9,9,29,29]), legend=false, c=:black)
+	plot!(Shape([0,642,642,0],[229,229,249,249]), legend=false, c=:black)
+  savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
+end
 
 
-# # make a gif over a swimming cycle
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=true)
-# 	plot_vorticity(swimmer, t)
-# end
+# make a gif over a swimming cycle
+@gif for t ∈ sim_time(swimmer) .+ cycle
+	sim_step!(swimmer, t, remeasure=true, verbose=true)
+	plot_vorticity(swimmer, t)
+end
 
 @gif for t ∈ sim_time(swimmer) .+ cycle
 	sim_step!(swimmer, t, remeasure=true, verbose=true)

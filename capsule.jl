@@ -12,7 +12,7 @@ thk = fit(width)
 envelope = [0, 0, 0.2, 0.4, 0.6, 0.8, 1.]
 amp = fit(envelope)
 
-function capsule(L, St, A, k)
+function capsule(L, St, A)
 	# fraction along fish length
 	s(x) = clamp(x[1]/L, 0, 1)
 
@@ -24,8 +24,15 @@ function capsule(L, St, A, k)
 	ω = 2π * St * U/(2A * L)
     
     function map(x,t)
-        xc = x - [517,258/2] + [U*t,0.]
-        return xc - SVector(0., 22.5 * amp(s(xc)) * sin(-ω*t)) 
+        xc = x - [517 + 9.7 + 6.5,258/2] + [U*t,0.]
+        amp = 25*π/180
+        # return xc - SVector(0., 22.5 * amp(s(xc)) * sin(-ω*t)) 
+        α = amp*sin(4t*U/L)
+        R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
+        if xc[1]>0
+            xc = R*xc
+        end
+        return xc + [9.7+6.5,0.]
     end
 
 	# make the simulation
