@@ -1,57 +1,33 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
 
-fit = y -> scale(
-        interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
-        range(0,1,length=length(y))
-    )
+include("capsule.jl")
 
-width = [0.02, 0.07, 0.06, 0.048, 0.03, 0.019, 0.01]
-thk = fit(width)
-envelope = [0.2,0.21,0.23,0.4,0.88,1.0]
-amp = fit(envelope)
+function wall(a, b)
+    function sdf(x,t)
+        xa = x-a
+        ba = b-a
+        h = clamp(dot(xa,ba)/dot(ba,ba), 0.0, 1.0)
+        return norm2(xa - ba*h) - 10
+    end
 
-function circle(radius, offset)
-	# circle geometry
-	sdf(x,t) = (norm2(x - [radius+offset[1], radius+offset[2]]) - radius) 
+    function map(x,t)
+        xc = x - [5L, 258/2]
+        return xc
+    end
 
-	# circle motion
-	function map(x, t)
-		xc = x - [2L,L] # shift origin
-		return xc - [t,0.]
-	end
-
-	# make the circle body
-	return SVector(sdf,map)
+    return SVector(sdf, map)
 end
 
-function fish(thk, amp, k=5.3; L=2^6, A=0.1, St=0.3, Re=1e4)
-	# fraction along fish length
-	s(x) = clamp(x[1]/L, 0, 1)
+L,A,St,U = 71.2,0.466,0.61,0.89
+capsuleShape = capsule(L, St, A)
 
-	# fish geometry: thickened line SDF
-	sdf(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
+wallShape1 = wall([-600,110], [400,110])
+wallShape2 = wall([-600,-110], [400,-110])
 
-	# fish motion: travelling wave
-	U = 1
-	ω = 2π * St * U/(2A * L)
-	function map(x, t)
-		xc = x - [2L,L]# shift origin
-		return xc - SVector(0., A * L * amp(s(xc)) * sin(k*s(xc)-ω*t))
-	end
+swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
 
-	# make the fish body
-	return SVector(sdf,map)
-end
-
-# Create the swimming shark
-L,A,St,U = 3*2^5,0.1,0.3,1
-fishBody = fish(thk, amp; L, A, St)
-circleBody = circle(20, [-2L+2,L/2])
-circleBody2 = circle(10,[-2L+2,-3L/4])
-
-swimmerBody = addBody([fishBody, circleBody, circleBody2])
-swimmer = Simulation((6L+2,2L+2), [U,0.], L; U, Δt=0.025, ν=U*L/5430, body=swimmerBody)
+swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
@@ -65,7 +41,7 @@ function computeSDF(sim, t)
         x = loc(0, I)
         s[I] = sim.body.sdf(x,t*swimmer.L/swimmer.U)::Float64
     end
-    contourf(s', clims=(-L/2,2L), linewidth=0,
+    contourf(s', clims=(-1,L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end

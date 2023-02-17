@@ -74,11 +74,11 @@ void loop() {
       myStepper.step(-2);
     
       if (currentMotorTime - previousMotorTime > MotorInterval){
-        int angle = 90 + 22.5 * sin(t * 2 * PI / 1.225);           // calculate the angle based on the sinusoidal signal, offset by 90 degrees
-        angle = constrain(angle, 68.5, 122.5);                       // ensure the angle stays within the range of 60 to 120 degrees
+        int angle = 85 + 25 * sin(t * 2 * PI / 1.225);           // calculate the angle based on the sinusoidal signal, offset by 90 degrees
+        angle = constrain(angle, 60, 110);                       // ensure the angle stays within the range of 60 to 120 degrees
         flapServo.write(angle);                                  // set the servo angle
         previousMotorTime = currentMotorTime;
-        t += 0.01215;
+        t += 0.0122;
       }
     }    
 
@@ -97,7 +97,7 @@ void loop() {
   }
    
   if ((isEnd == true or isHome == false) and digitalRead(switchPin01) != switchNotTouch){
-    flapServo.write(90);  
+    flapServo.write(85);  
     // Set the motor speed (RPMs):
     myStepper.setSpeed(150);
 

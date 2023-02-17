@@ -6,11 +6,14 @@ fit = y -> scale(
         range(0,1,length=length(y))
     )
 
-width = [0, 0.05, 0.07, 0.085, 0.0925, 0.0925, 0.0925, 0.0925, 0.0925, 0.0925, 0.0925, 0.09, 0.088, 0.086, 0.084, 0.082, 0.08, 0.078, 0.076, 0.074, 0.072, 0.07, 0.068, 0.066, 0.064, 0.062, 0.06, 0.058, 0.056, 0.054, 0.052, 0.05, 0.048, 0.046, 0.044, 0.042, 0.04, 0.038, 0.036, 0.034, 0.032, 0.03, 0.028, 0.026, 0.024, 0.022, 0.02, 0.018, 0.016, 0.014, 0.012, 0.01, 0.008, 0.006, 0.004, 0.002, 0]
+width = [0.14, 0.14, 0.12, 0.10, 0.08, 0.06, 0.04]
 thk = fit(width)
 
 envelope = [0, 0, 0.2, 0.4, 0.6, 0.8, 1.]
 amp = fit(envelope)
+
+@fastmath kernᵦ(d) = 0.5+0.5d+0.5sin(π*d)/π
+μᵦ(d,ϵ) = kernᵦ(clamp(d/ϵ,-1,1))
 
 function capsule(L, St, A)
 	# fraction along fish length
@@ -24,15 +27,19 @@ function capsule(L, St, A)
 	ω = 2π * St * U/(2A * L)
     
     function map(x,t)
-        xc = x - [517 + 9.7 + 6.5,258/2] + [U*t,0.]
-        amp = 25*π/180
-        # return xc - SVector(0., 22.5 * amp(s(xc)) * sin(-ω*t)) 
-        α = amp*sin(4t*U/L)
-        R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
-        if xc[1]>0
-            xc = R*xc
-        end
-        return xc + [9.7+6.5,0.]
+        # xc = x - [517 + 9.7,258/2] + [U*t,0.]
+        # amp = π/16
+        xc = x - [517,258/2] + [U*t,0.]
+        return xc - SVector(0., 25 * amp(s(xc)) * sin(-ω*t)) 
+        # α = amp*sin(4t*U/L)
+        # R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
+        # I₂ = @SMatrix [1 0; 0 1]
+        # xc = R*xc
+        # # if xc[1]>0
+        #     # xc = R*xc
+        # # end
+        # xc = (μᵦ(xc[1],10).*R + (1-μᵦ(xc[1],10)).*I₂)*xc
+        # return xc + [9.7,0.]
     end
 
 	# make the simulation

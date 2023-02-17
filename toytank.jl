@@ -19,18 +19,18 @@ function wall(a, b)
     return SVector(sdf, map)
 end
 
-L,A,St,U = 71.2,0.466,0.61,0.89
+L,A,St,U = 71.2-6.5,0.466,0.61,0.89
 capsuleShape = capsule(L, St, A);
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
 
 swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
 
-swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
+swimmer = Simulation((642,258), [0.,0.], (L+6.5), U=0.89; ν=U*(L+6.5)/6070, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, period*23/6, length=24*8)
+cycle = range(0, period*23/24, length=24)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -48,6 +48,6 @@ end
 
 # make a gif over a swimming cycle
 @gif for t ∈ sim_time(swimmer) .+ cycle
-	sim_step!(swimmer, t, remeasure=true, verbose=true)
+	sim_step!(swimmer, t, remeasure=true, verbose=false)
 	plot_vorticity(swimmer,t)
 end
