@@ -1,5 +1,15 @@
-using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
+using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images, Statistics
 using LinearAlgebra: norm2
+using ImageView
+
+_nthread = Threads.nthreads()
+if _nthread==1
+    @warn "WaterLily.jl is running on a single thread.\n
+Launch Julia with multiple threads to enable multithreaded capabilities:\n
+    \$julia -t auto $PROGRAM_FILE"
+else
+    print("WaterLily.jl is running on ", _nthread, " thread(s)\n")
+end
 
 function block(L=2^5;Re=250,U=1,amp=π/4,ϵ=0.5,thk=2ϵ+√2)
     # Line segment SDF
@@ -10,25 +20,19 @@ function block(L=2^5;Re=250,U=1,amp=π/4,ϵ=0.5,thk=2ϵ+√2)
     # Oscillating motion and rotation
     function map(x,t)
         α = amp*cos(t*U/L); R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
-        R * (x.-SVector(3L-L*sin(t*U/L),4L))
+        R * (x.-SVector(3L,4L))
     end
     Simulation((6L+2,6L+2),zeros(2),L;U,ν=U*L/Re,body=AutoBody(sdf,map),ϵ)
 end
 
 swimmer = block()
-cycle = range(0, 4π, length=24*8)
+cycle = range(0, 8π, length=24*8)
 
-@gif for t ∈ cycle
-	measure!(swimmer, t*swimmer.L/swimmer.U)
-	contour(swimmer.flow.μ₀[:,:,1]',
-			aspect_ratio=:equal, legend=true, border=:none)
-end
+moyFull = []
 
 # plot the pressure scaled by the body length L and flow speed U
 function plot_pressure(sim, t)
-	contourf(sim.flow.p',
-			 clims=(-1000, 1000), linewidth=0.1,
-			 aspect_ratio=:equal, legend=true, border=:none)
+    append!(moyFull,[mean(sim.flow.p)]) 
 end
 
 
@@ -37,3 +41,8 @@ end
 	sim_step!(swimmer, t, remeasure=true, verbose=false)
 	plot_pressure(swimmer, t)
 end
+
+scatter([i for i in range(1,length(moyFull))], [moyFull],
+    labels=permutedims(["Mean pressure coefficient on the whole window"]),
+    xlabel="scaled time",
+    ylabel="scaled pressure")

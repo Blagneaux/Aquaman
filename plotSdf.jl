@@ -3,6 +3,15 @@ using LinearAlgebra: norm2
 
 include("capsule.jl")
 
+_nthread = Threads.nthreads()
+if _nthread==1
+    @warn "WaterLily.jl is running on a single thread.\n
+Launch Julia with multiple threads to enable multithreaded capabilities:\n
+    \$julia -t auto $PROGRAM_FILE"
+else
+    print("WaterLily.jl is running on ", _nthread, " thread(s)\n")
+end
+
 function wall(a, b)
     function sdf(x,t)
         xa = x-a
@@ -28,6 +37,7 @@ wallShape2 = wall([-600,-110], [400,-110])
 swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
 
 swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
+# swimmerBody = AutoBody(capsuleShape[1], capsuleShape[2])
 
 # Save a time span for one swimming cycle
 period = 2A/St
@@ -39,9 +49,10 @@ function computeSDF(sim, t)
     s = copy(sim.flow.p)
     for I ∈ inside(s)
         x = loc(0, I)
-        s[I] = sim.body.sdf(x,t*swimmer.L/swimmer.U)::Float64
+        s[I] = sim.body.sdf(x,t*sim.L/sim.U)::Float64
     end
-    contourf(s', clims=(-1,L), linewidth=0,
+
+    contourf(s'.+fish', clims=(-L,2L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
@@ -55,20 +66,4 @@ end
 # 	measure!(swimmer, t*swimmer.L/swimmer.U)
 # 	contour(swimmer.flow.μ₀[:,:,1]',
 # 			aspect_ratio=:equal, legend=true, border=:none)
-# end
-
-# # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
-# function plot_vorticity(sim,t)
-# 	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-# 	contourf(sim.flow.σ',
-# 			 color=palette(:roma), clims=(-1, 1), linewidth=0,
-# 			 aspect_ratio=:equal, legend=true, border=:none)
-#     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
-# end
-
-
-# # make a gif over a swimming cycle
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=true)
-# 	plot_vorticity(swimmer,t)
 # end

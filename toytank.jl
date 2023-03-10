@@ -3,6 +3,15 @@ using LinearAlgebra: norm2
 
 include("capsule.jl")
 
+_nthread = Threads.nthreads()
+if _nthread==1
+    @warn "WaterLily.jl is running on a single thread.\n
+Launch Julia with multiple threads to enable multithreaded capabilities:\n
+    \$julia -t auto $PROGRAM_FILE"
+else
+    print("WaterLily.jl is running on ", _nthread, " thread(s)\n")
+end
+
 function wall(a, b)
     function sdf(x,t)
         xa = x-a

@@ -11,6 +11,7 @@ function flood(f::Array;shift=(0.,0.),cfill=:RdBu_11,clims=(),kv...)
     Plots.contour(axes(f,1).+shift[1],axes(f,2).+shift[2],f',
         linewidth=0,linecolor=:black,
         fill = (true,palette(cfill)),
+        dpi=300,
         clims = clims, aspect_ratio=:equal; kv...)
 end
 
@@ -23,13 +24,13 @@ end
 
 function sim_gif!(sim;duration=1,step=0.1,verbose=true,
                   remeasure=false,μbody=false,size=(700,600),kv...)
-    t₀ = round(sim_time(sim))
+    t₀ = round(sim_time(sim)) 
     t = range(t₀,t₀+duration;step)
     gr(show=false;size)
     @time @gif for tᵢ in t
         sim_step!(sim,tᵢ;remeasure)
         @inside sim.flow.σ[I] = WaterLily.curl(3,I,sim.flow.u)*sim.L/sim.U
-        flood(sim.flow.σ;shift=(-0.5,-0.5),clims=(-5,5),kv...)
+        flood(sim.flow.p;shift=(-0.5,-0.5),clims=(-100,100),kv...)
         μbody && μbody_plot!(sim.flow)
         verbose && println("tU/L=",round(tᵢ,digits=4),
             ", Δt=",round(sim.flow.Δt[end],digits=3))
