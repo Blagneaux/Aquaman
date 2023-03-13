@@ -33,7 +33,7 @@ capsuleShape = capsule(L, St, A);
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
 
-swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
+swimmerBody = WaterLily.addBodies(AutoBody(capsuleShape[1], capsuleShape[2]),AutoBody(wallShape1[1], wallShape1[2]), AutoBody(wallShape2[1],wallShape2[2]))
 
 swimmer = Simulation((642,258), [0.,0.], (L+6.5), U=0.89; ν=U*(L+6.5)/6070, body=swimmerBody)
 

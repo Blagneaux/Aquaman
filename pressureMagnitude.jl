@@ -36,27 +36,26 @@ capsuleShape = capsule(L, St, A)
 wallShape1 = wall([-600,140], [400,140])
 wallShape2 = wall([-600,-140], [400,-140])
 
-swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
-# swimmerBody = AutoBody(capsuleShape[1], capsuleShape[2])
+swimmerBody = WaterLily.addBodies(AutoBody(capsuleShape[1], capsuleShape[2]),AutoBody(wallShape1[1], wallShape1[2]), AutoBody(wallShape2[1],wallShape2[2]))
 
 swimmer = Simulation((642,258), [0.,0.], (L+6.5), U=0.89; ν=U*(L+6.5)/6070, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, period*8*23/24, length=24*8)
+cycle = range(0, 8*period*23/24, length=24*8)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
-@gif for t ∈ cycle
-	measure!(swimmer, t*swimmer.L/swimmer.U)
-	contour(swimmer.flow.μ₀[:,:,1]',
-			aspect_ratio=:equal, legend=true, border=:none)
-	plot!(Shape([511,582,582,511],[129,129,130,130]), legend=false, c=:red, opacity=1)
-	plot!(Shape([527,527,527,527],[123,123,135,135]), legend=false, c=:red, opacity=1)
-	plot!(Shape([0,642,642,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
-	plot!(Shape([0,642,642,0],[229,229,258,258]), legend=false, c=:black, opacity=0.2)
-	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
-end
+# @gif for t ∈ cycle
+# 	measure!(swimmer, t*swimmer.L/swimmer.U)
+# 	contour(swimmer.flow.μ₀[:,:,1]',
+# 			aspect_ratio=:equal, legend=true, border=:none)
+# 	plot!(Shape([511,582,582,511],[129,129,130,130]), legend=false, c=:red, opacity=1)
+# 	plot!(Shape([527,527,527,527],[123,123,135,135]), legend=false, c=:red, opacity=1)
+# 	plot!(Shape([0,642,642,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
+# 	plot!(Shape([0,642,642,0],[229,229,258,258]), legend=false, c=:black, opacity=0.2)
+# 	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
+# end
 
 pressureFull = zeros(642*258,24*8)
 moyFull = zeros(24*8)
@@ -70,37 +69,37 @@ function plot_pressure(sim, t)
 		end
 	end
 
-	pressureₜ = sim.flow.p.*fish
-
+	pressureₜ = sim.flow.p
+	P∞ = pressureₜ[3,129]
+	pressureₜ .-= P∞
 
 	sumₚ = sum(pressureₜ)
     len_inside = max(length(filter(x -> x!=0, pressureₜ)),1)
-    print("sum ",sumₚ,"\n")
-    print("len ", len_inside, "\n")
     moyₚ = sumₚ/len_inside
-    print("moy ", moyₚ, "\n")
 
-    pressureₜ = pressureₜ.-moyₚ
+    # pressureₜ = pressureₜ.-moyₚ
 
 	pressureFull[:,trunc(Int,round(t*St*24/2/A)+1)] .= vec(pressureₜ.*fish)
 	moyFull[trunc(Int,round(t*St*24/2/A)+1)] = moyₚ
 
-	contourf(pressureₜ'.*fish', connectgaps=false,
-			 clims=(-2, 2), legend=true, border=:none)
+	contourf((pressureₜ[2:641,2:257]'.*fish[2:641,2:257]'), connectgaps=false,
+			 clims=(-3, 3), legend=true, border=:none)
 	plot!(Shape([0,642,642,0],[0,0,29,29]), legend=false, c=:black)
 	plot!(Shape([0,642,642,0],[229,229,258,258]), legend=false, c=:black)
+	plot!(Shape([3,3,3,3],[127,127,131,131]), legend=false, c=:black)
+	plot!(Shape([1,5,5,1],[129,129,129,129]), legend=false, c=:black)
   	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
 
 
-# # make a gif over a swimming cycle
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=false)
-# 	plot_pressure(swimmer, t)
-# end
+# make a gif over a swimming cycle
+@gif for t ∈ sim_time(swimmer) .+ cycle
+	sim_step!(swimmer, t, remeasure=true, verbose=false)
+	plot_pressure(swimmer, t)
+end
 
-CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(pressureFull), writeheader=false)
-CSV.write("C:/Users/blagn771/Desktop/FullPressureMoy.csv", Tables.table(moyFull), writeheader=false)
+# CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(pressureFull), writeheader=false)
+# CSV.write("C:/Users/blagn771/Desktop/FullPressureMoy.csv", Tables.table(moyFull), writeheader=false)
 
 # pressureTop = zeros(642,24*8)
 # pressureBottom = zeros(642,24*8)

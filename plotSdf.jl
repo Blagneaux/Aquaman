@@ -34,14 +34,13 @@ capsuleShape = capsule(L, St, A)
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
 
-swimmerBody = addBody([capsuleShape, wallShape1, wallShape2])
-
+swimmerBody = WaterLily.addBodies(AutoBody(capsuleShape[1], capsuleShape[2]),AutoBody(wallShape1[1], wallShape1[2]), AutoBody(wallShape2[1],wallShape2[2]))
 swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
-# swimmerBody = AutoBody(capsuleShape[1], capsuleShape[2])
+
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 23*period/3, length=24*8)
+cycle = range(0, 23*period/24, length=24)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -52,12 +51,12 @@ function computeSDF(sim, t)
         s[I] = sim.body.sdf(x,t*sim.L/sim.U)::Float64
     end
 
-    contourf(s'.+fish', clims=(-L,2L), linewidth=0,
+    contourf(s', clims=(-L,2L), linewidth=0,
             aspect_ratio=:equal, legend=true, border=:none)
     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
 
-@gif for t ∈ sim_time(swimmer) .+ cycle
+@time @gif for t ∈ sim_time(swimmer) .+ cycle
     sim_step!(swimmer, t, remeasure=true, verbose=true)
     computeSDF(swimmer, t)
 end
@@ -67,3 +66,6 @@ end
 # 	contour(swimmer.flow.μ₀[:,:,1]',
 # 			aspect_ratio=:equal, legend=true, border=:none)
 # end
+
+#225.172887 seconds (1.59 G allocations: 59.436 GiB, 3.35% gc time, 0.46% compilation time)
+#1764.266766 seconds (15.36 G allocations: 513.906 GiB, 3.79% gc time, 0.10% compilation time)

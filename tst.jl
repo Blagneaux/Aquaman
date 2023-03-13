@@ -32,7 +32,11 @@ moyFull = []
 
 # plot the pressure scaled by the body length L and flow speed U
 function plot_pressure(sim, t)
-    append!(moyFull,[mean(sim.flow.p)]) 
+    # append!(moyFull,[mean(sim.flow.p)]) 
+    contourf(sim.flow.p[1:3,1:3]',clims=(-4,4),linewidth=0,
+		aspect_ratio=:equal,legend=false,border=:none)
+    print(sim.flow.p[1:3,1:3]','\n'
+    )
 end
 
 
@@ -42,7 +46,7 @@ end
 	plot_pressure(swimmer, t)
 end
 
-scatter([i for i in range(1,length(moyFull))], [moyFull],
-    labels=permutedims(["Mean pressure coefficient on the whole window"]),
-    xlabel="scaled time",
-    ylabel="scaled pressure")
+# scatter([i for i in range(1,length(moyFull))], [moyFull],
+#     labels=permutedims(["Mean pressure coefficient on the whole window"]),
+#     xlabel="scaled time",
+#     ylabel="scaled pressure")
