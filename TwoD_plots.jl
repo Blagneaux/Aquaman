@@ -30,7 +30,7 @@ function sim_gif!(sim;duration=1,step=0.1,verbose=true,
     @time @gif for tᵢ in t
         sim_step!(sim,tᵢ;remeasure)
         @inside sim.flow.σ[I] = WaterLily.curl(3,I,sim.flow.u)*sim.L/sim.U
-        flood(sim.flow.p;shift=(-0.5,-0.5),clims=(-100,100),kv...)
+        flood(sim.flow.p;shift=(-0.25,-0.25),clims=(-3,3),kv...)
         μbody && μbody_plot!(sim.flow)
         verbose && println("tU/L=",round(tᵢ,digits=4),
             ", Δt=",round(sim.flow.Δt[end],digits=3))

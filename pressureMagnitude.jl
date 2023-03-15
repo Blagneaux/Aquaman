@@ -30,7 +30,7 @@ function wall(a, b)
     return SVector(sdf, map)
 end
 
-L,A,St,U = 71.2-6.5,0.466,0.61,0.89
+L,A,St,U = 71.2-6.5,0.4663076581549986,0.611392,0.89
 capsuleShape = capsule(L, St, A)
 
 wallShape1 = wall([-600,140], [400,140])
@@ -58,7 +58,7 @@ foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 # end
 
 pressureFull = zeros(642*258,24*8)
-moyFull = zeros(24*8)
+pressurInf = []
 
 # plot the pressure scaled by the body length L and flow speed U
 function plot_pressure(sim, t)
@@ -73,21 +73,24 @@ function plot_pressure(sim, t)
 	P∞ = pressureₜ[3,129]
 	pressureₜ .-= P∞
 
-	sumₚ = sum(pressureₜ)
-    len_inside = max(length(filter(x -> x!=0, pressureₜ)),1)
-    moyₚ = sumₚ/len_inside
+	# The indentation depends on the length and duration of the sim
+	pressureFull[:,trunc(Int,1+ceil(0.02*ceil(t*sim.L/sim.U/5)+t*sim.L/sim.U/5))] .= vec(pressureₜ.*fish)
+	append!(pressurInf,[P∞])
 
-    # pressureₜ = pressureₜ.-moyₚ
-
-	pressureFull[:,trunc(Int,round(t*St*24/2/A)+1)] .= vec(pressureₜ.*fish)
-	moyFull[trunc(Int,round(t*St*24/2/A)+1)] = moyₚ
-
-	contourf((pressureₜ[2:641,2:257]'.*fish[2:641,2:257]'), connectgaps=false,
-			 clims=(-3, 3), legend=true, border=:none)
+	contourf(color=palette([:blue,:lightgrey,:red],9),
+			(pressureₜ[2:641,2:257]'.*fish[2:641,2:257]'), 
+			linewidth=0, connectgaps=false, dpi=300,
+			clims=(-2, 2), legend=true, border=:none)
 	plot!(Shape([0,642,642,0],[0,0,29,29]), legend=false, c=:black)
 	plot!(Shape([0,642,642,0],[229,229,258,258]), legend=false, c=:black)
+
 	plot!(Shape([3,3,3,3],[127,127,131,131]), legend=false, c=:black)
 	plot!(Shape([1,5,5,1],[129,129,129,129]), legend=false, c=:black)
+
+	plot!(Shape([340,340,340,340],[47,47,51,51]), legend=false, c=:black)
+	plot!(Shape([338,342,342,338],[49,49,49,49]), legend=false, c=:black)
+	print(t,"\n")
+
   	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
 
@@ -98,8 +101,8 @@ end
 	plot_pressure(swimmer, t)
 end
 
-# CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(pressureFull), writeheader=false)
-# CSV.write("C:/Users/blagn771/Desktop/FullPressureMoy.csv", Tables.table(moyFull), writeheader=false)
+CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(pressureFull), writeheader=false)
+CSV.write("C:/Users/blagn771/Desktop/FullPressureInf.csv", Tables.table(pressurInf), writeheader=false)
 
 # pressureTop = zeros(642,24*8)
 # pressureBottom = zeros(642,24*8)

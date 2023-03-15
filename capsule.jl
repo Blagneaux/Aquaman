@@ -27,7 +27,7 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466)
     function map(x,t)
         while t < stop*L
             xc = x - [517 + 9.7,258/2] + [U*t,0.]
-            amp = 25π/180
+            amp = 12.5π/180
             α = amp*sin(4t*U/L)
             R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
             I₂ = @SMatrix [1 0; 0 1]
@@ -35,7 +35,7 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466)
             return xc + [9.7,0.]
         end
         xc = x - [517 + 9.7,258/2]+ [U*stop*L,0.]
-        amp = 25π/180
+        amp = 12.5π/180
         α = amp*sin(4*stop*L*U/L)
         R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
         I₂ = @SMatrix [1 0; 0 1]
