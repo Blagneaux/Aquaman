@@ -15,7 +15,7 @@ def extractData(data, coord):
     px, py = dimx-cx-42, dimy-cy-29
     Cp2P = 0.5*1000*0.089*0.089
 
-    pos = px*py
+    pos = py*dimx+px
     print("line ",pos)
     pressure_t = data[pos]*Cp2P
 
