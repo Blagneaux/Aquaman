@@ -44,7 +44,7 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466)
     end
 
 	# make the simulation
-	return SVector(sdf,map)
+	return AutoBody(sdf,map)
     # return Simulation((642,258), [0.,0.], (L+6.5), U=0.89; ν=U*(L+6.5)/6070, body=AutoBody(sdf, map))
 end
 
