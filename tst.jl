@@ -64,7 +64,7 @@ function double(radius=8;Re=250,U=1,amp=π/4,ϵ=0.5,thk=2ϵ+√2)
 
     line = AutoBody(sdf, map)
 
-    body = WaterLily.morphBodies(AutoBody(circle1,map1), line,(a,b,t)->a+(b-a)*(sin(0.1t)*0.5+0.5)) 
+    body = AutoBody(circle1,map1) - AutoBody(circle2, map2) + line
     Simulation((6radius+2,6radius+2), zeros(2), radius; U, ν=U*radius/Re, body)
 end
 
@@ -98,8 +98,7 @@ foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 # plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
 function plot_vorticity(sim,t)
 	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-	contourf(sim.flow.μ₀[:,:,1]',
-			 color=palette(:BuGn), clims=(-1, 1), linewidth=0,
+	contourf(sim.flow.μ₀[:,:,1]', clims=(-1, 1), linewidth=0,
 			 aspect_ratio=:equal, legend=true, border=:none)
     savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
