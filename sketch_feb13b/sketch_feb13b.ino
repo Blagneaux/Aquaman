@@ -15,9 +15,11 @@ Stepper myStepper = Stepper(stepsPerRevolution, dirA, dirB);
 
 //Switches pins
 #define switchPin01 33 // back of the tank
-#define switchPin02 32 // carrier-gantry contact
-#define switchPin03 35 // front of the tank
+#define switchPin03 32 // carrier-gantry contact
+#define switchPin02 35 // front of the tank
 #define switchNotTouch LOW //input level when switch is not activated
+#define buttonPin 31 // start a motion
+#define synchroPin 45 // sychronization with the sensors
 
 //Servomotor
 #define servoPin 5 // Flapping servomotor
@@ -44,13 +46,18 @@ void setup() {
   digitalWrite(brakeA, LOW);
   digitalWrite(brakeB, LOW);
 
+  pinMode(buttonPin, INPUT);
+  pinMode(synchroPin, OUTPUT);
+  digitalWrite(buttonPin, HIGH);
+  digitalWrite(synchroPin, LOW);
+
   // Servo initialization
   flapServo.attach(servoPin);
 
   pinMode(switchPin01, INPUT_PULLUP);
-  pinMode(switchPin02, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(switchPin02), touch02, LOW);
-  pinMode(switchPin03, INPUT_PULLUP); 
+  pinMode(switchPin03, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(switchPin03), touch02, LOW);
+  pinMode(switchPin02, INPUT_PULLUP); 
 
   delay(200);// wait 200ms
 }
@@ -59,9 +66,10 @@ void loop() {
   // Set the motor speed (RPMs):
   myStepper.setSpeed(150);
 
-  if ((isEnd == false or isHome == true) and digitalRead(switchPin03) != switchNotTouch){
+  if ((isEnd == false or isHome == true) and digitalRead(buttonPin) != HIGH){
     // we are moving
     isStepRun = true;
+    digitalWrite(synchroPin, HIGH);
     float t = 0;
 
     while (digitalRead(switchPin01) == switchNotTouch){ // while we don't touch the back
@@ -102,6 +110,7 @@ void loop() {
     myStepper.setSpeed(150);
 
     // we are moving
+    digitalWrite(synchroPin, LOW);
     isStepRun = true;
     
     while (digitalRead(switchPin03) == switchNotTouch){ // while we don't touch the front
