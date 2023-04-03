@@ -45,4 +45,4 @@ def extractData(data, coord):
 
     return pressure_t
 
-pressure = extractData(my_data,[295,20])
+pressure = extractData(my_data,[302,20])
