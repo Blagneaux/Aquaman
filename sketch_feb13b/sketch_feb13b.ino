@@ -66,45 +66,29 @@ void loop() {
   // Set the motor speed (RPMs):
   myStepper.setSpeed(150);
 
-  if ((isEnd == false or isHome == true) and digitalRead(buttonPin) != HIGH){
-    // we are moving
-    isStepRun = true;
-    digitalWrite(synchroPin, HIGH);
-    float t = 0;
-
-    while (digitalRead(switchPin01) == switchNotTouch){ // while we don't touch the back
-      if(digitalRead(switchPin01) != switchNotTouch) {
+  if (digitalRead(buttonPin) != HIGH) {
+    move(25);
+    while True {
+      if (digitalRead(buttonPin) != HIGH) {
         break;
       }
-
-      unsigned long currentMotorTime = millis();
-
-      myStepper.step(-2);
-    
-      if (currentMotorTime - previousMotorTime > MotorInterval){
-        int angle = 85 + 25 * sin(t * 2 * PI / 1.225);           // calculate the angle based on the sinusoidal signal, offset by 90 degrees
-        angle = constrain(angle, 60, 110);                       // ensure the angle stays within the range of 60 to 120 degrees
-        flapServo.write(angle);                                  // set the servo angle
-        previousMotorTime = currentMotorTime;
-        t += 0.0122;
+      if ((isEnd == false or isHome == true) and digitalRead(switchPin02) != switchNotTouch){
+        // we are moving
+        move(25);
       }
-    }    
+      
+      if ((isEnd == true or isHome == false) and digitalRead(switchPin01) != switchNotTouch){
+        goHome();
+      }
 
-    delay(500);
-
-    // Finally, move 10mm forward (10mm = 55.6 steps)
-    myStepper.setSpeed(100);
-    myStepper.step(56);
-    
-
-    isStepRun = false;
-    isEnd = true;
-    isHome = false;
-
-    delay(2000);
+      delay(10000);
+    }
   }
-   
-  if ((isEnd == true or isHome == false) and digitalRead(switchPin01) != switchNotTouch){
+
+  
+}
+
+void goHome() {
     flapServo.write(85);  
     // Set the motor speed (RPMs):
     myStepper.setSpeed(150);
@@ -127,8 +111,44 @@ void loop() {
     isEnd = false;
     isHome = true;
 
-    delay(2000);
-  }
+    // delay(2000);
+}
+
+void move(int angle) {
+  isStepRun = true;
+  digitalWrite(synchroPin, HIGH);
+  float t = 0;
+
+  while (digitalRead(switchPin01) == switchNotTouch){ // while we don't touch the back
+    if(digitalRead(switchPin01) != switchNotTouch) {
+      break;
+    }
+
+    unsigned long currentMotorTime = millis();
+
+    myStepper.step(-2);
+  
+    if (currentMotorTime - previousMotorTime > MotorInterval){
+      int angle = 85 + angle * sin(t * 2 * PI / 1.225);           // calculate the angle based on the sinusoidal signal, offset by 90 degrees
+      angle = constrain(angle, 90-angle, 90+angle);                       // ensure the angle stays within the range of 60 to 120 degrees
+      flapServo.write(angle);                                  // set the servo angle
+      previousMotorTime = currentMotorTime;
+      t += 0.0122;
+    }
+  }    
+
+  delay(500);
+
+  // // Finally, move 10mm forward (10mm = 55.6 steps)
+  // myStepper.setSpeed(100);
+  // myStepper.step(56);
+  
+
+  isStepRun = false;
+  isEnd = true;
+  isHome = false;
+
+  // delay(2000);
 }
 
 void touch02() {

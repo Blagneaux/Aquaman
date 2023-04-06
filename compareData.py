@@ -1,13 +1,20 @@
 from numpy import genfromtxt
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy import signal
+
+fc = 5
+fs = 10000
+w = fc / (fs / 2)
+b,a = signal.butter(2,w,'low')
 
 my_data = genfromtxt("C:/Users/blagn771/Desktop/FullPressure.csv", delimiter=",")
-sensor_file = pd.read_excel("C:/Users/blagn771/Downloads/data_2.xlsx", index_col=False)
-sensor_file.columns = ["time", "pressure"]
+sensor_file = pd.read_excel("C:/Users/blagn771/Desktop/DATA_10Khz.xlsx", index_col=False)
+sensor_file.columns = ["time", "pressure", "pressure2", "pressure3"]
 
 sensor_data = sensor_file["pressure"].to_numpy()
-sensor_data_mv = sensor_data[64000:-1]-0.5
+sensor_data = signal.filtfilt(b,a,sensor_data)
+sensor_data_mv = sensor_data[50600:105000]
 
 def extractData(data, coord):
     dimx, dimy = 642, 258
@@ -23,7 +30,7 @@ def extractData(data, coord):
     ax = fig.add_subplot(111, label="1")
     ax2 = fig.add_subplot(111, label="2", frame_on=False)
 
-    ax.plot(pressure_t, color="C0")
+    ax.plot(pressure_t[:95], color="C0")
     ax.set_xlabel("Scaled time", color="C0")
     ax.set_ylabel("Pressure during the simulation at [302mm,20mm]", color="C0")
     ax.tick_params(axis='x', color="C0")
@@ -45,4 +52,4 @@ def extractData(data, coord):
 
     return pressure_t
 
-pressure = extractData(my_data,[302,20])
+pressure = extractData(my_data,[365,30])

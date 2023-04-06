@@ -12,7 +12,7 @@ thk = fit(width)
 @fastmath kernᵦ(d) = 0.5+0.5d+0.5sin(π*d)/π
 μᵦ(d,ϵ) = kernᵦ(clamp(d/ϵ,-1,1))
 
-function capsule(L=71.2-6.5, St=0.61, A=0.466)
+function capsule(L=71.2-6.5, St=0.61, A=0.466, U=0.89;n,m)
 	# fraction along fish length
 	s(x) = clamp(x[1]/L, 0, 1)
 
@@ -20,27 +20,27 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466)
 	sdf(x,t) = √sum(abs2, x - L * SVector(s(x), 0.)) - L * thk(s(x))
 
     # fish motion: travelling wave
-	U = 0.89
-
-    stop = 2A/St*4.8*23/24
+    pivot = 9.7
+    distInit = 51
+    f = St * U/(2A * L)
+    print("pulse: ",2π*f,"\n")
     
     function map(x,t)
-        while t < stop*L
-            xc = x - [517 + 9.7,258/2] + [U*t,0.]
+        while t <= 4/f
+            xc = x - [n-L-distInit + pivot,m/2] + [1.2t,0.]
             amp = 12.5π/180
-            α = amp*sin(4t*U/L)
+            α = amp*sin(2π*f*t)
             R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
             I₂ = @SMatrix [1 0; 0 1]
             xc = (μᵦ(xc[1],10).*R + (1-μᵦ(xc[1],10)).*I₂)*xc
-            return xc + [9.7,0.]
+            return xc + [pivot,0.]
         end
-        xc = x - [517 + 9.7,258/2]+ [U*stop*L,0.]
-        amp = 12.5π/180
-        α = amp*sin(4*stop*L*U/L)
+        xc = x - [n-L-distInit + pivot,m/2]+ [4/f,0.]
+        α = 0
         R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
         I₂ = @SMatrix [1 0; 0 1]
         xc = (μᵦ(xc[1],10).*R + (1-μᵦ(xc[1],10)).*I₂)*xc
-        return xc + [9.7,0.]
+        return xc + [pivot,0.]
     end
 
 	# make the simulation
