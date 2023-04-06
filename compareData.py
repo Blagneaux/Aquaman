@@ -30,7 +30,7 @@ def extractData(data, coord):
     ax = fig.add_subplot(111, label="1")
     ax2 = fig.add_subplot(111, label="2", frame_on=False)
 
-    ax.plot(pressure_t[:95], color="C0")
+    ax.plot(pressure_t[:92], color="C0")
     ax.set_xlabel("Scaled time", color="C0")
     ax.set_ylabel("Pressure during the simulation at [302mm,20mm]", color="C0")
     ax.tick_params(axis='x', color="C0")

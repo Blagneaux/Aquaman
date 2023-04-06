@@ -23,7 +23,7 @@ pressureOnWalls = false
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 1 # Speed of the fish
+U = 0.915 # Speed of the fish
 n = 642 # length of the taking
 m = 258 # width of the tank
 

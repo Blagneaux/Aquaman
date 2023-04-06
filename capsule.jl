@@ -27,7 +27,7 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466, U=0.89;n,m)
     
     function map(x,t)
         while t <= 4/f
-            xc = x - [n-L-distInit + pivot,m/2] + [1.2t,0.]
+            xc = x - [n-L-distInit + pivot,m/2] + [t,0.]
             amp = 12.5π/180
             α = amp*sin(2π*f*t)
             R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
