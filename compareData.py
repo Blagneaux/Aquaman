@@ -10,17 +10,17 @@ b,a = signal.butter(2,w,'low')
 
 my_data = genfromtxt("C:/Users/blagn771/Desktop/FullPressure.csv", delimiter=",")
 sensor_file = pd.read_excel("C:/Users/blagn771/Desktop/DATA_10Khz.xlsx", index_col=False)
-sensor_file.columns = ["time", "pressure", "pressure2", "pressure3"]
+sensor_file.columns = ["pressure"]
 
 sensor_data = sensor_file["pressure"].to_numpy()
 sensor_data = signal.filtfilt(b,a,sensor_data)
-sensor_data_mv = sensor_data[50600:105000]
+sensor_data_mv = sensor_data[:49001]
 
 def extractData(data, coord):
     dimx, dimy = 642, 258
     cx, cy = coord #in mm from the start of the motion and on the first side hit by the positive pressure
-    px, py = dimx-cx-42, cy+29
-    Cp2P = 0.5*1000*0.089*0.089
+    px, py = dimx-cx, dimy-(cy+29)
+    Cp2P = 0.5*1000*0.0915*0.0915
 
     pos = py*dimx+px
     print("line ",pos)
@@ -35,7 +35,7 @@ def extractData(data, coord):
     ax.set_ylabel("Pressure during the simulation at [302mm,20mm]", color="C0")
     ax.tick_params(axis='x', color="C0")
     ax.tick_params(axis='y', color="C0")
-    ax.set_ylim([-1.75,1.75])
+    ax.set_ylim([-2.5,2.5])
 
     ax2.plot(sensor_data_mv, color="C1")
     ax2.set_ylabel("Sensed pressure at [302mm, 20mm]", color="C1")
@@ -46,10 +46,10 @@ def extractData(data, coord):
     ax2.yaxis.tick_right()
     ax2.tick_params(axis='x', color="C1")
     ax2.tick_params(axis='y', color="C1")
-    ax2.set_ylim([-1.75,1.75])
+    ax2.set_ylim([-2.5,2.5])
 
     plt.show()
 
     return pressure_t
 
-pressure = extractData(my_data,[365,30])
+pressure = extractData(my_data,[290,30])

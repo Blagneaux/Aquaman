@@ -18,14 +18,17 @@ end
 momentOrdreZero = false
 pressureMapFull = true
 pressureOnWalls = false
+pressionAtOnePoint = false
 
 # Physic variables of the problem
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 0.915 # Speed of the fish
-n = 642 # length of the taking
+U = 0.0915 # velocity scale
+n = 642 #3*2^10+2 # length of the taking
 m = 258 # width of the tank
+
+f = St * U/(2A * L)
 
 function wall(a, b)
     function sdf(x,t)
@@ -36,7 +39,7 @@ function wall(a, b)
     end
 
     function map(x,t)
-        xc = x - [5L, m/2]
+        xc = x - [0, m/2]
         return xc
     end
 
@@ -45,8 +48,8 @@ end
 
 capsuleShape = capsule(L, St, A, U; n, m)
 
-wallShape1 = wall([-600,140], [400,140])
-wallShape2 = wall([-600,-140], [400,-140])
+wallShape1 = wall([-n,140], [n,140])
+wallShape2 = wall([-n,-140], [n,-140])
 
 swimmerBody = capsuleShape + wallShape1 + wallShape2
 
@@ -83,28 +86,63 @@ function plot_pressure(sim, t)
 		end
 	end
 
+	modeP∞ = "norm"
+
 	pressureₜ = sim.flow.p
-	P∞ = pressureₜ[3,Int(m/2)]
-	pressureₜ .-= P∞
+
+	if modeP∞ == "classique"
+		P∞ = pressureₜ[2,Int(m/2)]
+		pressureₜ .-= P∞
+
+	elseif modeP∞ == "smart"
+		if t*sim.L/sim.U <= 2/f
+			P∞ = (pressureₜ[2,30]+pressureₜ[2,m-29])/2
+		else
+			P∞ = (pressureₜ[n-1,30]+pressureₜ[n-1,m-29])/2
+		end
+		pressureₜ .-= P∞
+
+	elseif modeP∞ == "norm"
+		filterPressure = vec(pressureₜ[2:end-1,2:end-1].*fish[2:end-1,2:end-1])
+		Pmax = sort(union(filterPressure))[end]
+		if Pmax == 0 && length(sort(union(filterPressure))) > 1
+			Pmax = sort(union(filterPressure))[end-1]
+		end
+		Pmin = 0
+		P∞ = 0
+		if Pmax != 0
+			Pmin = sort(union(filterPressure))[1]
+			if Pmin == 0
+				Pmin = sort(union(filterPressure))[2]
+			end
+			pressureₜ .-= Pmin
+			pressureₜ ./= (Pmax - Pmin)
+		end
+		print("max pressure ", Pmax, '\n')
+		print("min pressure ", Pmin, '\n')
+	end
+
 
 	# The indentation depends on the length and duration of the sim
 	pressureFull[:,trunc(Int,1+ceil(0.02*ceil(t*sim.L/sim.U/5)+t*sim.L/sim.U/5))] .= vec(pressureₜ.*fish)
 	append!(pressurInf,[P∞])
 
 	contourf(color=palette([:blue,:lightgrey,:red],9),
-			(pressureₜ[2:641,2:257]'.*fish[2:641,2:257]'), 
+			(pressureₜ[2:n-1,2:m-1]'.*fish[2:n-1,2:m-1]'), 
 			linewidth=0, connectgaps=false, dpi=300,
-			clims=(-2, 2), legend=true, border=:none)
-	plot!(Shape([0,642,642,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
-	plot!(Shape([0,642,642,0],[229,229,258,258]), legend=false, c=:black, opacity=0.2)
+			clims=(-0.25, 1.25), legend=true, border=:none)
+
+	# The origin of the map is on the bottom left
+	plot!(Shape([0,n,n,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
+	plot!(Shape([0,n,n,0],[m-29,m-29,m,m]), legend=false, c=:black, opacity=0.2)
 
 	plot!(Shape([3,3,3,3],[127,127,131,131]), legend=false, c=:black)
 	plot!(Shape([1,5,5,1],[129,129,129,129]), legend=false, c=:black)
 
-	plot!(Shape([n-365,n-365,n-365,n-365],[57,57,61,61]), legend=false, c=:black)
-	plot!(Shape([n-367,n-363,n-363,n-367],[59,59,59,59]), legend=false, c=:black)
+	plot!(Shape([n-290,n-290,n-290,n-290],[m-57,m-57,m-61,m-61]), legend=false, c=:black)
+	plot!(Shape([n-292,n-288,n-288,n-292],[m-59,m-59,m-59,m-59]), legend=false, c=:black)
 
-	plot!(Shape([1,n-600,n-600,1],[1,1,m,m]), legend=false, c=:black)
+	plot!(Shape([1,n-600,n-600,1],[1,1,m,m]), legend=false, c=:black, opacity=0.5)
 	plot!(Shape([n-556,n-556,n-556,n-556],[1,1,m,m]), legend=false, c=:black)
 	plot!(Shape([n-51,n-51,n-51,n-51],[1,1,m,m]), legend=false, c=:black)
 
@@ -131,24 +169,62 @@ pressureBottom = zeros(n,24*8)
 if pressureOnWalls
 	@gif for t ∈ sim_time(swimmer) .+ cycle
 		sim_step!(swimmer, t, remeasure=true, verbose=true)
-		pressure1 = swimmer.flow.p'[30,:]
-		pressure2 = swimmer.flow.p'[228,:]
+		pressure1 = swimmer.flow.p'[29,:]
+		pressure2 = swimmer.flow.p'[198,:]
 
-		sum₁ = sum(pressure1)
-		sum₂ = sum(pressure2)
-		len₁₂ = length(pressure1)-2
+		pressureₜ = swimmer.flow.p
+		P∞ = pressureₜ[3,Int(m/2)]
 
-		pressureTop[:,trunc(Int,round(t*St*24/2/A)+1)] .= pressure1.-(sum₁/len₁₂)
-		pressureBottom[:,trunc(Int,round(t*St*24/2/A)+1)] .= pressure2.-(sum₂/len₁₂)
+		pressureTop[:,trunc(Int,round(t*St*24/2/A)+1)] .= pressure1.-P∞
+		pressureBottom[:,trunc(Int,round(t*St*24/2/A)+1)] .= pressure2.-P∞
 
-		scatter([i for i in range(1,length(pressure1))], [pressure1.-(sum₁/len₁₂), pressure2.-(sum₂/len₁₂)],
-			labels=permutedims(["pressure on the bottom wall", "pressure on the top wall"]),
+		scatter([i for i in range(1,length(pressure1))], [pressure1.-P∞, pressure2.-P∞],
+			labels=permutedims(["pressure on the bottom wall", "pressure on the top wall sensor"]),
 			xlabel="scaled distance",
 			ylabel="scaled pressure",
 			ylims=(-2,2))
 		savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 	end
 
-	CSV.write("C:/Users/blagn771/Desktop/TopPressure.csv", Tables.table(pressureTop), writeheader=false)
-	CSV.write("C:/Users/blagn771/Desktop/BottomPressure.csv", Tables.table(pressureBottom), writeheader=false)
+	# CSV.write("C:/Users/blagn771/Desktop/TopPressure.csv", Tables.table(pressureTop), writeheader=false)
+	# CSV.write("C:/Users/blagn771/Desktop/BottomPressure.csv", Tables.table(pressureBottom), writeheader=false)
+end
+
+f = St * U/(2A * L)
+print(4/f)
+
+function mapAngle(t)
+	if t <= 4/f
+		amp = 12.5*π/180
+		α = amp*sin(2π*f*t)
+		print(α*180/π)
+		return α
+	end
+	α = 0
+	return α
+end
+
+pressureExtraction = []
+angleExtraction = []
+
+if pressionAtOnePoint
+	@gif for t ∈ sim_time(swimmer) .+ cycle
+		angle = mapAngle(t*swimmer.L/swimmer.U)
+		sim_step!(swimmer, t, remeasure=true, verbose=true)
+
+		pressurePoint = swimmer.flow.p'[m-30-29,n-290]
+
+		pressureₜ = swimmer.flow.p
+		P∞ = pressureₜ[3,Int(m/2)]
+
+		append!(pressureExtraction,[pressurePoint - P∞])
+		append!(angleExtraction,[angle])
+
+		plot([i for i ∈ range(1,length(pressureExtraction))],[pressureExtraction,angleExtraction],
+		labels=permutedims(["pressure at the extraction point (290mm, 30mm)","angle of the tail"]),
+		xlabel="scaled time",
+		xlims=(0,192),
+		ylims=(-1.5,0.5),
+		ylabel="scaled pressure")
+	end
 end

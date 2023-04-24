@@ -12,6 +12,15 @@ thk = fit(width)
 @fastmath kernᵦ(d) = 0.5+0.5d+0.5sin(π*d)/π
 μᵦ(d,ϵ) = kernᵦ(clamp(d/ϵ,-1,1))
 
+function circle(radius=8;n,m)
+    sdf(x,t) = norm2(x) - radius
+
+    function map(x,t)
+        xc = x - [n-L-distInit+radius + pivot,m/2] + [t,0.]
+        return xc + [pivot,0.]
+    end
+end
+
 function capsule(L=71.2-6.5, St=0.61, A=0.466, U=0.89;n,m)
 	# fraction along fish length
 	s(x) = clamp(x[1]/L, 0, 1)
@@ -27,8 +36,8 @@ function capsule(L=71.2-6.5, St=0.61, A=0.466, U=0.89;n,m)
     
     function map(x,t)
         while t <= 4/f
-            xc = x - [n-L-distInit + pivot,m/2] + [t,0.]
-            amp = 12.5π/180
+            xc = x - [n-L-distInit + pivot,m/2] + [t/10,0.]
+            amp = 25π/180
             α = amp*sin(2π*f*t)
             R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
             I₂ = @SMatrix [1 0; 0 1]

@@ -78,7 +78,7 @@ void loop() {
         goHome();
       }
 
-      delay(10000);
+      delay(300000);
     }
   }
 
@@ -114,7 +114,7 @@ void goHome() {
 void move(int angleAmp) {
   // Set the motor speed (RPMs):
   myStepper.setSpeed(150);
-  
+
   isStepRun = true;
   digitalWrite(synchroPin, HIGH);
   float t = 0;
