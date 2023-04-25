@@ -16,15 +16,15 @@ end
 
 # Variables to plot the different gif implemented
 momentOrdreZero = false
-pressureMapFull = true
+pressureMapFull = false
 pressureOnWalls = false
-pressionAtOnePoint = false
+pressionAtOnePoint = true
 
 # Physic variables of the problem
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 0.0915 # velocity scale
+U = 0.0915*3 # velocity scale
 n = 642 #3*2^10+2 # length of the taking
 m = 258 # width of the tank
 
@@ -57,7 +57,8 @@ swimmer = Simulation((n,m), [0.,0.], (L+6.5), U=U; ν=U*(L+6.5)/6070, body=swimm
 
 # Save a time span for one swimming cycle
 period = 2A/St
-cycle = range(0, 8*period*23/24, length=24*8)
+nb_snapshot = 8*24
+cycle = range(0, 8*period*23/24, length=nb_snapshot)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -74,7 +75,7 @@ if momentOrdreZero
 	end
 end
 
-pressureFull = zeros(n*m,24*8)
+pressureFull = []
 pressurInf = []
 
 # plot the pressure scaled by the body length L and flow speed U
@@ -86,7 +87,7 @@ function plot_pressure(sim, t)
 		end
 	end
 
-	modeP∞ = "norm"
+	modeP∞ = "classique"
 
 	pressureₜ = sim.flow.p
 
@@ -124,13 +125,15 @@ function plot_pressure(sim, t)
 
 
 	# The indentation depends on the length and duration of the sim
-	pressureFull[:,trunc(Int,1+ceil(0.02*ceil(t*sim.L/sim.U/5)+t*sim.L/sim.U/5))] .= vec(pressureₜ.*fish)
+	append!(pressureFull,vec(pressureₜ.*fish))
+	
+	# pressureFull[:,trunc(Int,1+ceil(0.02*ceil(t*sim.L/sim.U/5)+t*sim.L/sim.U/5))] .= vec(pressureₜ.*fish)
 	append!(pressurInf,[P∞])
 
 	contourf(color=palette([:blue,:lightgrey,:red],9),
 			(pressureₜ[2:n-1,2:m-1]'.*fish[2:n-1,2:m-1]'), 
 			linewidth=0, connectgaps=false, dpi=300,
-			clims=(-0.25, 1.25), legend=true, border=:none)
+			clims=(-1, 1), legend=true, border=:none)
 
 	# The origin of the map is on the bottom left
 	plot!(Shape([0,n,n,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
@@ -146,7 +149,7 @@ function plot_pressure(sim, t)
 	plot!(Shape([n-556,n-556,n-556,n-556],[1,1,m,m]), legend=false, c=:black)
 	plot!(Shape([n-51,n-51,n-51,n-51],[1,1,m,m]), legend=false, c=:black)
 
-	print(t,"\n")
+	# print(t,"\n")
 
   	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
@@ -159,7 +162,7 @@ if pressureMapFull
 		plot_pressure(swimmer, t)
 	end
 
-	CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(pressureFull), writeheader=false)
+	CSV.write("C:/Users/blagn771/Desktop/FullPressure.csv", Tables.table(reshape(pressureFull, :, nb_snapshot)), writeheader=false)
 	CSV.write("C:/Users/blagn771/Desktop/FullPressureInf.csv", Tables.table(pressurInf), writeheader=false)
 end
 
@@ -191,7 +194,6 @@ if pressureOnWalls
 end
 
 f = St * U/(2A * L)
-print(4/f)
 
 function mapAngle(t)
 	if t <= 4/f
@@ -215,6 +217,8 @@ if pressionAtOnePoint
 		pressurePoint = swimmer.flow.p'[m-30-29,n-290]
 
 		pressureₜ = swimmer.flow.p
+		nb_iter = swimmer.pois.n
+
 		P∞ = pressureₜ[3,Int(m/2)]
 
 		append!(pressureExtraction,[pressurePoint - P∞])
@@ -226,5 +230,6 @@ if pressionAtOnePoint
 		xlims=(0,192),
 		ylims=(-1.5,0.5),
 		ylabel="scaled pressure")
+		plot!(twinx(),nb_iter)
 	end
 end
