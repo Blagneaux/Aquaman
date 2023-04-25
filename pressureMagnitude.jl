@@ -24,7 +24,7 @@ pressionAtOnePoint = true
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 0.0915*3 # velocity scale
+U = 0.915 # velocity scale
 n = 642 #3*2^10+2 # length of the taking
 m = 258 # width of the tank
 
@@ -57,7 +57,7 @@ swimmer = Simulation((n,m), [0.,0.], (L+6.5), U=U; ν=U*(L+6.5)/6070, body=swimm
 
 # Save a time span for one swimming cycle
 period = 2A/St
-nb_snapshot = 8*24
+nb_snapshot = 24*8
 cycle = range(0, 8*period*23/24, length=nb_snapshot)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
@@ -197,7 +197,7 @@ f = St * U/(2A * L)
 
 function mapAngle(t)
 	if t <= 4/f
-		amp = 12.5*π/180
+		amp = 25*π/180
 		α = amp*sin(2π*f*t)
 		print(α*180/π)
 		return α
