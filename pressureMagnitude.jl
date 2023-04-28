@@ -3,7 +3,16 @@ using LinearAlgebra: norm2
 
 using CSV, Tables
 
-include("capsule.jl")
+# include("capsule.jl")
+include("cambridgeFish.jl")
+
+fit = y -> scale(
+    interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
+    range(0,1,length=length(y))
+)
+
+width = [0.02, 0.06, 0.06, 0.05, 0.03, 0.015, 0.01]
+thk = fit(width)
 
 _nthread = Threads.nthreads()
 if _nthread==1
@@ -16,17 +25,19 @@ end
 
 # Variables to plot the different gif implemented
 momentOrdreZero = false
-pressureMapFull = false
+pressureMapFull = true
 pressureOnWalls = false
-pressionAtOnePoint = true
+pressionAtOnePoint = false
 
 # Physic variables of the problem
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 0.915 # velocity scale
-n = 642 #3*2^10+2 # length of the taking
+U = 1.574 # velocity scale
+v = 1.574 #0.915 velocity
+n = 640*2+2 #642 #3*2^10+2 # length of the taking
 m = 258 # width of the tank
+Re = 12875 #6070 # Reynolds number
 
 f = St * U/(2A * L)
 
@@ -46,19 +57,21 @@ function wall(a, b)
     return AutoBody(sdf, map)
 end
 
-capsuleShape = capsule(L, St, A, U; n, m)
+# capsuleShape = capsule(L, St, A, v; n, m)
+fishShape = fish(thk; L=81.8*4, Re=6070, n, m)
 
 wallShape1 = wall([-n,140], [n,140])
 wallShape2 = wall([-n,-140], [n,-140])
 
-swimmerBody = capsuleShape + wallShape1 + wallShape2
+# swimmerBody = capsuleShape + wallShape1 + wallShape2
+swimmerBodyCambridge = fishShape + wallShape1 + wallShape2
 
-swimmer = Simulation((n,m), [0.,0.], (L+6.5), U=U; ν=U*(L+6.5)/6070, body=swimmerBody)
+swimmer = Simulation((n,m), [0.,0.], (81.8*4), U=U; ν=U*(81.8*4)/Re, body=swimmerBodyCambridge)
 
 # Save a time span for one swimming cycle
 period = 2A/St
 nb_snapshot = 24*8
-cycle = range(0, 8*period*23/24, length=nb_snapshot)
+cycle = range(0, 0.5*period*23/24, length=nb_snapshot)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -132,7 +145,7 @@ function plot_pressure(sim, t)
 
 	contourf(color=palette([:blue,:lightgrey,:red],9),
 			(pressureₜ[2:n-1,2:m-1]'.*fish[2:n-1,2:m-1]'), 
-			linewidth=0, connectgaps=false, dpi=300,
+			linewidth=0, connectgaps=false, dpi=300, aspect_ratio=1,
 			clims=(-1, 1), legend=true, border=:none)
 
 	# The origin of the map is on the bottom left
@@ -145,20 +158,21 @@ function plot_pressure(sim, t)
 	plot!(Shape([n-290,n-290,n-290,n-290],[m-57,m-57,m-61,m-61]), legend=false, c=:black)
 	plot!(Shape([n-292,n-288,n-288,n-292],[m-59,m-59,m-59,m-59]), legend=false, c=:black)
 
-	plot!(Shape([1,n-600,n-600,1],[1,1,m,m]), legend=false, c=:black, opacity=0.5)
+	# plot!(Shape([1,n-600,n-600,1],[1,1,m,m]), legend=false, c=:black, opacity=0.5)
 	plot!(Shape([n-556,n-556,n-556,n-556],[1,1,m,m]), legend=false, c=:black)
 	plot!(Shape([n-51,n-51,n-51,n-51],[1,1,m,m]), legend=false, c=:black)
+	plot!(Shape([n-157*4,n-157*4,n-157*4,n-157*4],[1,1,m,m]), legend=false, c=:black)
 
 	# print(t,"\n")
 
-  	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
+  	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t*U)*".png")
 end
 
 
 if pressureMapFull
 	# make a gif over a swimming cycle
 	@gif for t ∈ sim_time(swimmer) .+ cycle
-		sim_step!(swimmer, t, remeasure=true, verbose=false)
+		sim_step!(swimmer, t, remeasure=true, verbose=true)
 		plot_pressure(swimmer, t)
 	end
 
@@ -230,6 +244,6 @@ if pressionAtOnePoint
 		xlims=(0,192),
 		ylims=(-1.5,0.5),
 		ylabel="scaled pressure")
-		plot!(twinx(),nb_iter)
+		plot!(twinx(),nb_iter, xlims=(1,9142))
 	end
 end

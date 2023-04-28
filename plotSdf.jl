@@ -1,7 +1,16 @@
 using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images
 using LinearAlgebra: norm2
 
-include("capsule.jl")
+# include("capsule.jl")
+include("cambridgeFish.jl")
+
+fit = y -> scale(
+    interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
+    range(0,1,length=length(y))
+)
+
+width = [0.02, 0.06, 0.06, 0.05, 0.03, 0.015, 0.01]
+thk = fit(width)
 
 _nthread = Threads.nthreads()
 if _nthread==1
@@ -25,17 +34,20 @@ function wall(a, b)
         return xc
     end
 
-    return SVector(sdf, map)
+    return AutoBody(sdf, map)
 end
 
 L,A,St,U = 71.2,0.466,0.61,0.89
-capsuleShape = capsule(L, St, A)
+# capsuleShape = capsule(L, St, A, U; n, m)
+fishShape = fish(thk; L=81.8, Re=6070, n, m)
 
 wallShape1 = wall([-600,110], [400,110])
 wallShape2 = wall([-600,-110], [400,-110])
 
-swimmerBody = WaterLily.addBodies(AutoBody(capsuleShape[1], capsuleShape[2]),AutoBody(wallShape1[1], wallShape1[2]), AutoBody(wallShape2[1],wallShape2[2]))
-swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBody)
+# swimmerBody = capsuleShape + wallShape1 + wallShape2
+swimmerBodyCambridge = fishShape + wallShape1 + wallShape2
+
+swimmer = Simulation((642,258), [0.,0.], L, U=0.89; ν=U*L/6070, body=swimmerBodyCambridge)
 
 
 # Save a time span for one swimming cycle

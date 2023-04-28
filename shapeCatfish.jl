@@ -6,12 +6,12 @@ fit = y -> scale(
     range(0,1,length=length(y))
 )
 
-url2 = "C://Users//blagn771//Documents//Aquaman//Ver2_12//Toytank//Capture.PNG"
+url2 = "C://Users//blagn771//Desktop//RES15//Fish_IMG_horizontal.PNG"
 catfish = load(url2)
 plot(catfish)
 
-nose, len = (105,145), 750
-width = [0.14, 0.14, 0.12, 0.10, 0.08, 0.06, 0.04]
+nose, len = (75,72.5), 220
+width = [0.02, 0.06, 0.06, 0.05, 0.03, 0.015, 0.01]
 scatter!(
     nose[1] .+ len .* range(0,1,length=length(width)),
     nose[2] .- len .* width, color= :blue, legend=false
