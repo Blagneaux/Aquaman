@@ -3,16 +3,16 @@ using LinearAlgebra: norm2
 
 using CSV, Tables
 
-# include("capsule.jl")
-include("cambridgeFish.jl")
+include("capsule.jl")
+# include("cambridgeFish.jl")
 
-fit = y -> scale(
-    interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
-    range(0,1,length=length(y))
-)
+# fit = y -> scale(
+#     interpolate(y, BSpline(Quadratic(Line(OnGrid())))),
+#     range(0,1,length=length(y))
+# )
 
-width = [0.02, 0.06, 0.06, 0.05, 0.03, 0.015, 0.01]
-thk = fit(width)
+# width = [0.02, 0.06, 0.06, 0.05, 0.03, 0.015, 0.01]
+# thk = fit(width)
 
 _nthread = Threads.nthreads()
 if _nthread==1
@@ -33,11 +33,11 @@ pressionAtOnePoint = false
 L = 71.2 - 6.5 # length of the fish, taking into account the head design
 A = 0.4663076581549986 # relative amplitude of the motion of the tail
 St = 0.611392 # Strouhal number, corresponds to the frequency of the motion of the tail
-U = 1.574 # velocity scale
-v = 1.574 #0.915 velocity
-n = 640*2+2 #642 #3*2^10+2 # length of the taking
+U = 0.915 #1.574 # velocity scale
+v = 1.574 # velocity
+n = 642 #3*2^10+2 # length of the taking
 m = 258 # width of the tank
-Re = 12875 #6070 # Reynolds number
+Re = 6070 #12875 # Reynolds number
 
 f = St * U/(2A * L)
 
@@ -57,21 +57,21 @@ function wall(a, b)
     return AutoBody(sdf, map)
 end
 
-# capsuleShape = capsule(L, St, A, v; n, m)
-fishShape = fish(thk; L=81.8*4, Re=6070, n, m)
+capsuleShape = capsule(L, St, A, U; n, m)
+# fishShape = fish(thk; L=81.8*4, Re=12875, n, m)
 
 wallShape1 = wall([-n,140], [n,140])
 wallShape2 = wall([-n,-140], [n,-140])
 
-# swimmerBody = capsuleShape + wallShape1 + wallShape2
-swimmerBodyCambridge = fishShape + wallShape1 + wallShape2
+swimmerBody = capsuleShape + wallShape1 + wallShape2
+# swimmerBodyCambridge = fishShape + wallShape1 + wallShape2
 
-swimmer = Simulation((n,m), [0.,0.], (81.8*4), U=U; ν=U*(81.8*4)/Re, body=swimmerBodyCambridge)
+swimmer = Simulation((n,m), [1.,0.], (L+6.5), U=U; ν=U*(L+6.5)/Re, body=swimmerBody)
 
 # Save a time span for one swimming cycle
 period = 2A/St
 nb_snapshot = 24*8
-cycle = range(0, 0.5*period*23/24, length=nb_snapshot)
+cycle = range(0, period*23/24/10, length=nb_snapshot)
 
 foreach(rm, readdir("C:/Users/blagn771/Desktop/PseudoGif", join=true))
 
@@ -146,7 +146,7 @@ function plot_pressure(sim, t)
 	contourf(color=palette([:blue,:lightgrey,:red],9),
 			(pressureₜ[2:n-1,2:m-1]'.*fish[2:n-1,2:m-1]'), 
 			linewidth=0, connectgaps=false, dpi=300, aspect_ratio=1,
-			clims=(-1, 1), legend=true, border=:none)
+			clims=(-0, 1), legend=true, border=:none)
 
 	# The origin of the map is on the bottom left
 	plot!(Shape([0,n,n,0],[0,0,29,29]), legend=false, c=:black, opacity=0.2)
@@ -165,7 +165,7 @@ function plot_pressure(sim, t)
 
 	# print(t,"\n")
 
-  	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t*U)*".png")
+  	savefig("C:/Users/blagn771/Desktop/PseudoGif/frame"*string(t)*".png")
 end
 
 
