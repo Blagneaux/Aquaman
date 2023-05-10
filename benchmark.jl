@@ -100,7 +100,7 @@ Cₚs = []
 # make a gif over a swimming cycle
 @gif for t ∈ sim_time(swimmer) .+ cycle
 	sim_step!(swimmer, t, remeasure=true, verbose=true)
-	plot_vorticity(swimmer,t)
+	# plot_vorticity(swimmer,t)
     pressureCoef(swimmer,t)
 end
 
@@ -111,15 +111,15 @@ for i ∈ range(1,length(Cₚs[1]))
     end
 end
 meanCₚ ./= length(Cₚs[1])
-plot(range(1,length(Cₚs[1])), meanCₚ)
+
+# CSV.write("C:/Users/blagn771/Desktop/MeanPressureCoefAroundCircle.csv", Tables.table(Cₚs), writeheader=false)
+
 
 save = false
 
 # save velocity fields, pressure field, Δt, for the whole simulation
 # save pressure coefficient and velocity at some point behind the cylindre
 if save
-    CSV.write("C:/Users/blagn771/Desktop/MeanPressureCoefAroundCircle.csv", Tables.table(Cₚs), writeheader=false)
-
     CSV.write("C:/Users/blagn771/Desktop/VelocityX.csv", Tables.table(reshape(veloX, :, nb_snapshot)), writeheader=false)
     CSV.write("C:/Users/blagn771/Desktop/velocityY.csv", Tables.table(reshape(veloY, :, nb_snapshot)), writeheader=false)
     CSV.write("C:/Users/blagn771/Desktop/Pressure.csv", Tables.table(reshape(pressure, :, nb_snapshot)), writeheader=false)
@@ -179,9 +179,16 @@ end
 # scatter(cycle, [first.(forces), last.(forces)],
 # 		labels=permutedims(["thrust", "side"]),
 # 		xlabel="scaled time",
-# 		ylabel="scaled force for Re=250, D=32")
+# 		ylabel="scaled force for Re=250, D=16")
+
+# CSV.write("C:/Users/blagn771/Desktop/Lift.csv", Tables.table(last.(forces)), writeheader=false)
+# CSV.write("C:/Users/blagn771/Desktop/Drag.csv", Tables.table(first.(forces)), writeheader=false)
+
+# plot(swimmer.flow.Δt, xlabel="solver iterations", ylabel="Δt", labels=permutedims(["Δt for Re=250, U=1, D=16"]))
 
 # scatter(cycle, [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11],
 #         labels=permutedims(["Pressure at 8D,1.5D", "at 8D,2D", "at 8D,2.5D","at 8D,3D","at 8D,3.5D","at 8D,4D","at 8D,4.5D", "at 8D,5D", "at 8D,5.5D", "at 8D,6D", "at 8D,6.5D"]),
 #         xlabel="scaled time",
 #         ylabel="Pressure coefficient at different points, for Re=250 and D=32")
+
+plot!(range(1,180,length(Cₚs[1])), meanCₚ, xlabel="deg around the circle", ylabel="mean Cₚ", labels=permutedims(["Re=100 D=32"]))
