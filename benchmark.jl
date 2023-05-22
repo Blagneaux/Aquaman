@@ -89,10 +89,6 @@ function pressureCoef(sim, t)
     end
 
     append!(Cₚs,[Cₚ])
-
-    # contourf(sim.flow.p'.*s',
-	# 		 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
-	# 		 aspect_ratio=:equal, legend=true, border=:none)
 end
 
 Cₚs = []
