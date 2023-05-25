@@ -1,73 +1,73 @@
-using WaterLily, StaticArrays, PlutoUI, Interpolations, Plots, Images, Statistics
-using LinearAlgebra: norm2
-using ImageView
+using WaterLily
+using StaticArrays
+function jelly(p=5;Re=5e2,mem=Array,U=1)
+    # Define simulation size, geometry dimensions, & viscosity
+    n = 2^p; R = 2n/3; h = 4n-2R; ν = U*R/Re
 
-_nthread = Threads.nthreads()
-if _nthread==1
-    @warn "WaterLily.jl is running on a single thread.\n
-Launch Julia with multiple threads to enable multithreaded capabilities:\n
-    \$julia -t auto $PROGRAM_FILE"
-else
-    print("WaterLily.jl is running on ", _nthread, " thread(s)\n")
+    # Motion functions
+    ω = 2U/R
+    @fastmath @inline A(t) = 1 .- SA[1,1,0]*0.1*cos(ω*t)
+    @fastmath @inline B(t) = SA[0,0,1]*((cos(ω*t)-1)*R/4-h)
+    @fastmath @inline C(t) = SA[0,0,1]*sin(ω*t)*R/4
+
+    # Build jelly from a mapped sphere and plane
+    sphere = AutoBody((x,t)->abs(√sum(abs2,x)-R)-1, # sdf
+                      (x,t)->A(t).*x+B(t)+C(t))     # map
+    plane = AutoBody((x,t)->x[3]-h,(x,t)->x+C(t))
+    body =  sphere-plane
+
+    # Return initialized simulation
+    Simulation((n,n,4n),(0,0,-U),R;ν,body,mem,T=Float32)
 end
 
-function block1(L=2^5;Re=250,U=1,amp=π/4,ϵ=0.5,thk=2ϵ+√2)
-    #### Line segment SDF
-    function sdf(x,t)
-        y = x .- SVector(0.,clamp(x[2],-L,L))
-        √sum(abs2,y)-thk/2
-    end
-    #### Oscillating motion and rotation
-    function map(x,t)
-        α = amp*cos(t*U/L); R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
-        R * (x.-SVector(3L,4L))
-    end
-    return AutoBody(sdf, map)
+function geom!(md,d,sim,t=WaterLily.time(sim))
+    a = sim.flow.σ
+    WaterLily.measure_sdf!(a,sim.body,t)
+    copyto!(d,a[inside(a)]) # copy to CPU
+    mirrorto!(md,d)         # mirror quadrant
 end
 
-function block2(L=2^5, radius=20;Re=250,U=1,amp=π/4,ϵ=0.5,thk=2ϵ+√2)
-    # Line segment SDF
-    function sdf(x,t)
-        return norm2(x) - radius
-    end
-    # Oscillating motion and rotation
-    function map(x,t)
-        α = amp*cos(t*U/L); R = @SMatrix [cos(α) sin(α); -sin(α) cos(α)]
-        R * (x.-SVector(3L,4L))
-    end
-    return AutoBody(sdf, map)
+function ω!(md,d,sim)
+    a,dt = sim.flow.σ,sim.L/sim.U
+    @inside a[I] = WaterLily.ω_mag(I,sim.flow.u)*dt
+    copyto!(d,a[inside(a)]) # copy to CPU
+    mirrorto!(md,d)         # mirror quadrant
 end
 
-body = block2() + block1()
-L=2^5
-Re=250
-U=1
-ϵ=0.5
-swimmer= Simulation((6L+2,6L+2),zeros(2),L;U,ν=U*L/Re,body=body)
-
-cycle = range(0, 8π, length=24*8)
-
-# plot the vorcity ω=curl(u) scaled by the body length L and flow speed U
-function plot_vorticity(sim,t)
-	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-	contourf(sim.flow.σ',
-			 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
-			 aspect_ratio=:equal, legend=true, border=:none)
+function mirrorto!(a,b)
+    n = size(b,1)
+    a[reverse(1:n),reverse(1:n),:].=b
+    a[reverse(n+1:2n),1:n,:].=a[1:n,1:n,:]
+    a[:,reverse(n+1:2n),:].=a[:,1:n,:]
+    return a
 end
 
-# make a gif over a swimming cycle
-@gif for t ∈ sim_time(swimmer) .+ cycle
-	sim_step!(swimmer, t, remeasure=true, verbose=false)
-	plot_vorticity(swimmer,t)
+import CUDA
+using GLMakie
+begin
+    # Define geometry and motion on GPU
+    sim = jelly(mem=CUDA.CuArray);
+
+    # Create CPU buffer arrays for geometry flow viz 
+    a = sim.flow.σ
+    d = similar(a,size(inside(a))) |> Array; # one quadrant
+    md = similar(d,(2,2,1).*size(d))  # hold mirrored data
+
+    # Set up geometry viz
+    geom = geom!(md,d,sim) |> Observable;
+    fig, _, _ = contour(geom, levels=[0], alpha=0.01)
+
+    #Set up flow viz
+    ω = ω!(md,d,sim) |> Observable;
+    volume!(ω, algorithm=:mip, colormap=:algae, colorrange=(1,10))
+    fig
 end
 
-# # make a gif over a swimming cycle
-# @gif for t ∈ sim_time(swimmer) .+ cycle
-# 	sim_step!(swimmer, t, remeasure=true, verbose=false)
-# 	plot_pressure(swimmer, t)
-# end
-
-scatter(swimmer.pois.n,
-    labels=permutedims(["Number of iteration of the pressure solver"]),
-    xlabel="scaled time",
-    ylabel="scaled pressure")
+# Loop in time
+# record(fig,"jelly.mp4",1:200) do frame
+foreach(1:100) do frame
+    @show frame
+    sim_step!(sim,sim_time(sim)+0.05);
+    geom[] = geom!(md,d,sim);
+    ω[] = ω!(md,d,sim);
+end

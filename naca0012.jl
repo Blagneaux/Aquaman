@@ -25,7 +25,7 @@ function naca(C, Θ, St, Re, U)
     
     # Line segment SDF
     function sdfLine(x,t)
-        thk=1+√2
+        thk=0.1 #1+√2
         y = x .- SVector(clamp(x[1],0.,C), 0.)
         √sum(abs2,y)-thk/2 - 1
     end
@@ -51,9 +51,9 @@ function naca(C, Θ, St, Re, U)
 end
 
 nb_snapshot = 24*64
-cycle = range(0, 48π, length=nb_snapshot)
+cycle = range(0, 48π, length=nb_snapshot) # 48π
 
-C=128
+C=64
 Re=200
 U=1
 St=0.2
@@ -95,43 +95,44 @@ function plot_vorticity(sim,t)
     posR5 = Int.(round.(map2(pos5,t* sim.L / sim.U)))
     posR6 = Int.(round.(map2(pos6,t* sim.L / sim.U)))
 
-    append!(veloX,vec(sim.flow.u[:,:,1]))
-    append!(veloY,vec(sim.flow.u[:,:,2]))
-    append!(pressure,vec(sim.flow.p))
+    # append!(veloX,vec(sim.flow.u[:,:,1]))
+    # append!(veloY,vec(sim.flow.u[:,:,2]))
+    # append!(pressure,vec(sim.flow.p))
 
-    append!(p1,[sim.flow.p[4C,Int(1.75C)]-sim.flow.p[3,2C+1]]); append!(u1,[sim.flow.u[4C,Int(1.75C),1]]); append!(v1,[sim.flow.u[4C,Int(1.75C),2]])
-    append!(p2,[sim.flow.p[4C,2C]-sim.flow.p[3,2C+1]]); append!(u2,[sim.flow.u[4C,2C,1]]); append!(v2,[sim.flow.u[4C,2C,2]])
-    append!(p3,[sim.flow.p[4C,Int(2.25C)]-sim.flow.p[3,2C+1]]); append!(u3,[sim.flow.u[4C,Int(2.25C),1]]); append!(v3,[sim.flow.u[4C,Int(2.25C),2]])
-    append!(p4,[sim.flow.p[4C,Int(2.5C)]-sim.flow.p[3,2C+1]]); append!(u4,[sim.flow.u[4C,Int(2.5C),1]]); append!(v4,[sim.flow.u[4C,Int(2.5C),2]])
-    append!(p5,[sim.flow.p[4C,Int(2.75C)]-sim.flow.p[3,2C+1]]); append!(u5,[sim.flow.u[4C,Int(2.75C),1]]); append!(v5,[sim.flow.u[4C,Int(2.75C),2]])
-    append!(p6,[sim.flow.p[4C,2C]-sim.flow.p[3,2C+1]]); append!(u6,[sim.flow.u[4C,2C,1]]); append!(v6,[sim.flow.u[4C,2C,2]])
-    append!(p7,[sim.flow.p[4C,Int(2.25C)]-sim.flow.p[3,2C+1]]); append!(u7,[sim.flow.u[4C,Int(2.25C),1]]); append!(v7,[sim.flow.u[4C,Int(2.25C),2]])
-    append!(p8,[sim.flow.p[4C,Int(2.5C)]-sim.flow.p[3,2C+1]]); append!(u8,[sim.flow.u[4C,Int(2.5C),1]]); append!(v8,[sim.flow.u[4C,Int(2.5C),2]])
-    append!(p9,[sim.flow.p[4C,Int(2.75C)]-sim.flow.p[3,2C+1]]); append!(u9,[sim.flow.u[4C,Int(2.75C),1]]); append!(v9,[sim.flow.u[4C,Int(2.75C),2]])
-    append!(p10,[sim.flow.p[4C,3C]-sim.flow.p[3,2C+1]]); append!(u10,[sim.flow.u[4C,3C,1]]); append!(v10,[sim.flow.u[4C,3C,2]])
-    append!(p11,[sim.flow.p[4C,Int(3.25C)]-sim.flow.p[3,2C+1]]); append!(u11,[sim.flow.u[4C,Int(3.25C),1]]); append!(v11,[sim.flow.u[4C,Int(3.25C),2]])
+    # append!(p1,[sim.flow.p[4C,Int(1.75C)]-sim.flow.p[3,2C+1]]); append!(u1,[sim.flow.u[4C,Int(1.75C),1]]); append!(v1,[sim.flow.u[4C,Int(1.75C),2]])
+    # append!(p2,[sim.flow.p[4C,2C]-sim.flow.p[3,2C+1]]); append!(u2,[sim.flow.u[4C,2C,1]]); append!(v2,[sim.flow.u[4C,2C,2]])
+    # append!(p3,[sim.flow.p[4C,Int(2.25C)]-sim.flow.p[3,2C+1]]); append!(u3,[sim.flow.u[4C,Int(2.25C),1]]); append!(v3,[sim.flow.u[4C,Int(2.25C),2]])
+    # append!(p4,[sim.flow.p[4C,Int(2.5C)]-sim.flow.p[3,2C+1]]); append!(u4,[sim.flow.u[4C,Int(2.5C),1]]); append!(v4,[sim.flow.u[4C,Int(2.5C),2]])
+    # append!(p5,[sim.flow.p[4C,Int(2.75C)]-sim.flow.p[3,2C+1]]); append!(u5,[sim.flow.u[4C,Int(2.75C),1]]); append!(v5,[sim.flow.u[4C,Int(2.75C),2]])
+    # append!(p6,[sim.flow.p[4C,2C]-sim.flow.p[3,2C+1]]); append!(u6,[sim.flow.u[4C,2C,1]]); append!(v6,[sim.flow.u[4C,2C,2]])
+    # append!(p7,[sim.flow.p[4C,Int(2.25C)]-sim.flow.p[3,2C+1]]); append!(u7,[sim.flow.u[4C,Int(2.25C),1]]); append!(v7,[sim.flow.u[4C,Int(2.25C),2]])
+    # append!(p8,[sim.flow.p[4C,Int(2.5C)]-sim.flow.p[3,2C+1]]); append!(u8,[sim.flow.u[4C,Int(2.5C),1]]); append!(v8,[sim.flow.u[4C,Int(2.5C),2]])
+    # append!(p9,[sim.flow.p[4C,Int(2.75C)]-sim.flow.p[3,2C+1]]); append!(u9,[sim.flow.u[4C,Int(2.75C),1]]); append!(v9,[sim.flow.u[4C,Int(2.75C),2]])
+    # append!(p10,[sim.flow.p[4C,3C]-sim.flow.p[3,2C+1]]); append!(u10,[sim.flow.u[4C,3C,1]]); append!(v10,[sim.flow.u[4C,3C,2]])
+    # append!(p11,[sim.flow.p[4C,Int(3.25C)]-sim.flow.p[3,2C+1]]); append!(u11,[sim.flow.u[4C,Int(3.25C),1]]); append!(v11,[sim.flow.u[4C,Int(3.25C),2]])
 
-    coord0 = [[posR0[1]-1,4C+2-posR0[2]-1],[posR0[1]-1,4C+2-posR0[2]],[posR0[1]-1,4C+2-posR0[2]+1],[posR0[1],4C+2-posR0[2]-1],[posR0[1],4C+2-posR0[2]],[posR0[1],4C+2-posR0[2]+1],[posR0[1]+1,4C+2-posR0[2]-1],[posR0[1]+1,4C+2-posR0[2]],[posR0[1]+1,4C+2-posR0[2]+1]]
-    coord1 = [[posR1[1]-1,4C+2-posR1[2]-1],[posR1[1]-1,4C+2-posR1[2]],[posR1[1]-1,4C+2-posR1[2]+1],[posR1[1],4C+2-posR1[2]-1],[posR1[1],4C+2-posR1[2]],[posR1[1],4C+2-posR1[2]+1],[posR1[1]+1,4C+2-posR1[2]-1],[posR1[1]+1,4C+2-posR1[2]],[posR1[1]+1,4C+2-posR1[2]+1]]
-    coord2 = [[posR2[1]-1,4C+2-posR2[2]-1],[posR2[1]-1,4C+2-posR2[2]],[posR2[1]-1,4C+2-posR2[2]+1],[posR2[1],4C+2-posR2[2]-1],[posR2[1],4C+2-posR2[2]],[posR2[1],4C+2-posR2[2]+1],[posR2[1]+1,4C+2-posR2[2]-1],[posR2[1]+1,4C+2-posR2[2]],[posR2[1]+1,4C+2-posR2[2]+1]]
-    coord3 = [[posR3[1]-1,4C+2-posR3[2]-1],[posR3[1]-1,4C+2-posR3[2]],[posR3[1]-1,4C+2-posR3[2]+1],[posR3[1],4C+2-posR3[2]-1],[posR3[1],4C+2-posR3[2]],[posR3[1],4C+2-posR3[2]+1],[posR3[1]+1,4C+2-posR3[2]-1],[posR3[1]+1,4C+2-posR3[2]],[posR3[1]+1,4C+2-posR3[2]+1]]
-    coord4 = [[posR4[1]-1,4C+2-posR4[2]-1],[posR4[1]-1,4C+2-posR4[2]],[posR4[1]-1,4C+2-posR4[2]+1],[posR4[1],4C+2-posR4[2]-1],[posR4[1],4C+2-posR4[2]],[posR4[1],4C+2-posR4[2]+1],[posR4[1]+1,4C+2-posR4[2]-1],[posR4[1]+1,4C+2-posR4[2]],[posR4[1]+1,4C+2-posR4[2]+1]]
-    coord5 = [[posR5[1]-1,4C+2-posR5[2]-1],[posR5[1]-1,4C+2-posR5[2]],[posR5[1]-1,4C+2-posR5[2]+1],[posR5[1],4C+2-posR5[2]-1],[posR5[1],4C+2-posR5[2]],[posR5[1],4C+2-posR5[2]+1],[posR5[1]+1,4C+2-posR5[2]-1],[posR5[1]+1,4C+2-posR5[2]],[posR5[1]+1,4C+2-posR5[2]+1]]
-    coord6 = [[posR6[1]-1,4C+2-posR6[2]-1],[posR6[1]-1,4C+2-posR6[2]],[posR6[1]-1,4C+2-posR6[2]+1],[posR6[1],4C+2-posR6[2]-1],[posR6[1],4C+2-posR6[2]],[posR6[1],4C+2-posR6[2]+1],[posR6[1]+1,4C+2-posR6[2]-1],[posR6[1]+1,4C+2-posR6[2]],[posR6[1]+1,4C+2-posR6[2]+1]]
+    coord0 = [[posR0[1]-1,4C+2-posR0[2]-1],[posR0[1]-1,4C+2-posR0[2]],[posR0[1]-1,4C+2-posR0[2]+1],[posR0[1],4C+2-posR0[2]-1],[posR0[1],4C+2-posR0[2]],[posR0[1],4C+2-posR0[2]+1],[posR0[1]+1,4C+2-posR0[2]-1],[posR0[1]+1,4C+2-posR0[2]],[posR0[1]+1,4C+2-posR0[2]+1],[posR0[1],4C+2-posR0[2]+2],[posR0[1],4C+2-posR0[2]-2]]
+    coord1 = [[posR1[1]-1,4C+2-posR1[2]-1],[posR1[1]-1,4C+2-posR1[2]],[posR1[1]-1,4C+2-posR1[2]+1],[posR1[1],4C+2-posR1[2]-1],[posR1[1],4C+2-posR1[2]],[posR1[1],4C+2-posR1[2]+1],[posR1[1]+1,4C+2-posR1[2]-1],[posR1[1]+1,4C+2-posR1[2]],[posR1[1]+1,4C+2-posR1[2]+1],[posR1[1],4C+2-posR1[2]+2],[posR1[1],4C+2-posR1[2]-2]]
+    coord2 = [[posR2[1]-1,4C+2-posR2[2]-1],[posR2[1]-1,4C+2-posR2[2]],[posR2[1]-1,4C+2-posR2[2]+1],[posR2[1],4C+2-posR2[2]-1],[posR2[1],4C+2-posR2[2]],[posR2[1],4C+2-posR2[2]+1],[posR2[1]+1,4C+2-posR2[2]-1],[posR2[1]+1,4C+2-posR2[2]],[posR2[1]+1,4C+2-posR2[2]+1],[posR2[1],4C+2-posR2[2]+2],[posR2[1],4C+2-posR2[2]-2]]
+    coord3 = [[posR3[1]-1,4C+2-posR3[2]-1],[posR3[1]-1,4C+2-posR3[2]],[posR3[1]-1,4C+2-posR3[2]+1],[posR3[1],4C+2-posR3[2]-1],[posR3[1],4C+2-posR3[2]],[posR3[1],4C+2-posR3[2]+1],[posR3[1]+1,4C+2-posR3[2]-1],[posR3[1]+1,4C+2-posR3[2]],[posR3[1]+1,4C+2-posR3[2]+1],[posR3[1],4C+2-posR3[2]+2],[posR3[1],4C+2-posR3[2]-2]]
+    coord4 = [[posR4[1]-1,4C+2-posR4[2]-2],[posR4[1]-1,4C+2-posR4[2]-1],[posR4[1]-1,4C+2-posR4[2]],[posR4[1],4C+2-posR4[2]-2],[posR4[1],4C+2-posR4[2]-1],[posR4[1],4C+2-posR4[2]],[posR4[1]+1,4C+2-posR4[2]-2],[posR4[1]+1,4C+2-posR4[2]-1],[posR4[1]+1,4C+2-posR4[2]],[posR4[1],4C+2-posR4[2]+1],[posR4[1],4C+2-posR4[2]-3]]
+    coord5 = [[posR5[1]-1,4C+2-posR5[2]-2],[posR5[1]-1,4C+2-posR5[2]-1],[posR5[1]-1,4C+2-posR5[2]],[posR5[1],4C+2-posR5[2]-2],[posR5[1],4C+2-posR5[2]-1],[posR5[1],4C+2-posR5[2]],[posR5[1]+1,4C+2-posR5[2]-2],[posR5[1]+1,4C+2-posR5[2]-1],[posR5[1]+1,4C+2-posR5[2]],[posR5[1],4C+2-posR5[2]+1],[posR5[1],4C+2-posR5[2]-3]]
+    coord6 = [[posR6[1]-1,4C+2-posR6[2]-2],[posR6[1]-1,4C+2-posR6[2]-1],[posR6[1]-1,4C+2-posR6[2]],[posR6[1],4C+2-posR6[2]-2],[posR6[1],4C+2-posR6[2]-1],[posR6[1],4C+2-posR6[2]],[posR6[1]+1,4C+2-posR6[2]-2],[posR6[1]+1,4C+2-posR6[2]-1],[posR6[1]+1,4C+2-posR6[2]],[posR6[1],4C+2-posR6[2]+1],[posR6[1],4C+2-posR6[2]-3]]
   
     mean0 = 0; mean1 = 0; mean2 = 0; mean3 = 0; mean4 = 0; mean5 = 0; mean6 = 0
     count0 = 0; count1 = 0; count2 = 0; count3 = 0; count4 = 0; count5 = 0; count6 = 0
 
     for i ∈ range(1, length(coord0))
-        (sim.body.sdf([coord0[i][1],coord0[i][2]],t) > 0) && (mean0 += sim.flow.p[coord0[i][1],coord0[i][2]];count0 += 1)
-        (sim.body.sdf([coord1[i][1],coord1[i][2]],t) > 0) && (mean1 += sim.flow.p[coord1[i][1],coord1[i][2]];count1 += 1)
-        (sim.body.sdf([coord2[i][1],coord2[i][2]],t) > 0) && (mean2 += sim.flow.p[coord2[i][1],coord2[i][2]];count2 += 1)
-        (sim.body.sdf([coord3[i][1],coord3[i][2]],t) > 0) && (mean3 += sim.flow.p[coord3[i][1],coord3[i][2]];count3 += 1)
-        (sim.body.sdf([coord4[i][1],coord4[i][2]],t) > 0) && (mean4 += sim.flow.p[coord4[i][1],coord4[i][2]];count4 += 1)
-        (sim.body.sdf([coord5[i][1],coord5[i][2]],t) > 0) && (mean5 += sim.flow.p[coord5[i][1],coord5[i][2]];count5 += 1)
-        (sim.body.sdf([coord6[i][1],coord6[i][2]],t) > 0) && (mean6 += sim.flow.p[coord6[i][1],coord6[i][2]];count6 += 1)
+        (sim.flow.μ₀[coord0[i][1],coord0[i][2],1] ≤ 0.5) && (mean0 += sim.flow.p[coord0[i][1],coord0[i][2]];count0 += 1)
+        (sim.flow.μ₀[coord1[i][1],coord1[i][2],1] ≤ 0.5) && (mean1 += sim.flow.p[coord1[i][1],coord1[i][2]];count1 += 1)
+        (sim.flow.μ₀[coord2[i][1],coord2[i][2],1] ≤ 0.5) && (mean2 += sim.flow.p[coord2[i][1],coord2[i][2]];count2 += 1)
+        (sim.flow.μ₀[coord3[i][1],coord3[i][2],1] ≤ 0.5) && (mean3 += sim.flow.p[coord3[i][1],coord3[i][2]];count3 += 1)
+        (sim.flow.μ₀[coord4[i][1],coord4[i][2],1] ≤ 0.5) && (mean4 += sim.flow.p[coord4[i][1],coord4[i][2]];count4 += 1)
+        (sim.flow.μ₀[coord5[i][1],coord5[i][2],1] ≤ 0.5) && (mean5 += sim.flow.p[coord5[i][1],coord5[i][2]];count5 += 1)
+        (sim.flow.μ₀[coord6[i][1],coord6[i][2],1] ≤ 0.5) && (mean6 += sim.flow.p[coord6[i][1],coord6[i][2]];count6 += 1)
     end#
 
+    # 7 points on the naca
     append!(p₀,[mean0/count0 - sim.flow.p[3,2C+1]])
     append!(p₁,[mean1/count1 - sim.flow.p[3,2C+1]])
     append!(p₂,[mean2/count2 - sim.flow.p[3,2C+1]])
@@ -140,11 +141,37 @@ function plot_vorticity(sim,t)
     append!(p₅,[mean5/count5 - sim.flow.p[3,2C+1]])
     append!(p₆,[mean6/count6 - sim.flow.p[3,2C+1]])
     
+    # s = zeros(Int64, size(sim.flow.p))
+    # for i ∈ range(1, length(coord0))
+    #     if sim.flow.μ₀[coord0[i][1],coord0[i][2],1] ≤ 0.5
+    #         s[coord0[i][1],coord0[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord1[i][1],coord1[i][2],1] ≤ 0.5
+    #         s[coord1[i][1],coord1[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord2[i][1],coord2[i][2],1] ≤ 0.5
+    #         s[coord2[i][1],coord2[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord3[i][1],coord3[i][2],1] ≤ 0.5
+    #         s[coord3[i][1],coord3[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord4[i][1],coord4[i][2],1] ≤ 0.5
+    #         s[coord4[i][1],coord4[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord5[i][1],coord5[i][2],1] ≤ 0.5
+    #         s[coord5[i][1],coord5[i][2]] = -9
+    #     end
+    #     if sim.flow.μ₀[coord6[i][1],coord6[i][2],1] ≤ 0.5
+    #         s[coord6[i][1],coord6[i][2]] = -9
+    #     end
+    # end
 
-	@inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
-	contourf(sim.flow.σ',
-			 color=palette(:BuGn), clims=(-10, 10), linewidth=0,
-			 aspect_ratio=:equal, legend=true, border=:none)
+	# @inside sim.flow.σ[I] = WaterLily.curl(3, I, sim.flow.u) * sim.L / sim.U
+	# contourf(s',
+    #         color=palette([:blue,:lightgrey,:red],9), clims=(-9, 9), linewidth=0,
+	# 		 aspect_ratio=:equal, legend=true, border=:none)
+    # contour!(swimmer.flow.μ₀[:,:,1]',
+    #         aspect_ratio=:equal, legend=true, border=:none)
 end
 
 # make a gif over a swimming cycle
@@ -156,7 +183,7 @@ end
 plot(range(1,nb_snapshot), [p₀,p₁,p₂,p₃,p₄,p₅,p₆] , xlabel="x along the chord", ylabel="Cp for C=128, Re=200", 
 label=permutedims(["on the nose", "at C/4 top", "at C/2 top", "at 3C/4 top", "at C/4 bot", "at C/2 bot", "at 3C/4 bot"]))
 
-save = true
+save = false
 
 # save velocity fields, pressure field, Δt, for the whole simulation
 # save pressure coefficient and velocity at some point behind the cylindre
@@ -236,7 +263,7 @@ end
 # scatter(cycle, [first.(forces), last.(forces)],
 # 		labels=permutedims(["thrust", "side"]),
 # 		xlabel="scaled time",
-# 		ylabel="scaled force for Re=200, C=256")
+# 		ylabel="scaled force for Re=200, C=64")
 
 # # Cp plot
 # function pressureCoef(sim, t)
