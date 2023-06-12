@@ -67,7 +67,7 @@ class BDIM{
   BDIM( int n, int m, float dt, AbstractBody body, float nu, boolean QUICK, float u_inf){
     this(n,m,dt,body,new VectorField(n+2,m+2,u_inf,0),nu,QUICK);}
   BDIM( int n, int m, float dt, AbstractBody body, float nu, boolean QUICK ){
-    this(n,m,dt,body,new VectorField(n+2,m+2,1,0),nu,QUICK);}
+    this(n,m,dt,body,new VectorField(n+2,m+2,0,0),nu,QUICK);}
   
   // If no body is supplied, create a body outside the domain
   BDIM( int n, int m, float dt, VectorField uinit, float nu, boolean QUICK ){

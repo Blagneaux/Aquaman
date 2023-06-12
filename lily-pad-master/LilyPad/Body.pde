@@ -396,7 +396,7 @@ class Body extends AbstractBody{
  ********************************/
 class EllipseBody extends Body {
   float h, a; // height and aspect ratio of ellipse
-  int m = 40;
+  int m = 100;
 
   EllipseBody( float x, float y, float _h, float _a, Window window) {
     super(x, y, window);
