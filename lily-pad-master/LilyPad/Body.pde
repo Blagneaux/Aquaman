@@ -264,6 +264,44 @@ class Body extends AbstractBody{
     if (n>4) box.translate(dx, dy);
   }
 
+  // void translate( PVector[] motion) {
+  //   if (body.coords.size() != motion.length) {
+  //     println("Error: Number of coordinates and displacements must match");
+  //     return;
+  //   }
+  //   float dx = motion[0].x;
+  //   float dy = motion[0].y;
+  //   dxc = new PVector(dx, dy);
+  //   xc.add(dxc);
+  //   for ( PVector x: coords ) x.add(dxc);
+  //   for ( OrthoNormal o: orth   ) o.translate(dx, dy);
+  //   if (n>4) box.translate(dx, dy);
+  //   // translate(motion[0].x, motion[0].y);
+  // }
+
+  void translate(PVector[] translations) {
+    if (translations.length != coords.size()) {
+      println("Error: The number of translations must match the number of coordinates.");
+      return;
+    }  
+    float dx = translations[0].x;
+    float dy = translations[0].y;
+    dxc = new PVector(dx, dy);
+    xc.add(translations[0]); // Update the center point (assuming the first translation corresponds to the center)
+    
+    for (int i = 0; i < coords.size(); i++) {
+      coords.get(i).add(new PVector(translations[i].x, translations[i].y));
+    }
+    for (int i = 0; i < orth.length; i++) {
+      PVector translation = translations[i];
+      // print("translation des orth: ", dx, dy);
+      orth[i].translate(translation.x, translation.y);
+    }
+    if (n > 4) {
+      box.translate(dx, dy);
+    }
+  }
+
   void rotate( float dphi ) {
     this.dphi = dphi;
     phi = phi+dphi;

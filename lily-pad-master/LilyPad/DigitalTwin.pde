@@ -5,7 +5,7 @@ class DigitalTwin extends BodyUnion{
     float f;
 
     DigitalTwin(int chord, Window window) {
-        super(5*chord,4*chord,window);
+        super(0,0,window);
         float len = 74.2;
 
         // head of the foil
@@ -16,7 +16,7 @@ class DigitalTwin extends BodyUnion{
 
         // walls
         add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
-        add(new Sensor(0,(2-100/len+34/len)*chord,16*chord,window));
+        // add(new Sensor(0,(2-100/len+0/len)*chord,16*chord,window));
         add(new TestLine(0,(2-100/len)*chord,16*chord,window));
         add(new VWall(15.5*chord,(2+100/len)*chord,chord,window));
         add(new VWall((15.5-605/len)*chord,(2+100/len)*chord,chord,window));
@@ -46,7 +46,9 @@ class DigitalTwin extends BodyUnion{
             this.bodyList.get(0).translate(-89*dt/len,0);
             this.bodyList.get(1).translate(-89*dt/len,0);
         }else{
-
+            this.bodyList.get(0).translate(0,0);
+            this.bodyList.get(1).translate(0,0);
+            this.bodyList.get(1).rotate(0); 
         }
     }
 }
