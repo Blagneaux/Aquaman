@@ -189,6 +189,12 @@ class Field{
     }
   }
   float interp( float x0, float y0 ){return linear(x0,y0);}
+
+  float extract( float x0, float y0){
+    int i = min( (int)x0, n-2 ); 
+    int j = min( (int)y0, m-2 );
+    return a[i][j];
+  }
   
   void display( float low, float high ){
     PImage img = createImage(n-2,m-2,RGB);

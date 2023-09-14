@@ -7,8 +7,8 @@ class CSV2DigitalTwin extends Body {
     float endTime;                      // End time
     float currentTime = 0;              // Current time for interpolation
 
-    CSV2DigitalTwin(String xFilePath, String yFilePath, Window window) {
-        super(10, 10, window);
+    CSV2DigitalTwin(float x0, float y0, String xFilePath, String yFilePath, Window window) {
+        super(x0, y0, window);
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
 
@@ -37,10 +37,8 @@ class CSV2DigitalTwin extends Body {
         }
 
         // Draw the first state
-        add(xc.x, xc.y);
-        print("xc: ", xc);
-        for (int k = 1; k < numRows; k++) {
-            add(positionsList.get(0)[k].x, positionsList.get(0)[k].y);
+        for (int k = 0; k < numRows; k++) {
+            add(x0+positionsList.get(0)[k].x, y0+positionsList.get(0)[k].y);
         }
         end();
     }
@@ -62,20 +60,21 @@ class CSV2DigitalTwin extends Body {
             for (int i = 0; i < currentPositions.length; i++) {
                 float dx = nextPositions[i].x - currentPositions[i].x;
                 float dy = nextPositions[i].y - currentPositions[i].y;
-                // float interpX = lerp(0, nextPositions[i].x - currentPositions[i].x, (numColumns - 1) * t);
-                // float interpY = lerp(0, nextPositions[i].y - currentPositions[i].y, (numColumns - 1) * t);
                 interpolatedPositions[i] = new PVector(dx, dy);
             }
         
         
             // Update the shape using the interpolated positions
-            body.translate(1,0);
+            body.translate(interpolatedPositions);
             
             // Update currentTime
             currentTime += 1;
             if (currentTime > endTime) {
                 currentTime = startTime;
             }
+        }
+        else {
+            body.translate(0,0);
         }
   }
 }

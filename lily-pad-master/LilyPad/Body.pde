@@ -264,42 +264,66 @@ class Body extends AbstractBody{
     if (n>4) box.translate(dx, dy);
   }
 
-  // void translate( PVector[] motion) {
-  //   if (body.coords.size() != motion.length) {
-  //     println("Error: Number of coordinates and displacements must match");
-  //     return;
-  //   }
-  //   float dx = motion[0].x;
-  //   float dy = motion[0].y;
-  //   dxc = new PVector(dx, dy);
-  //   xc.add(dxc);
-  //   for ( PVector x: coords ) x.add(dxc);
-  //   for ( OrthoNormal o: orth   ) o.translate(dx, dy);
-  //   if (n>4) box.translate(dx, dy);
-  //   // translate(motion[0].x, motion[0].y);
-  // }
-
   void translate(PVector[] translations) {
     if (translations.length != coords.size()) {
       println("Error: The number of translations must match the number of coordinates.");
       return;
     }  
-    float dx = translations[0].x;
-    float dy = translations[0].y;
-    dxc = new PVector(dx, dy);
-    xc.add(translations[0]); // Update the center point (assuming the first translation corresponds to the center)
-    
+    float dx_mean = meanTranslation(translations).x;
+    float dy_mean = meanTranslation(translations).y;
+    float dx_max = boxTranslation(translations).x;
+    float dy_max = boxTranslation(translations).y;
+    dxc = new PVector(dx_mean, dy_mean);
+    xc.add(dxc); // Update the center point (assuming the first translation corresponds to the center)
+    // xc.add(translations[0]);
     for (int i = 0; i < coords.size(); i++) {
-      coords.get(i).add(new PVector(translations[i].x, translations[i].y));
-    }
-    for (int i = 0; i < orth.length; i++) {
       PVector translation = translations[i];
-      // print("translation des orth: ", dx, dy);
+      coords.get(i).add(new PVector(translations[i].x, translations[i].y));
       orth[i].translate(translation.x, translation.y);
     }
     if (n > 4) {
-      box.translate(dx, dy);
+      box.translate(dx_max, dy_max);
     }
+  }
+
+  PVector meanTranslation(PVector[] translations) {
+    float meanX = 0;
+    float meanY = 0;
+    for (int i = 0; i < translations.length; i++) {
+      PVector translation = translations[i];
+      meanX += translation.x;
+      meanY += translation.y;
+    }
+    return new PVector(meanX / translations.length, meanY / translations.length);
+  }
+
+  PVector boxTranslation(PVector[] translations) {
+    float maxX = 0;
+    float minX = 0;
+    float maxY = 0;
+    float minY = 0;
+    for (int i = 0; i < translations.length; i++) {
+      PVector translation = translations[i];
+      if (translation.x > maxX) {
+        maxX = translation.x;
+        if (translation.y > maxY) {
+          maxY = translation.y;
+        }
+        else if (translation.y < minY) {
+          minY = translation.y;
+        }
+      }
+      else if (translation.x < minX) {
+        minX = translation.x;
+        if (translation.y > maxY) {
+          maxY = translation.y;
+        }
+        else if (translation.y < minY) {
+          minY = translation.y;
+        }
+      }
+    }
+    return new PVector(maxX - minX, maxY - minY);
   }
 
   void rotate( float dphi ) {

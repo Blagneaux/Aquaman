@@ -9,21 +9,21 @@ class DigitalTwin extends BodyUnion{
         float len = 74.2;
 
         // head of the foil
-        add(new Rectangle((15.5-1-51/len)*chord,2*chord,chord*5/len,chord*13/len,window));
+        add(new Rectangle((16-1-51/len)*chord,2*chord,chord*5/len,chord*13/len,window));
 
         // tail of the foil
-        add(new Triangle((15.5-1-51/len+12.7/len)*chord,2*chord,chord*12.71/len,chord*62.7/len,chord,window));
+        add(new Triangle((16-1-51/len+12.7/len)*chord,2*chord,chord*12.71/len,chord*62.7/len,chord,window));
 
         // walls
-        add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
+        // add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
         // add(new Sensor(0,(2-100/len+0/len)*chord,16*chord,window));
-        add(new TestLine(0,(2-100/len)*chord,16*chord,window));
-        add(new VWall(15.5*chord,(2+100/len)*chord,chord,window));
-        add(new VWall((15.5-605/len)*chord,(2+100/len)*chord,chord,window));
-        add(new VWall((15.5-505/len)*chord,(2+100/len)*chord,chord,window));
+        // add(new TestLine(0,(2-100/len)*chord,16*chord,window));
+        // add(new VWall(16*chord-51*chord/len,(2+100/len)*chord,3*chord,window));
+        // add(new VWall((16-605/len)*chord,(2-100/len)*chord,3*chord,window));
+        // add(new VWall((16-505/len)*chord,(2+100/len)*chord,chord,window));
 
         // tests
-        // add(new TestLine(14*chord+6.5*chord/len,4.4*chord, chord, window)); //length
+        // add(new TestLine(14*chord+6.5*chord/len,2.2*chord, chord, window)); //length
         // add(new TestLine(0,(1.5+tan(25*PI/180))*chord-2,16*chord, window));
         // add(new TestLine(0,(1.5-tan(25*PI/180))*chord,16*chord, window));
 
