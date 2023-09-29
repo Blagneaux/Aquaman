@@ -12,9 +12,6 @@ class CSV2DigitalTwin extends Body {
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
 
-        // print("xc: ", xc);
-        // xc.x = 10;
-
         // Get the number of columns in the tables
         numColumns = xTable.getColumnCount();
         endTime = numColumns;

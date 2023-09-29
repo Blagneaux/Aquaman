@@ -1,0 +1,5 @@
+train: .\python\circleDataset\test\YOLODataset/images/train/
+val: .\python\circleDataset\test\YOLODataset/images/val/
+test: .\python\circleDataset\test\YOLODataset/images/test/
+nc: 1
+names: ['circle']

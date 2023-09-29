@@ -15,12 +15,12 @@ class DigitalTwin extends BodyUnion{
         add(new Triangle((16-1-51/len+12.7/len)*chord,2*chord,chord*12.71/len,chord*62.7/len,chord,window));
 
         // walls
-        // add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
+        add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
         // add(new Sensor(0,(2-100/len+0/len)*chord,16*chord,window));
-        // add(new TestLine(0,(2-100/len)*chord,16*chord,window));
-        // add(new VWall(16*chord-51*chord/len,(2+100/len)*chord,3*chord,window));
-        // add(new VWall((16-605/len)*chord,(2-100/len)*chord,3*chord,window));
-        // add(new VWall((16-505/len)*chord,(2+100/len)*chord,chord,window));
+        add(new TestLine(0,(2-100/len)*chord,16*chord,window));
+        add(new VWall(16*chord-51*chord/len,(2+100/len)*chord,3*chord,window));
+        add(new VWall((16-605/len)*chord,(2-100/len)*chord,3*chord,window));
+        add(new VWall((16-505/len)*chord,(2+100/len)*chord,chord,window));
 
         // tests
         // add(new TestLine(14*chord+6.5*chord/len,2.2*chord, chord, window)); //length
@@ -43,8 +43,8 @@ class DigitalTwin extends BodyUnion{
             else {
             this.bodyList.get(1).rotate(omega-omega_0); 
             }
-            this.bodyList.get(0).translate(-89*dt/len,0);
-            this.bodyList.get(1).translate(-89*dt/len,0);
+            this.bodyList.get(0).translate(-92*dt/len,0);
+            this.bodyList.get(1).translate(-92*dt/len,0);
         }else{
             this.bodyList.get(0).translate(0,0);
             this.bodyList.get(1).translate(0,0);

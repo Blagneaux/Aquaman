@@ -147,9 +147,9 @@ void dataAdd() {
   output.close();
 }
 
-//void mousePressed(){body.mousePressed();}    // user mouse...
-//void mouseReleased(){body.mouseReleased();}  // interaction methods
-//void mouseWheel(MouseEvent event){body.mouseWheel(event);}
+void mousePressed(){body.mousePressed();}    // user mouse...
+void mouseReleased(){body.mouseReleased();}  // interaction methods
+void mouseWheel(MouseEvent event){body.mouseWheel(event);}
 
 /***************************************************************************************************************************
                   Main Window!
@@ -166,7 +166,8 @@ can only have one setup & run at a time.
 *********************************************************/
 //// Circle that can be dragged by the mouse
 //BDIM flow;
-//Body body;
+////Body body;
+//CSV2DigitalTwin body;
 //FloodPlot flood;
 //PrintWriter output;
 //SaveData dat;
@@ -183,7 +184,9 @@ can only have one setup & run at a time.
 //void setup(){
 //  size(700,700);                             // display window size
 //  Window view = new Window(n,n);
-//  body = new CircleBody(n/3,n/2,L,view);     // define geom
+//  //body = new CircleBody(n/3,n/2,L,view);     // define geom
+//  //body = new CSV2DigitalTwin(0, 0, "C:/Users/blagn771/Desktop/x-pos2.csv","C:/Users/blagn771/Desktop/y-pos.csv",view);
+//  body = new CSV2DigitalTwin(0, 0, "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv",view);
 //  flow = new BDIM(n,n,1.5,body);             // solve for flow using BDIM
 //  flood = new FloodPlot(view);               // initialize a flood plot...
 //  flood.setLegend("pressure",-1,1);       //    and its legend
@@ -193,7 +196,8 @@ can only have one setup & run at a time.
 //void draw(){
 //  t += flow.dt;                              // update the time
 //  print("flow.dt", flow.dt);
-//  body.follow();                             // update the body
+//  //body.translate(0.5,0);                             // update the body
+//  body.update();
 //  flow.update(body); flow.update2();         // 2-step fluid update
 //  flood.display(flow.p);              // compute and display vorticity
 //  body.display();                            // display the body
@@ -214,7 +218,7 @@ can only have one setup & run at a time.
   
 //  saveFrame("saved/frame-####.png");
   
-//  if (t >= 500) {     // finish after 4 cycles
+//  if (t >= 200) {     // finish after 4 cycles
 //    dataAdd();
 //    dat.finish();
 //    exit();

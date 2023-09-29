@@ -4,15 +4,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib as mpl
-import cv2
+from scipy import signal
 
 file_path = 'C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_data.csv'
+ref_path = 'python/data_08092023_x242y56_exp1.xlsx'
 
-recreateVideo = True
-plotSignal = True
+recreateVideo = False
+plotSignal = False
+plotComp = True
 
 # Use the read_csv function to read the CSV file into a Pandas DataFrame
 df = pd.read_csv(file_path, header=None)
+df_ref = pd.read_excel(ref_path, header=None)
 num_columns = df.shape[1]
 min, max = min(df.min()[1:]), max(df.max()[1:])
 chord = 32
@@ -30,8 +33,7 @@ def extractCoord(i,j):
 def data_gen():
     i, j = int(16*chord - posx*chord/len), int(2*chord - posy*chord/len)
     for k in range(T.size):
-        print(k, T[k], extractCoord(k, (i-1)*4*chord+j))
-        yield T[k], extractCoord(k, (i-1)*4*chord+j)
+        yield T[k], extractCoord(k, (i-1)*4*chord+j) * 0.5 * 1000 * 0.089 * 0.089 # P = Cp * rho * U^2 / 2
 
 def init():
     ax.set_ylim(-1.5, 1.5)
@@ -43,13 +45,13 @@ def init():
 
 def run(data):
     # update the data
-    t, y = data
-    xdata.append(t)
+    x, y = data
+    xdata.append(x)
     ydata.append(y)
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
 
-    if t >= xmax:
+    if x >= xmax:
         ax.set_xlim(xmin, 2*xmax)
         ax.figure.canvas.draw()
     if y >= ymax or y <= ymin:
@@ -91,3 +93,34 @@ if plotSignal:
     writervideo = animation.FFMpegWriter(fps=25) 
     mpl.rcParams['animation.ffmpeg_path'] = r'C:/Users/blagn771\Downloads/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe'
     ani.save('signal.mp4', writer=writervideo)
+
+if plotComp:
+    i, j = int(16*chord - posx*chord/len), int(2*chord - posy*chord/len)
+    dim = 0.5 * 1000 * 0.089 * 0.089
+    simP = []
+    simT = np.linspace(0, 4.9, 538)
+    for k in range(df.columns.size):
+        simP.append(extractCoord(k, (i-1)*4*chord+j) * dim)
+
+    sensorMean = np.mean(df_ref[1])
+
+    # Filter sensor data
+    N = 2
+    fc1 = 20
+    fs = 1000
+    Wn = fc1/(fs/2)
+    btype = 'low'
+    b, a = signal.butter(N, Wn, btype=btype)
+    filtered_sensor = signal.filtfilt(b, a, df_ref[1] - sensorMean)
+    trimmed_sensor = filtered_sensor[df_ref[2] != 0]
+    trimmed_sensor = trimmed_sensor[:4901]
+    refT = np.linspace(0,4.9,trimmed_sensor.size)
+
+    plt.plot(simT, simP[:538], label="Simulation data")
+    plt.plot(refT, -trimmed_sensor, label="Sensor data")
+
+    plt.xlabel('Time')
+    plt.ylabel('Pressure')
+    plt.legend()
+
+    plt.show()

@@ -1,0 +1,4 @@
+train: C:\Users\blagn771\Documents\Aquaman\Aquaman\python\circleDataset\train
+val: C:\Users\blagn771\Documents\Aquaman\Aquaman\python\circleDataset\test
+nc: 1
+names: ['circle']
