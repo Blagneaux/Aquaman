@@ -71,7 +71,7 @@ class Body extends AbstractBody{
     coords.add( new PVector( x, y ) );
   }
 
-  void end(Boolean closed) {
+  void end(Boolean closed, Boolean custom) {
     n = coords.size();
     orth = new OrthoNormal[closed?n:n-1];
     getOrth(); // get orthogonal projection of line segments
@@ -80,11 +80,21 @@ class Body extends AbstractBody{
     // make the bounding box
     if (n>4) {
       PVector mn = xc.copy(), mx = xc.copy();
-      for ( PVector x: coords ) {
-        mn.x = min(mn.x, x.x);
-        mn.y = min(mn.y, x.y);
-        mx.x = max(mx.x, x.x);
-        mx.y = max(mx.y, x.y);
+      if (custom == false) {
+        for ( PVector x: coords ) {
+          mn.x = min(mn.x, x.x);
+          mn.y = min(mn.y, x.y);
+          mx.x = max(mx.x, x.x);
+          mx.y = max(mx.y, x.y);
+        }
+      }
+      else {
+        for ( PVector x: coords ) {
+          mn.x = min(mn.x, x.x);
+          mn.y = xc.y - 2;
+          mx.x = max(mx.x, x.x);
+          mx.y = xc.y + 2;
+        }
       }
       box = new Body(xc.x, xc.y, window);
       box.add(mn.x, mn.y);
@@ -104,7 +114,16 @@ class Body extends AbstractBody{
     }}}
   }
   void end() {
-    end(true);
+    end(true, false);
+  }
+
+  void end(Boolean closed) {
+    if (closed == false) {
+      end(false, false);
+    }
+    else {
+      end();
+    }
   }
 
   void getOrth() {    // get orthogonal projection to speed-up distance()
@@ -141,7 +160,7 @@ class Body extends AbstractBody{
     display(C, window);
   }
   void display( color C, Window window ) { // note: can display while adding
-    //    if(n>4) box.display(#FFCC00);
+       if(n>4) box.display(#FFCC00);
     fill(C);
     //noStroke();
     stroke(bodyOutline);
@@ -266,13 +285,11 @@ class Body extends AbstractBody{
 
   void translate(PVector[] translations) {
     if (translations.length != coords.size()) {
-      println("Error: The number of translations must match the number of coordinates.");
+      println("Error: The number of translations (",translations.length,") must match the number of coordinates (",coords.size(),").");
       return;
     }  
     float dx_mean = meanTranslation(translations).x;
     float dy_mean = meanTranslation(translations).y;
-    float dx_max = boxTranslation(translations).x;
-    float dy_max = boxTranslation(translations).y;
     dxc = new PVector(dx_mean, dy_mean);
     xc.add(dxc); // Update the center point (assuming the first translation corresponds to the center)
     // xc.add(translations[0]);
@@ -282,7 +299,7 @@ class Body extends AbstractBody{
       orth[i].translate(translation.x, translation.y);
     }
     if (n > 4) {
-      box.translate(dx_max, dy_max);
+      box.translate(dx_mean, dy_mean);
     }
   }
 
@@ -295,35 +312,6 @@ class Body extends AbstractBody{
       meanY += translation.y;
     }
     return new PVector(meanX / translations.length, meanY / translations.length);
-  }
-
-  PVector boxTranslation(PVector[] translations) {
-    float maxX = 0;
-    float minX = 0;
-    float maxY = 0;
-    float minY = 0;
-    for (int i = 0; i < translations.length; i++) {
-      PVector translation = translations[i];
-      if (translation.x > maxX) {
-        maxX = translation.x;
-        if (translation.y > maxY) {
-          maxY = translation.y;
-        }
-        else if (translation.y < minY) {
-          minY = translation.y;
-        }
-      }
-      else if (translation.x < minX) {
-        minX = translation.x;
-        if (translation.y > maxY) {
-          maxY = translation.y;
-        }
-        else if (translation.y < minY) {
-          minY = translation.y;
-        }
-      }
-    }
-    return new PVector(maxX - minX, maxY - minY);
   }
 
   void rotate( float dphi ) {

@@ -1,14 +1,24 @@
-class CSV2DigitalTwin extends Body {
+class CSV2DigitalTwin extends NACA {
     ArrayList<PVector[]> positionsList; // List to store positions for each time step
+    ArrayList<float[]> spaceDerivativesList; // List to store the spatial derivatives
+    ArrayList<float[]> timeDerivativesList; // List to store the time derivates
     int numColumns;                     // Number of columns in the tables
     int numRows;                        // Number of rows in the tables
     Table xTable, yTable;               // CSV tables for x and y coordinates
     float startTime = 0;                // Start time
     float endTime;                      // End time
     float currentTime = 0;              // Current time for interpolation
+    NACA orig;                          // Base on which to build the Digital Twin
+    int index;
+    float x0 = 0;
+    float y0 = 0;
 
-    CSV2DigitalTwin(float x0, float y0, String xFilePath, String yFilePath, Window window) {
-        super(x0, y0, window);
+    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, Window window) {
+        // Just as in flex NACA, set a regular NACA coords and save as orig
+        super(x0, y0, 0, 0, m / 2, window);
+        orig = new NACA(x0,y0,0,0,m/2,window);
+
+        // Load the coordinates
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
 
@@ -17,7 +27,11 @@ class CSV2DigitalTwin extends Body {
         endTime = numColumns;
 
         // Get the number of rows in the tables
-        numRows = min(xTable.getRowCount(), yTable.getRowCount());
+        if (xTable.getRowCount() != yTable.getRowCount()) {
+            println("x and y tables are not the same size");
+        }
+        numRows = m;
+        println("Rows: ", m, "; Columns: ", endTime);
 
         // Initialize the positionsList based on the number of columns
         positionsList = new ArrayList<PVector[]>(numColumns);
@@ -33,23 +47,130 @@ class CSV2DigitalTwin extends Body {
             positionsList.add(positions); // Add the positions array to the list
         }
 
-        // Draw the first state
-        for (int k = 0; k < numRows; k++) {
-            add(x0+positionsList.get(0)[k].x, y0+positionsList.get(0)[k].y);
+        // Pre compute the spatial derivatives for every time step
+        spaceDerivativesList = new ArrayList<float[]>(numColumns);
+        for (int i = 0; i < numColumns; i++) {
+            float[] spaceDerivatives = new float[numRows];
+            for (int j = 0; j < numRows; j++) {
+                if (j==0) { // Left border computation
+                    spaceDerivatives[j] = spaceDerivative(j+1, numRows-1, i);
+                }
+                else if (j==numRows-1) { // Right border computation
+                    spaceDerivatives[j] = spaceDerivative(0, j-1, i);
+                }
+                else {
+                    spaceDerivatives[j] = spaceDerivative(j+1, j-1, i);
+                }
+            }
+            spaceDerivativesList.add(spaceDerivatives); // Add the derivatives array to the list
         }
-        end();
+
+        // Pre compute the time derivatives for every point of the shape
+        timeDerivativesList = new ArrayList<float[]>(numColumns);
+        for (int i = 0; i < numColumns; i++) {
+            float[] timeDerivatives = new float[numRows];
+            for (int j = 0; j < numRows; j++) {
+                if (i==0) { // Left border computation
+                    timeDerivatives[j] = timeDerivative(j, i+1, i);
+                }
+                else if (i==numColumns-1) { // Right border computation
+                    timeDerivatives[j] = timeDerivative(j, i, i-1);
+                }
+                else {
+                    timeDerivatives[j] = timeDerivative(j, i+1, i-1);
+                }
+            }
+            timeDerivativesList.add(timeDerivatives); // Add the derivatives array to the list
+        }
+
+        // Draw the first state by replacing the coordinates
+        for (int k = 0; k < numRows; k++) {
+            coords.get(k).x = positionsList.get(0)[k].x - positionsList.get(0)[0].x + x0;
+            coords.get(k).y = positionsList.get(0)[k].y - positionsList.get(0)[0].y + y0;
+        }
+        end(true, true);
     }
 
-    void update() {
-    
+    // float distance( float x, float y) {
+    //     // Find the closest point to (x,y) to get the corresponding local time derivative
+    //     PVector[] currentPosDist = positionsList.get(index);
+    //     int pt_index = 0;
+    //     float min_dis = 1e10;
+    //     for (int i = 0; i < currentPosDist.length; i++){
+    //         if (dist(x,y,currentPosDist[i].x,currentPosDist[i].y) < min_dis) {
+    //             pt_index = i;
+    //         }
+    //     }
+    //     return orig.distance(currentPosDist[pt_index].x, currentPosDist[pt_index].y);
+    // }
+
+    PVector WallNormal(float x, float y) {// adjust orig normal
+        PVector n = orig.WallNormal(x, y);
+        n.x -= dhdx(x,y)*n.y; // The function is no longer y-h but y, hence the sign change
+        float m = n.mag();
+        if(m>0) return PVector.div(n,m);
+        else return n; 
+    }
+
+    // float velocity(int d, float dt, float x, float y){ // use 'wave' velocity
+    //     float v = super.velocity(d,dt,x,y);
+    //     if(d==1) return v;
+    //     else return v+hdot(x,y);
+    // }
+
+    void translate(float dx, float dy) {
+        // // Get displacement between positions in the current and next columns
+        // if (index + 1 < numColumns) {
+        //     PVector[] currentPositions = positionsList.get(index);
+        //     PVector[] nextPositions = positionsList.get((index + 1)); // Wrap around at the end
+        //     PVector[] interpolatedPositions = new PVector[currentPositions.length];
+        //     for (int i = 0; i < currentPositions.length; i++) {
+        //         float dx = nextPositions[i].x - currentPositions[i].x;
+        //         float dy = nextPositions[i].y - currentPositions[i].y;
+        //         interpolatedPositions[i] = new PVector(dx, dy);
+        //     }
+        
+        //     // Update the shape using the interpolated positions
+        //     body.translate(interpolatedPositions);
+            
+        //     // Update currentTime
+        //     currentTime += 1;
+        //     if (currentTime > endTime) {
+        //         currentTime = startTime;
+        //     }
+        // }
+        // else {
+        //     body.translate(0,0);
+        // }
+        super.translate(dx,dy);
+        orig.translate(dx,dy);
+        x0 += dx;
+        y0 += dy;
+    }
+
+    void rotate(float dphi) {} // no rotation
+
+    void update() { // update 'time' and coords
+
         // Calculate the index based on currentTime
         int index = int(map(currentTime, startTime, endTime, 0, numColumns - 1));
         index = constrain(index, 0, numColumns - 1);
-        
-        // Calculate the interpolation factor based on currentTime
-        float t = map(currentTime, startTime, endTime, 0, 1);
-        
-        // Interpolate between positions in the current and next columns
+        this.index = index;
+
+        // if (index < numColumns) {
+        //     for (int i=0; i<coords.size(); i++) coords.set(i,orig.coords.get(i).copy());
+        //     for (int k=0; k<numRows; k++) {
+        //         coords.get(k).x = x0 + positionsList.get(index)[k].x;
+        //         coords.get(k).y = y0 + positionsList.get(index)[k].y;
+        //     }
+        //     // Update currentTime
+        //     currentTime += 1;
+        //     if (currentTime > endTime) {
+        //         currentTime = startTime;
+        //     }
+        // }
+
+        // Get displacement between positions in the current and next columns
         if (index + 1 < numColumns) {
             PVector[] currentPositions = positionsList.get(index);
             PVector[] nextPositions = positionsList.get((index + 1)); // Wrap around at the end
@@ -59,7 +180,6 @@ class CSV2DigitalTwin extends Body {
                 float dy = nextPositions[i].y - currentPositions[i].y;
                 interpolatedPositions[i] = new PVector(dx, dy);
             }
-        
         
             // Update the shape using the interpolated positions
             body.translate(interpolatedPositions);
@@ -73,5 +193,56 @@ class CSV2DigitalTwin extends Body {
         else {
             body.translate(0,0);
         }
-  }
+        getOrth();
+    }
+
+    boolean unsteady() {return true;}
+
+    // With this geometry, we don't know the global deformation
+    // We thus have to approximate the derivative numerically: dx/dt = x(n+1)-x(n-1)/2Deltat
+    // We keep the names used in FlexNACA
+
+    float spaceDerivative(int a, int b, int c) {
+        if (xTable.getFloat(a,c) == xTable.getFloat(b,c)){
+            return 1e10;
+        }
+        else {
+            return (yTable.getFloat(a,c)-yTable.getFloat(b,c))/(xTable.getFloat(a,c)-xTable.getFloat(b,c));
+        }
+    }
+
+    float timeDerivative(int a, int b, int c) {
+        return (yTable.getFloat(a,b) - yTable.getFloat(a,c)) / ((b-c)*0.5);
+    }
+
+    float hdot(float x, float y) {
+        // Find the closest point to (x,y) to get the corresponding local time derivative
+        PVector[] currentPosTimeD = positionsList.get(index);
+        int pt_index = 0;
+        float min_dis = 1e10;
+        for (int i = 0; i < currentPosTimeD.length; i++){
+            if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
+                pt_index = i;
+            }
+        }
+        float coef_time = timeDerivativesList.get(index)[pt_index];
+        float time_ord = coef_time*currentPosTimeD[0].x;
+        return coef_time*x+time_ord;
+    }
+
+    float dhdx(float x, float y) {
+        // Find the closest point to (x,y) to get the corresponding local derivative
+        PVector[] currentPosSpaceD = positionsList.get(index);
+        int pt_index = 0;
+        float min_dis = 1e10;
+        for (int i = 0; i < currentPosSpaceD.length; i++){
+            if (dist(x,y,currentPosSpaceD[i].x,currentPosSpaceD[i].y) < min_dis) {
+                pt_index = i;
+            }
+        }
+        // println("true: ", x, "closest: ", currentPosSpaceD[index].x);
+        float coef_derivative = spaceDerivativesList.get(index)[pt_index];
+        float orig_ord = coef_derivative*currentPosSpaceD[0].x;
+        return coef_derivative*x+orig_ord;
+    }
 }

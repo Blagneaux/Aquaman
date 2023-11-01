@@ -9,10 +9,10 @@ class DigitalTwin extends BodyUnion{
         float len = 74.2;
 
         // head of the foil
-        add(new Rectangle((16-1-51/len)*chord,2*chord,chord*5/len,chord*13/len,window));
+        add(new Rectangle((16-1-15/len)*chord,2*chord,chord*5/len,chord*13/len,window));
 
         // tail of the foil
-        add(new Triangle((16-1-51/len+12.7/len)*chord,2*chord,chord*12.71/len,chord*62.7/len,chord,window));
+        add(new Triangle((16-1-15/len+12.7/len)*chord,2*chord,chord*12.71/len,chord*62.7/len,chord,window));
 
         // walls
         add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
@@ -43,8 +43,8 @@ class DigitalTwin extends BodyUnion{
             else {
             this.bodyList.get(1).rotate(omega-omega_0); 
             }
-            this.bodyList.get(0).translate(-92*dt/len,0);
-            this.bodyList.get(1).translate(-92*dt/len,0);
+            this.bodyList.get(0).translate(-89*dt/len,0);
+            this.bodyList.get(1).translate(-89*dt/len,0);
         }else{
             this.bodyList.get(0).translate(0,0);
             this.bodyList.get(1).translate(0,0);

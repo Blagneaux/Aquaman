@@ -15,14 +15,14 @@ void draw(){
 }
 ********************************/
 class NACA extends Body{
-  int m = 100;
+  int m;
   float c, FoilArea;
   float pivot;
   
-  NACA( float x, float y, float c, float t, float pivot, Window window ){
+  NACA( float x, float y, float c, float t, float pivot, int m, Window window ){
     super(x,y,window);
     add(xc.x-c*pivot,xc.y);
-    for( int i=1; i<m; i++ ){
+    for( int i=1; i<=m; i++ ){
       float xx = pow(i/(float)m,2);
       add(xc.x+c*(xx-pivot),xc.y+t*c*offset(xx));      
     }
@@ -32,6 +32,7 @@ class NACA extends Body{
       add(xc.x+c*(xx-pivot),xc.y-t*c*offset(xx));
     }
     end(); // finalizes shape
+    this.m = m;
     this.c = c;
     FoilArea = t*c*0.685084;    //crossectional area of NACA foil
     
@@ -39,9 +40,17 @@ class NACA extends Body{
     ma = new PVector(PI*sq(dy),PI*sq(dx),0.125*PI*sq(sq(dx)-sq(dy)));
     ma.z += sq(c*(0.5-pivot))*ma.y;
   }
+
+  NACA( float x, float y, float c, float t, float pivot, Window window) {
+    this(x,y,c,t,pivot,150,window);
+  }
+
+  NACA( float x, float y, float c, float t, int m, Window window) {
+    this(x,y,c,t,.25,m,window);
+  }
   
   NACA( float x, float y, float c, float t, Window window ){
-    this(x,y,c,t,.25,window);
+    this(x,y,c,t,.25,100,window);
   }
   
   float[][] interp( Field a ){

@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import csv
 import pandas as pd
 from numpy.polynomial import polynomial as pl
+from scipy import interpolate
 
-model = YOLO("yolov8n-seg-custom.pt")
-cap = cv2.VideoCapture("testYolomov.mp4")
+model = YOLO("yolov8n-seg-customNaca-mid.pt")
+cap = cv2.VideoCapture("dataNaca_ref.mp4")
 
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
@@ -47,168 +48,68 @@ while cap.isOpened():
 cap.release()
 cv2.destroyAllWindows()
 
-XY = XY[2:]
+# XY = XY[20:]
 
 # Set the number of points the segmentation needs to be
-desired_points_count = 100
-screenX, screenY = 1400, 1400
-resX, resY = 2**7, 2**7
+desired_points_count = 128          # power of 2
+screenX, screenY = 640, 640
+resX, resY = 2**6, 2**6
 
-# Solution derived from https://meshlogic.github.io/posts/jupyter/curve-fitting/parametric-curve-fitting/
-
-def uniform_param(P):
-    u = np.linspace(0, 1, len(P))
-    return u
-    
-def chordlength_param(P):
-    u = generate_param(P, alpha=1.0)
-    return u
-    
-def centripetal_param(P):
-    u = generate_param(P, alpha=0.5)
-    return u
-    
-def generate_param(P, alpha):
-    n = len(P)
-    u = np.zeros(n)
-    u_sum = 0
-    for i in range(1,n):
-        u_sum += np.linalg.norm(P[i,:]-P[i-1,:])**alpha
-        u[i] = u_sum
-    
-    return u/max(u)
-
-#-------------------------------------------------------------------------------
-# Find Minimum by Golden Section Search Method
-# - Return x minimizing function f(x) on interval a,b
-#-------------------------------------------------------------------------------
-def find_min_gss(f, a, b, eps=1e-4):
-    
-    # Golden section: 1/phi = 2/(1+sqrt(5))
-    R = 0.61803399
-    
-    # Num of needed iterations to get precision eps: log(eps/|b-a|)/log(R)
-    n_iter = int(np.ceil(-2.0780869 * np.log(eps/abs(b-a))))
-    c = b - (b-a)*R
-    d = a + (b-a)*R
-
-    for i in range(n_iter):
-        if f(c) < f(d):
-            b = d
-        else:
-            a = c
-        c = b - (b-a)*R
-        d = a + (b-a)*R
-
-    return (b+a)/2
-
-def iterative_param(P, u, fxcoeff, fycoeff):
-    
-    global iter_i
-    u_new = u.copy()
-    f_u = np.zeros(2)
-
-    #--- Calculate approx. error s(u) related to point P_i
-    def calc_s(u):
-        f_u[0] = pl.polyval(u, fxcoeff)
-        f_u[1] = pl.polyval(u, fycoeff)
-
-        s_u = np.linalg.norm(P[i]-f_u)
-        return s_u
-    
-    #--- Find new values u that locally minimising the approximation error (excl. fixed end-points)
-    for i in range(1, len(u)-1):
-        
-        #--- Find new u_i minimising s(u_i) by Golden search method
-        u_new[i] = find_min_gss(calc_s, u[i-1], u[i+1])
-        
-    return u_new
-
-def bestFit(P):
-    #-------------------------------------------------------------------------------
-    # Options for the approximation method
-    #-------------------------------------------------------------------------------
-    polydeg = 3           # Degree of polygons of parametric curve
-    n = len(P)
-    w = np.ones(n)           # Set weights for knot points
-    w[0] = w[-1] = 1e6
-    max_iter = 20         # Max. number of iterations
-    eps = 1e-3
-
-    #-------------------------------------------------------------------------------
-    # Init variables
-    #-------------------------------------------------------------------------------
-    f_u = np.zeros([n,2])
-    uu = np.linspace(0,1,desired_points_count)
-    f_uu = np.zeros([len(uu),2])
-    S_hist = []
-
-    #-------------------------------------------------------------------------------
-    # Compute the iterative approximation
-    #-------------------------------------------------------------------------------
-    for iter_i in range(max_iter):
-
-        #--- Initial or iterative parametrization
-        if iter_i == 0:
-            # u = uniform_param(P)
-            # u = chordlength_param(P)
-            u = centripetal_param(P)
-        else:
-            u = iterative_param(P, u, fxcoeff, fycoeff)
-        
-        #--- Compute polynomial approximations and get their coefficients
-        fxcoeff = pl.polyfit(u, P[:,0], polydeg, w=w)
-        fycoeff = pl.polyfit(u, P[:,1], polydeg, w=w)
-        
-        #--- Calculate function values f(u)=(fx(u),fy(u),fz(u))
-        f_u[:,0] = pl.polyval(u, fxcoeff)
-        f_u[:,1] = pl.polyval(u, fycoeff)
-        
-        #--- Calculate fine values for ploting
-        f_uu[:,0] = pl.polyval(uu, fxcoeff)
-        f_uu[:,1] = pl.polyval(uu, fycoeff)
-        
-        #--- Total error of approximation S for iteration i
-        S = 0
-        for j in range(len(u)):
-            S += w[j] * np.linalg.norm(P[j] - f_u[j])
-        
-        #--- Add bar of approx. error
-        S_hist.append(S)
-        
-        #--- Stop iterating if change in error is lower than desired condition
-        if iter_i > 0:
-            S_change = S_hist[iter_i-1] / S_hist[iter_i] - 1
-            #print('iteration:%3i, approx.error: %.4f (%f)' % (iter_i, S_hist[iter_i], S_change))
-            if S_change < eps:
-                break
-    
-    return f_uu
-
-count = 1
 for xy in XY:
-    step_size = len(xy) / desired_points_count
-    interpolated_frame = []
-    interpolated_f = bestFit(xy)
+    interpolated_f = np.zeros([desired_points_count,2])
 
-    interpolated_f[:,0] = interpolated_f[:,0]*resX/screenX
-    interpolated_f[:,1] = interpolated_f[:,1]*resY/screenY
+    min_init_x = np.min(xy[:,0])
+    rotation_init_index = np.where(xy[:,0] == min_init_x)[0]
+    rotation_init_index = rotation_init_index.astype(np.int64)
 
-    # # Linear interpolation for the frame
-    # for i in range(desired_points_count):
-    #     index = int(i * step_size)
-    #     fraction = (i * step_size) - index
+    x_interp = np.roll(xy[:,0], shift=-rotation_init_index, axis=0)
+    y_interp = np.roll(xy[:,1], shift=-rotation_init_index, axis=0)
 
-    #     if index < len(xy) - 1:
-    #         x1, y1 = xy[index][0]*resX/screenX, xy[index][1]*resY/screenY
-    #         x2, y2 = xy[index + 1][0]*resX/screenX, xy[index + 1][1]*resY/screenY
+    # append the starting x,y coordinates
+    x_interp = np.r_[x_interp, x_interp[0]]
+    y_interp = np.r_[y_interp, y_interp[0]]
 
-    #         interpolated_x = x1 + (x2 - x1) * fraction
-    #         interpolated_y = y1 + (y2 - y1) * fraction
-    #         interpolated_frame.append((interpolated_x, interpolated_y))
-    #     else:
-    #         # Handle the case where index is out of bounds
-    #         interpolated_frame.append((xy[-1][0]*resX/screenX, xy[-1][1]*resY/screenY))
+    def remove_duplicates(array1, array2):
+        combined_array = list(zip(array1, array2))
+        seen = {}
+        unique1 = []
+        unique2 = []
+
+        for item in combined_array:
+            key = tuple(item)
+            if key not in seen:
+                seen[key] = True
+                unique1.append(item[0])
+                unique2.append(item[1])
+
+        return unique1, unique2
+    
+    x_interp, y_interp = remove_duplicates(x_interp, y_interp)
+    x_interp = np.r_[x_interp, x_interp[0]]
+    y_interp = np.r_[y_interp, y_interp[0]]
+    # fit splines to x=f(u) and y=g(u), treating both as periodic. also note that s=0
+    # is needed in order to force the spline fit to pass through all the input points.
+    tck, u = interpolate.splprep([x_interp, y_interp], s=len(x_interp)//2, per=True)
+
+    # evaluate the spline fits for 100 evenly spaced distance values
+    xi, yi = interpolate.splev(np.linspace(0,1,2*desired_points_count), tck)
+
+    min_x = np.min(xi)
+    rotation_index = np.where(xi == min_x)[0]
+    rotation_index = rotation_index.astype(np.int64)
+    xi = np.roll(xi, shift=-rotation_index, axis=0)
+    yi = np.roll(yi, shift=-rotation_index, axis=0)
+
+    xi0, yi0 = remove_duplicates(xi, yi)
+    xi0 = np.r_[xi0, xi0[0]]
+    yi0 = np.r_[yi0, yi0[0]]
+    tck, _ = interpolate.splprep([xi0, yi0], s=len(xi0) // 2, per=True)
+    xi0, yi0 = interpolate.splev(np.linspace(0, 1, desired_points_count), tck)
+
+    interpolated_f[:,0] = xi0*resX/screenX
+    interpolated_f[:,1] = yi0*resY/screenY
+
+    # interpolated_f = np.roll(interpolated_f, shift=-rotation_index, axis=0)
 
     # Add the interpolated frame to the list
     XY_interpolated.append(interpolated_f)
@@ -224,9 +125,20 @@ with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as fi
 
     # Iterate through the main list
     for i in range(desired_points_count):
+    # for i in range(len(XY[0])):
         # Extract the x and the y from each tuple
         columnX = [round(item[i][0],2) for item in XY_interpolated]
         columnY = [round(item[i][1],2) for item in XY_interpolated]
+        # columnX = []
+        # columnY = []
+        # j = 0
+        # for item in XY:
+        #     if len(item)-1 < i:
+        #         j = len(item)-1
+        #     else:
+        #         j = i
+        #     columnX.append(item[j,0])
+        #     columnY.append(item[j,1])
 
         # Write the columns to the respective CSV files
         writer1.writerow(columnX)
@@ -234,14 +146,16 @@ with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as fi
 
 print(f"CSV files {x_file} and {y_file} have been created.")
 
-X_data = pd.read_csv("x.csv", header=None)
-Y_data = pd.read_csv("y.csv", header=None)
+# X_data = pd.read_csv("x.csv", header=None)
+# Y_data = pd.read_csv("y.csv", header=None)
 
-fig, ax = plt.subplots()
-for i in range(len(X_data.columns)):
-    ax.clear()
-    ax.invert_yaxis()
-    x = X_data[i]
-    y = Y_data[i]
-    ax.plot(x,y,"-o")
-    plt.pause(0.1)
+# fig, ax = plt.subplots()
+# for i in range(len(X_data.columns)):
+#     ax.clear()
+#     ax.invert_yaxis()
+#     x = X_data[i]
+#     y = Y_data[i]
+#     ax.plot(x,y,"-o")
+#     # ax.plot(x[0],y[0], "ro")
+#     # ax.plot(x[50],y[50], "ro")
+#     plt.pause(0.1)

@@ -1,163 +1,117 @@
-from numpy import *
-from numpy.polynomial import polynomial as pl
+import numpy as np
 from matplotlib.pyplot import *
 import pandas as pd
+from scipy import interpolate
 
+i = 0  # fonctionne
+# i = 2 # ne fonctionne pas
 
-#--- Generate and store knot points in matrix P
+# --- Generate and store knot points in matrix P
 X_data = pd.read_csv("x.csv", header=None)
 Y_data = pd.read_csv("y.csv", header=None)
-n = len(X_data[0]+1)
-P = zeros([n,2])
-P[:,0] = X_data[50]
-P[:,1] = Y_data[50]
-plot(P[:,0], P[:,1])
-show()
 
-#--- Calculate some points to display the generating curve
-X_data = pd.read_csv("x.csv", header=None)
-Y_data = pd.read_csv("y.csv", header=None)
-P_gen = zeros([len(X_data[0]),2])
-P_gen[:,0] = X_data[0]
-P_gen[:,1] = Y_data[0]
+n = len(X_data[i])
+P = np.zeros([n, 2])
+P[:, 0] = X_data[i]
+P[:, 1] = Y_data[i]
 
-def uniform_param(P):
-    u = linspace(0, 1, len(P))
-    return u
-    
-def chordlength_param(P):
-    u = generate_param(P, alpha=1.0)
-    return u
-    
-def centripetal_param(P):
-    u = generate_param(P, alpha=0.5)
-    return u
-    
-def generate_param(P, alpha):
-    n = len(P)
-    u = zeros(n)
-    u_sum = 0
-    for i in range(1,n):
-        u_sum += linalg.norm(P[i,:]-P[i-1,:])**alpha
-        u[i] = u_sum
-    
-    return u/max(u)
+x_interp = P[:, 0]
+y_interp = P[:, 1]
 
-#-------------------------------------------------------------------------------
-# Find Minimum by Golden Section Search Method
-# - Return x minimizing function f(x) on interval a,b
-#-------------------------------------------------------------------------------
-def find_min_gss(f, a, b, eps=1e-4):
-    
-    # Golden section: 1/phi = 2/(1+sqrt(5))
-    R = 0.61803399
-    
-    # Num of needed iterations to get precision eps: log(eps/|b-a|)/log(R)
-    n_iter = int(ceil(-2.0780869 * log(eps/abs(b-a))))
-    c = b - (b-a)*R
-    d = a + (b-a)*R
+x_interp2 = X_data[i+1]
+y_interp2 = Y_data[i+1]
 
-    for i in range(n_iter):
-        if f(c) < f(d):
-            b = d
+
+def find_duplicates_two_arrays(array1, array2):
+    # Combine the two arrays into pairs of elements using zip
+    combined_array = list(zip(array1, array2))
+    seen = {}
+    duplicates = []
+
+    for item in combined_array:
+        # Convert each pair of elements to a tuple for hashing
+        key = tuple(item)
+
+        # If the combination is already in the dictionary, it's a duplicate
+        if key in seen:
+            duplicates.append(item)
         else:
-            a = c
-        c = b - (b-a)*R
-        d = a + (b-a)*R
+            seen[key] = True
 
-    return (b+a)/2
+    return duplicates
 
-def iterative_param(P, u, fxcoeff, fycoeff):
-    
-    global iter_i
-    u_new = u.copy()
-    f_u = zeros(2)
 
-    #--- Calculate approx. error s(u) related to point P_i
-    def calc_s(u):
-        f_u[0] = pl.polyval(u, fxcoeff)
-        f_u[1] = pl.polyval(u, fycoeff)
+def remove_duplicates_from_arrays(array1, array2):
+    combined_array = list(zip(array1, array2))
+    seen = {}
+    unique_array1 = []
+    unique_array2 = []
 
-        s_u = linalg.norm(P[i]-f_u)
-        return s_u
-    
-    #--- Find new values u that locally minimising the approximation error (excl. fixed end-points)
-    for i in range(1, len(u)-1):
-        
-        #--- Find new u_i minimising s(u_i) by Golden search method
-        u_new[i] = find_min_gss(calc_s, u[i-1], u[i+1])
-        
-    return u_new
+    for item in combined_array:
+        key = tuple(item)
+        if key not in seen:
+            seen[key] = True
+            unique_array1.append(item[0])
+            unique_array2.append(item[1])
 
-#-------------------------------------------------------------------------------
-# Options for the approximation method
-#-------------------------------------------------------------------------------
-polydeg = 3           # Degree of polygons of parametric curve
-w = ones(n)           # Set weights for knot points
-w[0] = w[-1] = 1e6
-max_iter = 50         # Max. number of iterations
-eps = 1e-3
+    return unique_array1, unique_array2
 
-#-------------------------------------------------------------------------------
-# Init variables
-#-------------------------------------------------------------------------------
-f_u = zeros([n,2])
-uu = linspace(0,1,100)
-f_uu = zeros([len(uu),2])
-S_hist = []
 
-#-------------------------------------------------------------------------------
-# Compute the iterative approximation
-#-------------------------------------------------------------------------------
-for iter_i in range(max_iter):
+x, y = remove_duplicates_from_arrays(x_interp, y_interp)
+x = np.r_[x, x[0]]
+y = np.r_[y, y[0]]
+tck, _ = interpolate.splprep([x, y], s=len(x) // 2, per=True)
+xi0, yi0 = interpolate.splev(np.linspace(0, 1, 100), tck)
 
-    #--- Initial or iterative parametrization
-    if iter_i == 0:
-        # u = uniform_param(P)
-        # u = chordlength_param(P)
-        u = centripetal_param(P)
-    else:
-        u = iterative_param(P, u, fxcoeff, fycoeff)
-    
-    #--- Compute polynomial approximations and get their coefficients
-    fxcoeff = pl.polyfit(u, P[:,0], polydeg, w=w)
-    fycoeff = pl.polyfit(u, P[:,1], polydeg, w=w)
-    
-    #--- Calculate function values f(u)=(fx(u),fy(u),fz(u))
-    f_u[:,0] = pl.polyval(u, fxcoeff)
-    f_u[:,1] = pl.polyval(u, fycoeff)
-    
-    #--- Calculate fine values for ploting
-    f_uu[:,0] = pl.polyval(uu, fxcoeff)
-    f_uu[:,1] = pl.polyval(uu, fycoeff)
-    
-    #--- Total error of approximation S for iteration i
-    S = 0
-    for j in range(len(u)):
-        S += w[j] * linalg.norm(P[j] - f_u[j])
-    
-    #--- Add bar of approx. error
-    S_hist.append(S)
-    
-    #--- Stop iterating if change in error is lower than desired condition
-    if iter_i > 0:
-        S_change = S_hist[iter_i-1] / S_hist[iter_i] - 1
-        #print('iteration:%3i, approx.error: %.4f (%f)' % (iter_i, S_hist[iter_i], S_change))
-        if S_change < eps:
-            break
+min_x = np.min(xi0)
+rotation_index = np.where(xi0 == min_x)[0]
+rotation_init_index = rotation_index.astype(np.int64)
+xi0 = np.roll(xi0, shift=-rotation_index, axis=0)
+yi0 = np.roll(yi0, shift=-rotation_index, axis=0)
 
-#-------------------------------------------------------------------------------
+xi0, yi0 = remove_duplicates_from_arrays(xi0, yi0)
+xi0 = np.r_[xi0, xi0[0]]
+yi0 = np.r_[yi0, yi0[0]]
+tck, _ = interpolate.splprep([xi0, yi0], s=len(xi0) // 2, per=True)
+xi0, yi0 = interpolate.splev(np.linspace(0, 1, 50), tck)
+
+x2, y2 = remove_duplicates_from_arrays(x_interp2, y_interp2)
+x2 = np.r_[x2, x2[0]]
+y2 = np.r_[y2, y2[0]]
+tck2, _ = interpolate.splprep([x2, y2], s=len(x2) // 2, per=True)
+xi02, yi02 = interpolate.splev(np.linspace(0, 1, 100), tck2)
+
+min_x2 = np.min(xi02)
+rotation_index2 = np.where(xi02 == min_x2)[0]
+rotation_init_index2 = rotation_index2.astype(np.int64)
+xi02 = np.roll(xi02, shift=-rotation_index2, axis=0)
+yi02 = np.roll(yi02, shift=-rotation_index2, axis=0)
+
+xi02, yi02 = remove_duplicates_from_arrays(xi02, yi02)
+xi02 = np.r_[xi02, xi02[0]]
+yi02 = np.r_[yi02, yi02[0]]
+tck2, _ = interpolate.splprep([xi02, yi02], s=len(xi02) // 2, per=True)
+xi02, yi02 = interpolate.splev(np.linspace(0, 1, 50), tck2)
+
+# -------------------------------------------------------------------------------
 # Init figures
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 fig, ax = subplots()
-ax.plot(P_gen[:,0], P_gen[:,1], 'y-', lw=2 ,label='Generating Curve')
-ax.plot(P[:,0], P[:,1], 'ks', label='Knot points P')
+# ax.plot(P_gen[:,0], P_gen[:,1], 'y-', lw=2 ,label='Generating Curve')
+ax.plot(P[:, 0], P[:, 1], 'ks', label='Knot points P')
 ax.set_title('View X-Y')
-ax.set_xlabel('x'); ax.set_ylabel('y');
+ax.set_xlabel('x')
+ax.set_ylabel('y')
 ax.set_aspect('equal', 'datalim')
 ax.margins(.1, .1)
 ax.grid()
 
-#--- Print plots
-hp = ax.plot(f_uu[:,0], f_uu[:,1], color='blue')
+# --- Print plots
+# hp = ax.plot(f_uu[:,0], f_uu[:,1], 'bo')
+ax.plot(xi0, yi0, 'b-o')
+ax.plot(xi0[0], yi0[0], 'go')
+ax.plot(xi0[len(xi0) // 2], yi0[len(xi0) // 2], 'ro')
+ax.plot(xi02, yi02, 'r-o')
+ax.plot(xi02[0], yi02[0], 'go')
+ax.plot(xi02[len(xi02) // 2], yi02[len(xi02) // 2], 'bo')
 show()
