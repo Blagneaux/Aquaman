@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import csv
 import pandas as pd
 from numpy.polynomial import polynomial as pl
-from scipy import interpolate
+from scipy import interpolate, signal
 
 model = YOLO("yolov8n-seg-customNaca-mid.pt")
 cap = cv2.VideoCapture("dataNaca_ref.mp4")
@@ -48,10 +48,8 @@ while cap.isOpened():
 cap.release()
 cv2.destroyAllWindows()
 
-# XY = XY[20:]
-
 # Set the number of points the segmentation needs to be
-desired_points_count = 128          # power of 2
+desired_points_count = 512          # power of 2
 screenX, screenY = 640, 640
 resX, resY = 2**6, 2**6
 
@@ -64,10 +62,6 @@ for xy in XY:
 
     x_interp = np.roll(xy[:,0], shift=-rotation_init_index, axis=0)
     y_interp = np.roll(xy[:,1], shift=-rotation_init_index, axis=0)
-
-    # append the starting x,y coordinates
-    x_interp = np.r_[x_interp, x_interp[0]]
-    y_interp = np.r_[y_interp, y_interp[0]]
 
     def remove_duplicates(array1, array2):
         combined_array = list(zip(array1, array2))
@@ -109,14 +103,13 @@ for xy in XY:
     interpolated_f[:,0] = xi0*resX/screenX
     interpolated_f[:,1] = yi0*resY/screenY
 
-    # interpolated_f = np.roll(interpolated_f, shift=-rotation_index, axis=0)
-
     # Add the interpolated frame to the list
     XY_interpolated.append(interpolated_f)
 
 # Define the names for the output CSV files
 x_file = 'x.csv'
 y_file = 'y.csv'
+y_filtered_file = 'y_filtered.csv'
 
 # Open the CSV files for writing
 with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as file2:
@@ -125,26 +118,49 @@ with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as fi
 
     # Iterate through the main list
     for i in range(desired_points_count):
-    # for i in range(len(XY[0])):
         # Extract the x and the y from each tuple
         columnX = [round(item[i][0],2) for item in XY_interpolated]
         columnY = [round(item[i][1],2) for item in XY_interpolated]
-        # columnX = []
-        # columnY = []
-        # j = 0
-        # for item in XY:
-        #     if len(item)-1 < i:
-        #         j = len(item)-1
-        #     else:
-        #         j = i
-        #     columnX.append(item[j,0])
-        #     columnY.append(item[j,1])
 
         # Write the columns to the respective CSV files
         writer1.writerow(columnX)
         writer2.writerow(columnY)
 
 print(f"CSV files {x_file} and {y_file} have been created.")
+
+# Create a filtered Y to smooth the evolution in time and have a better derivative
+Y_data = pd.read_csv("y.csv", header=None)
+filtered_y = pd.DataFrame(index=range(len(Y_data[0])), columns=range(len(Y_data.columns)))
+
+# Create a filter
+N = 2
+fc1 = 25
+fs = 1000
+Wn = fc1/(fs/2)
+btype = 'low'
+b, a = signal.butter(N, Wn, btype=btype)
+
+for i in range(len(Y_data[0])):
+    y0 = [Y_data[j][i] for j in range(len(Y_data.columns))]
+    filtered_y0 = signal.filtfilt(b, a, y0)
+    for j in range(len(Y_data.columns)):
+        filtered_y[j][i] = filtered_y0[j]
+
+# Open the CSV files for writing
+with open(y_filtered_file, 'w', newline='') as file:
+    writer = csv.writer(file)
+
+    # Iterate through the main list
+    for i in range(desired_points_count):
+        columnFilteredY = []
+        for j in range(len(Y_data.columns)):
+            # Extract the filtered y for each tuple
+            columnFilteredY.append(round(filtered_y[j][i],2))
+
+        # Write the columns to the respective CSV files
+        writer.writerow(columnFilteredY)
+
+print(f"CSV files {y_filtered_file} has been created.")
 
 # X_data = pd.read_csv("x.csv", header=None)
 # Y_data = pd.read_csv("y.csv", header=None)
