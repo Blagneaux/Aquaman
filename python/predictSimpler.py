@@ -144,16 +144,18 @@ resX, resY = 2**6, 2**6
 
 
 
-x0, y0 = [], []
+x0, y0, y1 = [], [], []
 X_data = pd.read_csv("x.csv", header=None)
 Y_data = pd.read_csv("y.csv", header=None)
+Y_filtered = pd.read_csv("y_filtered.csv", header=None)
 
 real = []
 
 for i in range(len(X_data.columns)):
-    x0.append(X_data[i][20])
-    y0.append(Y_data[i][20])
-    real.append(-Ax(X_data[0][20])*omega*np.cos(k*(X_data[0][20] - xc)-omega*i/2))
+    x0.append(X_data[i][0])
+    y0.append(Y_data[i][0])
+    y1.append(Y_filtered[i][0])
+    real.append(-Ax(X_data[0][0])*omega*np.cos(k*(X_data[0][0] - xc)-omega*i/2))
 
 # Filter sensor data
 N = 2
@@ -164,13 +166,21 @@ btype = 'low'
 b, a = signal.butter(N, Wn, btype=btype)
 filtered_sensor = signal.filtfilt(b, a, y0 - np.mean(y0))
 
+# Interpolate
+X = np.linspace(0, len(y0), 2000)
+spl = interpolate.splrep([i for i in range(len(y0))], y1,k=5)
+print(spl)
+y2 = 6*interpolate.splev(X, spl, der=1)
+
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(y0)
 ax.plot(real+np.mean(y0), 'g')
-ax.plot(filtered_sensor+np.mean(y0),'r')
+# ax.plot(filtered_sensor+np.mean(y0),'r')
+ax.plot(y1+np.mean(y0), 'o-')
 ax2 = ax.twiny()
-ax2.plot( [y0[i] for i in range(0, len(y0), 10)], 'y')
+# ax2.plot(y2+np.mean(y0),'r')
+# ax2.plot( [y0[i] for i in range(0, len(y0), 10)], 'y')
 plt.show()
 
 # fig, ax = plt.subplots()

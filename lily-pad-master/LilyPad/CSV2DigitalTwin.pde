@@ -4,7 +4,7 @@ class CSV2DigitalTwin extends NACA {
     ArrayList<float[]> timeDerivativesList; // List to store the time derivates
     int numColumns;                     // Number of columns in the tables
     int numRows;                        // Number of rows in the tables
-    Table xTable, yTable;               // CSV tables for x and y coordinates
+    Table xTable, yTable, yFilteredTable;   // CSV tables for x and y coordinates
     float startTime = 0;                // Start time
     float endTime;                      // End time
     float currentTime = 0;              // Current time for interpolation
@@ -19,7 +19,7 @@ class CSV2DigitalTwin extends NACA {
     float x_init = (int)pow(2,6)/4;
     float c = (int)pow(2,6)/3;
 
-    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, Window window) {
+    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, String yFilteredFilePath, Window window) {
         // Just as in flex NACA, set a regular NACA coords and save as orig
         super(x0+0.25*(int)pow(2,6)/3, y0, (int)pow(2,6)/3, 0.2, m / 2, window);
         orig = new NACA(x0+0.25*(int)pow(2,6)/3,y0,(int)pow(2,6)/3,0.2,m/2,window);
@@ -38,6 +38,7 @@ class CSV2DigitalTwin extends NACA {
         // Load the coordinates
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
+        yFilteredTable = loadTable(yFilteredFilePath);
 
         // Get the number of columns in the tables
         numColumns = xTable.getColumnCount();
@@ -88,10 +89,10 @@ class CSV2DigitalTwin extends NACA {
             float[] timeDerivatives = new float[numRows];
             for (int j = 0; j < numRows; j++) {
                 if (i==0) { // Left border computation
-                    timeDerivatives[j] = timeDerivative(j, 0, 0);
+                    timeDerivatives[j] = timeDerivative(j, i+1, numColumns-1);
                 }
                 else if (i==numColumns-1) { // Right border computation
-                    timeDerivatives[j] = timeDerivative(j, i, i);
+                    timeDerivatives[j] = timeDerivative(j, 0, i-1);
                 }
                 else {
                     timeDerivatives[j] = timeDerivative(j, i+1, i-1);
@@ -124,48 +125,37 @@ class CSV2DigitalTwin extends NACA {
     // }
 
     float distance(float x, float y) {
+        // PVector[] currentPosTimeD = positionsList.get(index);
+        // int pt_index = 0;
+        // float min_dis = 1e10;
+        // for (int i = 0; i < currentPosTimeD.length; i++){
+        //     if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
+        //         pt_index = i;
+        //         min_dis = dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y);
+        //     }
+        // }
+        // return min_dis;
         return orig.distance( x, y-h(x));
     }
 
     PVector WallNormal(float x, float y) {// adjust orig normal
         PVector n = orig.WallNormal(x, y);
-        n.x -= dhdx(x,y)*n.y; // The function is no longer y-h but y, hence the sign change
+        n.x -= dhdx(x,y)*n.y;
         float m = n.mag();
         if(m>0) return PVector.div(n,m);
         else return n; 
     }
 
-    // TODO ici non plus, je ne comprends pas ce qui ne marche pas -------------------------------------------------
     float velocity(int d, float dt, float x, float y){ // use 'wave' velocity
         float v = super.velocity(d,dt,x,y);
+        if ((x > 10) & (x < 31) & (y > 20) & (y < 40)) {
+            println(x, y, hdot(x,y), hdot1(x,y));
+        }
         if(d==1) return v;
-        else return v+hdot(x,y);
+        else return v+hdot1(x,y);
     }
 
     void translate(float dx, float dy) {
-        // // Get displacement between positions in the current and next columns
-        // if (index + 1 < numColumns) {
-        //     PVector[] currentPositions = positionsList.get(index);
-        //     PVector[] nextPositions = positionsList.get((index + 1)); // Wrap around at the end
-        //     PVector[] interpolatedPositions = new PVector[currentPositions.length];
-        //     for (int i = 0; i < currentPositions.length; i++) {
-        //         float dx = nextPositions[i].x - currentPositions[i].x;
-        //         float dy = nextPositions[i].y - currentPositions[i].y;
-        //         interpolatedPositions[i] = new PVector(dx, dy);
-        //     }
-        
-        //     // Update the shape using the interpolated positions
-        //     body.translate(interpolatedPositions);
-            
-        //     // Update currentTime
-        //     currentTime += 1;
-        //     if (currentTime > endTime) {
-        //         currentTime = startTime;
-        //     }
-        // }
-        // else {
-        //     body.translate(0,0);
-        // }
         super.translate(dx,dy);
         orig.translate(dx,dy);
         x0_dep += dx;
@@ -194,30 +184,6 @@ class CSV2DigitalTwin extends NACA {
                 currentTime = startTime;
             }
         }
-
-        // // Get displacement between positions in the current and next columns
-        // if (index + 1 < numColumns) {
-        //     PVector[] currentPositions = positionsList.get(index);
-        //     PVector[] nextPositions = positionsList.get((index + 1)); // Wrap around at the end
-        //     PVector[] interpolatedPositions = new PVector[currentPositions.length];
-        //     for (int i = 0; i < currentPositions.length; i++) {
-        //         float dx = nextPositions[i].x - currentPositions[i].x + x0_dep;
-        //         float dy = nextPositions[i].y - currentPositions[i].y + y0_dep;
-        //         interpolatedPositions[i] = new PVector(dx, dy);
-        //     }
-        
-        //     // Update the shape using the interpolated positions
-        //     body.translate(interpolatedPositions);
-            
-        //     // Update currentTime
-        //     currentTime += 1;
-        //     if (currentTime > endTime) {
-        //         currentTime = startTime;
-        //     }
-        // }
-        // else {
-        //     body.translate(0,0);
-        // }
         getOrth();
     }
 
@@ -241,24 +207,24 @@ class CSV2DigitalTwin extends NACA {
             return 0;
         }
         else {
-            return (yTable.getFloat(a,b) - yTable.getFloat(a,c)) / ((b-c)*0.5);
+            return (yFilteredTable.getFloat(a,b) - yFilteredTable.getFloat(a,c)) / ((b-c)*0.5);
         }
     }
 
-    // float hdot(float x, float y) {
-    //     // Find the closest point to (x,y) to get the corresponding local time derivative
-    //     PVector[] currentPosTimeD = positionsList.get(index);
-    //     int pt_index = 0;
-    //     float min_dis = 1e10;
-    //     for (int i = 0; i < currentPosTimeD.length; i++){
-    //         if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
-    //             pt_index = i;
-    //         }
-    //     }
-    //     float coef_time = timeDerivativesList.get(index)[pt_index];
-    //     float time_ord = coef_time*currentPosTimeD[0].x;
-    //     return coef_time*x+time_ord;
-    // }
+    float hdot(float x, float y) {
+        // Find the closest point to (x,y) to get the corresponding local time derivative
+        PVector[] currentPosTimeD = positionsList.get(index);
+        int pt_index = 0;
+        float min_dis = 1e10;
+        for (int i = 0; i < currentPosTimeD.length; i++){
+            if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
+                pt_index = i;
+                min_dis = dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y);
+            }
+        }
+        float coef_time = timeDerivativesList.get(index)[pt_index];
+        return coef_time;
+    }
 
     float dhdx(float x, float y) {
         // Find the closest point to (x,y) to get the corresponding local derivative
@@ -272,8 +238,7 @@ class CSV2DigitalTwin extends NACA {
             }
         }
         float coef_derivative = spaceDerivativesList.get(index)[pt_index];
-        float orig_ord = coef_derivative*currentPosSpaceD[0].x;
-        return coef_derivative*x+orig_ord;
+        return coef_derivative;
     }
 
     float Ax( float x){
@@ -283,8 +248,8 @@ class CSV2DigitalTwin extends NACA {
     }
     float arg( float x) { return k*(x - xc)-omega*time;}
     float h( float x) { return Ax(x)*sin(arg(x));}
-    float hdot( float x, float y) {return -Ax(x)*omega*cos(arg(x));}
-    // float dhdx( float x, float y) {
+    float hdot1( float x, float y) {return -Ax(x)*omega*cos(arg(x));}
+    // float dhdx1( float x, float y) {
     //     float amp = a[1]/c;
     //     for (int i=2; i<a.length; i++) amp += a[i]*(float)i/c*pow((x - xc)/c, i-1);
     //     return Ax(x)*k*cos(arg(x))+amp*sin(arg(x));
