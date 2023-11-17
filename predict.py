@@ -53,7 +53,6 @@ desired_points_count = 512          # power of 2
 screenX, screenY = 640, 640
 resX, resY = 2**6, 2**6
 
-merde = 0
 
 for xy in XY:
     interpolated_f = np.zeros([desired_points_count,2])
@@ -102,8 +101,6 @@ for xy in XY:
     # fig, ax = plt.subplots()
     # ax.plot(xi0, yi0, 'o-')
     # plt.show()
-    print(merde)
-    merde += 1
     tck, _ = interpolate.splprep([xi0, yi0], s=len(xi0) // 2, per=True)
     xi0, yi0 = interpolate.splev(np.linspace(0, 1, desired_points_count), tck)
 
@@ -116,7 +113,7 @@ for xy in XY:
 # Define the names for the output CSV files
 x_file = 'x.csv'
 y_file = 'y.csv'
-y_filtered_file = 'y_filtered.csv'
+y_dot_file = 'y_dot.csv'
 
 # Open the CSV files for writing
 with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as file2:
@@ -138,50 +135,41 @@ print(f"CSV files {x_file} and {y_file} have been created.")
 # Create a filtered Y to smooth the evolution in time and have a better derivative
 X_data = pd.read_csv("x.csv", header=None)
 Y_data = pd.read_csv("y.csv", header=None)
-filtered_y = pd.DataFrame(index=range(len(Y_data[0])), columns=range(len(Y_data.columns)))
+y_dot = pd.DataFrame(index=range(len(Y_data[0])), columns=range(len(Y_data.columns)))
 
-# Create a filter
-N = 2
-fc1 = 25
-fs = 1000
-Wn = fc1/(fs/2)
-btype = 'low'
-b, a = signal.butter(N, Wn, btype=btype)
+a = [0, 0.2, -0.1]
+c = int(2**6/3)
+xc = 2**6/4 - 0.25*c
+k = 2*np.pi / c
+omega = 1.2*k
+T = 2*np.pi/omega
+s = 0
+for ai in a:
+    s+= ai
+if s==0:
+    s=1
+    a[0] = 1
+for i in range(len(a)):
+    a[i] *= 0.25*T/s
 
+def Ax(x):
+    amp = a[0]
+    for i in range(1, len(a)):
+        amp += a[i]*((x-xc)/c)**i
+    return amp
+
+def hdot(x, t):
+    return -Ax(x) * omega * np.cos(k * (x - xc) - omega * t)
+
+# Testing with a sampling of the real derivative, then use the derivative of the extracted data
 for i in range(len(Y_data[0])):
-    y0 = [Y_data[j][i] for j in range(len(Y_data.columns))]
-    filtered_y0 = signal.filtfilt(b, a, y0)
+    x_mean = np.mean([X_data[j][i] for j in range(len(X_data.columns))])
+    y0 = [hdot(x_mean, 0.5 + j/2) for j in range(len(Y_data.columns))]
     for j in range(len(Y_data.columns)):
-        filtered_y[j][i] = filtered_y0[j]
-
-# a = [0, 0.2, -0.1]
-# c = 2**6/3
-# xc = 2**6/4 - 0.25*c
-# k = 2*np.pi / c
-# omega = 1.2*k
-# T = 2*np.pi/omega
-# s = 0
-# for ai in a:
-#     s+= ai
-# if s==0:
-#     s=1
-#     a[0] = 1
-# for i in range(len(a)):
-#     a[i] *= 0.25*T/s
-
-# def Ax(x):
-#     amp = a[0]
-#     for i in range(1, len(a)):
-#         amp += a[i]*((x-xc)/c)**i
-#     return amp
-
-# for i in range(len(Y_data[0])):
-#     y0 = [-Ax(X_data[0][i])*omega*np.cos(k*(X_data[0][i] - xc)-omega*j/2) for j in range(len(Y_data.columns))]
-#     for j in range(len(Y_data.columns)):
-#         filtered_y[j][i] = y0[j]
+        y_dot[j][i] = y0[j]
 
 # Open the CSV files for writing
-with open(y_filtered_file, 'w', newline='') as file:
+with open(y_dot_file, 'w', newline='') as file:
     writer = csv.writer(file)
 
     # Iterate through the main list
@@ -189,12 +177,12 @@ with open(y_filtered_file, 'w', newline='') as file:
         columnFilteredY = []
         for j in range(len(Y_data.columns)):
             # Extract the filtered y for each tuple
-            columnFilteredY.append(filtered_y[j][i])
+            columnFilteredY.append(y_dot[j][i])
 
         # Write the columns to the respective CSV files
         writer.writerow(columnFilteredY)
 
-print(f"CSV files {y_filtered_file} has been created.")
+print(f"CSV files {y_dot_file} has been created.")
 
 # X_data = pd.read_csv("x.csv", header=None)
 # Y_data = pd.read_csv("y.csv", header=None)

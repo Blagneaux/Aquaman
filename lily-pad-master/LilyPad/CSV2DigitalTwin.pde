@@ -88,15 +88,7 @@ class CSV2DigitalTwin extends NACA {
         for (int i = 0; i < numColumns; i++) {
             float[] timeDerivatives = new float[numRows];
             for (int j = 0; j < numRows; j++) {
-                if (i==0) { // Left border computation
-                    timeDerivatives[j] = timeDerivative(j, i+1, numColumns-1);
-                }
-                else if (i==numColumns-1) { // Right border computation
-                    timeDerivatives[j] = timeDerivative(j, 0, i-1);
-                }
-                else {
-                    timeDerivatives[j] = timeDerivative(j, i+1, i-1);
-                }
+                timeDerivatives[j] = yFilteredTable.getFloat(j, i);
             }
             timeDerivativesList.add(timeDerivatives); // Add the derivatives array to the list
         }
@@ -148,11 +140,24 @@ class CSV2DigitalTwin extends NACA {
 
     float velocity(int d, float dt, float x, float y){ // use 'wave' velocity
         float v = super.velocity(d,dt,x,y);
+
+        PVector[] currentTest = positionsList.get(index);
+        int pt_index = 0;
+        float min_dis = 1e10;
+        for (int i = 0; i < currentTest.length; i++){
+            if (abs(x - currentTest[i].x) < min_dis) {
+            // if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
+                pt_index = i;
+                min_dis = abs(x - currentTest[i].x);
+                // min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
+            }
+        }
+
         if ((x > 10) & (x < 31) & (y > 20) & (y < 40)) {
-            println(x, y, hdot(x,y), hdot1(x,y));
+            println(x, y, currentTest[pt_index].x, currentTest[pt_index].y, hdot(x,y), hdot1(x,y), index, time);
         }
         if(d==1) return v;
-        else return v+hdot1(x,y);
+        else return v+hdot(x,y);
     }
 
     void translate(float dx, float dy) {
@@ -167,8 +172,9 @@ class CSV2DigitalTwin extends NACA {
     void update( float time) { // update 'time' and coords
 
         // Calculate the index based on currentTime
-        int index = int(map(currentTime, startTime, endTime, 0, numColumns - 1));
-        index = constrain(index, 0, numColumns - 1);
+        // int index = int(map(currentTime, startTime, endTime, 0, numColumns - 1));
+        // index = constrain(index, 0, numColumns - 1);
+        int index = (int)(2 * time - 1);
         this.index = index;
         this.time = time;
 
@@ -190,7 +196,7 @@ class CSV2DigitalTwin extends NACA {
     boolean unsteady() {return true;}
 
     // With this geometry, we don't know the global deformation
-    // We thus have to approximate the derivative numerically: dx/dt = x(n+1)-x(n-1)/2Deltat
+    // We thus have to approximate the derivative numerically: dy/dx = y(n+1)-y(n-1)/2DeltaX
     // We keep the names used in FlexNACA
 
     float spaceDerivative(int a, int b, int c) {
@@ -202,24 +208,17 @@ class CSV2DigitalTwin extends NACA {
         }
     }
 
-    float timeDerivative(int a, int b, int c) {
-        if (b == c) {
-            return 0;
-        }
-        else {
-            return (yFilteredTable.getFloat(a,b) - yFilteredTable.getFloat(a,c)) / ((b-c)*0.5);
-        }
-    }
-
     float hdot(float x, float y) {
         // Find the closest point to (x,y) to get the corresponding local time derivative
         PVector[] currentPosTimeD = positionsList.get(index);
         int pt_index = 0;
         float min_dis = 1e10;
         for (int i = 0; i < currentPosTimeD.length; i++){
-            if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
+            if (abs(x - currentPosTimeD[i].x) < min_dis) {
+            // if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
                 pt_index = i;
-                min_dis = dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y);
+                min_dis = abs(x - currentPosTimeD[i].x);
+                // min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
             }
         }
         float coef_time = timeDerivativesList.get(index)[pt_index];
