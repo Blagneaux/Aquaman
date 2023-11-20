@@ -6,6 +6,7 @@ import csv
 import pandas as pd
 from numpy.polynomial import polynomial as pl
 from scipy import interpolate, signal
+import pysindy as ps
 
 model = YOLO("yolov8n-seg-customNaca-mid.pt")
 cap = cv2.VideoCapture("dataNaca_ref.mp4")
@@ -161,12 +162,20 @@ def Ax(x):
 def hdot(x, t):
     return -Ax(x) * omega * np.cos(k * (x - xc) - omega * t)
 
-# Testing with a sampling of the real derivative, then use the derivative of the extracted data
+# # Testing with a sampling of the real derivative, then use the derivative of the extracted data
+# for i in range(len(Y_data[0])):
+#     x_mean = np.mean([X_data[j][i] for j in range(len(X_data.columns))])
+#     y0 = [hdot(x_mean, 0.5 + 0.175 + j/2) for j in range(len(Y_data.columns))] # Compensing the time to run through the whole liste in processing with "0.175"
+#     for j in range(len(Y_data.columns)):
+#         y_dot[j][i] = y0[j]
+
+sfd = ps.SmoothedFiniteDifference(smoother_kws={'window_length': 11}) # pySINDy smooth finite differenciation
+T0 = np.array([0.5 + j/2 for j in range(len(Y_data.columns))]) # time vector for the derivation
 for i in range(len(Y_data[0])):
-    x_mean = np.mean([X_data[j][i] for j in range(len(X_data.columns))])
-    y0 = [hdot(x_mean, 0.5 + j/2) for j in range(len(Y_data.columns))]
+    y0 = [Y_data[j][i] for j in range(len(Y_data.columns))]
+    y_dot0 = sfd._differentiate(y0, T0)
     for j in range(len(Y_data.columns)):
-        y_dot[j][i] = y0[j]
+        y_dot[j][i] = y_dot0[j]
 
 # Open the CSV files for writing
 with open(y_dot_file, 'w', newline='') as file:

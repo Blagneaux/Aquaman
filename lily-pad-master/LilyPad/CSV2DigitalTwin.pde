@@ -214,11 +214,11 @@ class CSV2DigitalTwin extends NACA {
         int pt_index = 0;
         float min_dis = 1e10;
         for (int i = 0; i < currentPosTimeD.length; i++){
-            if (abs(x - currentPosTimeD[i].x) < min_dis) {
-            // if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
+            // if (abs(x - currentPosTimeD[i].x) < min_dis) {
+            if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
                 pt_index = i;
-                min_dis = abs(x - currentPosTimeD[i].x);
-                // min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
+                // min_dis = abs(x - currentPosTimeD[i].x);
+                min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
             }
         }
         float coef_time = timeDerivativesList.get(index)[pt_index];

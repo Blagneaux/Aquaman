@@ -75,8 +75,8 @@ for i in range(len(X_data.columns)):
     x0.append(X_data[i][247])
     y0.append(Y_data[i][247])
 
-for i in Y_data[499]:
-    print(i)
+# for i in Y_data[499]:
+#     print(i)
 
 for i in range(len(Y_data[0])):
     x_mean = np.mean([X_data[j][i] for j in range(len(X_data.columns))])
@@ -86,25 +86,25 @@ X = np.mean(x0)
 Y = np.mean(y0)
 T = np.linspace(0, 499.5, 1000)
 
-print(hdot(30.5, 249.25))
+print(hdot(29.5, 249.85))
 
 
-# fig, ax = plt.subplots()
-# ax.plot(y0)
-# ax.plot([h(X, t) for t in T] + Y)
+fig, ax = plt.subplots()
+ax.plot(y0)
+ax.plot([h(X, t) for t in T] + Y)
 
-# spl_y = interpolate.splrep(T, y0, k=3, s=0.5)
-# # y_dot = custom_deriv([h(X, t) for t in T], T)
-# # y_dot = interpolate.splev(np.linspace(T[0], T[-1], 20000), spl_y)
+spl_y = interpolate.splrep(T, y0, k=3, s=0.5)
+# y_dot = custom_deriv([h(X, t) for t in T], T)
+# y_dot = interpolate.splev(np.linspace(T[0], T[-1], 20000), spl_y)
 
-# sfd = ps.SmoothedFiniteDifference(smoother_kws={'window_length': 11})
-# y_dot = sfd._differentiate(y0, T)
+sfd = ps.SmoothedFiniteDifference(smoother_kws={'window_length': 11})
+y_dot = sfd._differentiate(y0, T)
 
-# fig, ax = plt.subplots()
-# ax.plot(y_dot)
+fig, ax = plt.subplots()
+ax.plot(y_dot)
 
-# ax2 = ax.twiny()
-# # ax2.plot(y0[:40], 'g')
-# # ax2.plot([h(X, t) for t in T[:40]] + Y, 'r')
-# ax2.plot([hdot(X, t) for t in T], 'r')
-# plt.show()
+ax2 = ax.twiny()
+# ax2.plot(y0[:40], 'g')
+# ax2.plot([h(X, t) for t in T[:40]] + Y, 'r')
+ax2.plot([hdot(X, t) for t in T], 'r')
+plt.show()
