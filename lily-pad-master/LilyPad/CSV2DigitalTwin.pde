@@ -25,14 +25,14 @@ class CSV2DigitalTwin extends NACA {
         orig = new NACA(x0+0.25*(int)pow(2,6)/3,y0,(int)pow(2,6)/3,0.2,m/2,window);
 
         // For test purpose only ----------------------------------------------------------------------------------
-        xc = x_init - 0.25*c;
-        k = TWO_PI/c;
-        omega = 1.2*k;
-        T = TWO_PI/omega;
-        float s = 0;
-        for(float ai: a) s+=ai;
-        if(s==0) {s=1; a[0]=1;}
-        for(int i=0; i<a.length; i++) a[i] *= 0.25*T/s;
+        // xc = x_init - 0.25*c;
+        // k = TWO_PI/c;
+        // omega = 1.2*k;
+        // T = TWO_PI/omega;
+        // float s = 0;
+        // for(float ai: a) s+=ai;
+        // if(s==0) {s=1; a[0]=1;}
+        // for(int i=0; i<a.length; i++) a[i] *= 0.25*T/s;
         // --------------------------------------------------------------------------------------------------------
 
         // Load the coordinates
@@ -95,40 +95,15 @@ class CSV2DigitalTwin extends NACA {
 
         // Draw the first state by replacing the coordinates
         for (int k = 0; k < numRows; k++) {
-            coords.get(k).x = positionsList.get(0)[k].x - positionsList.get(0)[0].x + x0_dep;
-            coords.get(k).y = positionsList.get(0)[k].y - positionsList.get(0)[0].y + y0_dep;
+            coords.get(k).x = positionsList.get(0)[k].x;
+            coords.get(k).y = positionsList.get(0)[k].y;
         }
         end(true, true);
     }
 
-    // // TODO peut etre que le probleme vient d'ici ------------------------------------------------------------------
-    // float distance( float x, float y) {
-    //     // Find the closest point to (x,y) to get the corresponding local time derivative
-    //     PVector[] currentPosDist = positionsList.get(this.index);
-    //     int pt_index = 0;
-    //     float min_dis = 1e10;
-    //     for (int i = 0; i < currentPosDist.length; i++){
-    //         if (dist(x,y,currentPosDist[i].x,currentPosDist[i].y) < min_dis) {
-    //             pt_index = i;
-    //         }
-    //     }
-    //     println(orig.distance(x,y-1));
-    //     return orig.distance(x,y)+dist(x,y,currentPosDist[pt_index].x, currentPosDist[pt_index].y);
+    // float distance(float x, float y) {
+    //     return orig.distance(x, y-h(x));
     // }
-
-    float distance(float x, float y) {
-        // PVector[] currentPosTimeD = positionsList.get(index);
-        // int pt_index = 0;
-        // float min_dis = 1e10;
-        // for (int i = 0; i < currentPosTimeD.length; i++){
-        //     if (dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y) < min_dis) {
-        //         pt_index = i;
-        //         min_dis = dist(x,y,currentPosTimeD[i].x,currentPosTimeD[i].y);
-        //     }
-        // }
-        // return min_dis;
-        return orig.distance( x, y-h(x));
-    }
 
     PVector WallNormal(float x, float y) {// adjust orig normal
         PVector n = orig.WallNormal(x, y);
@@ -141,21 +116,21 @@ class CSV2DigitalTwin extends NACA {
     float velocity(int d, float dt, float x, float y){ // use 'wave' velocity
         float v = super.velocity(d,dt,x,y);
 
-        PVector[] currentTest = positionsList.get(index);
-        int pt_index = 0;
-        float min_dis = 1e10;
-        for (int i = 0; i < currentTest.length; i++){
-            if (abs(x - currentTest[i].x) < min_dis) {
-            // if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
-                pt_index = i;
-                min_dis = abs(x - currentTest[i].x);
-                // min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
-            }
-        }
+        // // For debug porpose only:
+        // PVector[] currentTest = positionsList.get(index);
+        // int pt_index = 0;
+        // float min_dis = 1e10;
+        // for (int i = 0; i < currentTest.length; i++){
+        //     if (abs(x - currentTest[i].x) < min_dis) {
+        //         pt_index = i;
+        //         min_dis = abs(x - currentTest[i].x);
+        //     }
+        // }
 
-        if ((x > 10) & (x < 31) & (y > 20) & (y < 40)) {
-            println(x, y, currentTest[pt_index].x, currentTest[pt_index].y, hdot(x,y), hdot1(x,y), index, time);
-        }
+        // if ((x > 10) & (x < 31) & (y > 20) & (y < 40)) {
+        //     println(x, y, currentTest[pt_index].x, currentTest[pt_index].y, hdot(x,y), hdot1(x,y), index, time);
+        // }
+
         if(d==1) return v;
         else return v+hdot(x,y);
     }
@@ -240,14 +215,14 @@ class CSV2DigitalTwin extends NACA {
         return coef_derivative;
     }
 
-    float Ax( float x){
-        float amp = a[0];
-        for (int i=1; i<a.length; i++) amp += a[i]*pow((x-xc)/c,i);
-        return amp;
-    }
-    float arg( float x) { return k*(x - xc)-omega*time;}
-    float h( float x) { return Ax(x)*sin(arg(x));}
-    float hdot1( float x, float y) {return -Ax(x)*omega*cos(arg(x));}
+    // float Ax( float x){
+    //     float amp = a[0];
+    //     for (int i=1; i<a.length; i++) amp += a[i]*pow((x-xc)/c,i);
+    //     return amp;
+    // }
+    // float arg( float x) { return k*(x - xc)-omega*time;}
+    // float h( float x) { return Ax(x)*sin(arg(x));}
+    // float hdot1( float x, float y) {return -Ax(x)*omega*cos(arg(x));}
     // float dhdx1( float x, float y) {
     //     float amp = a[1]/c;
     //     for (int i=2; i<a.length; i++) amp += a[i]*(float)i/c*pow((x - xc)/c, i-1);

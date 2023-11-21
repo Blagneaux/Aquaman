@@ -22,7 +22,7 @@ void setup(){
   //yTable = loadTable("C:/Users/blagn771/Desktop/y-pos.csv", "header");
   
   //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
-  body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_filtered.csv",view);
+  body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
   //body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), "C:/Users/blagn771/Desktop/x-pos2.csv","C:/Users/blagn771/Desktop/y-pos.csv",view);
   flow = new BDIM(n,n,0.5,body,0.001,true);
   flood = new FloodPlot(view);
