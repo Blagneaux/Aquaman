@@ -6,12 +6,12 @@ import matplotlib.animation as animation
 import matplotlib as mpl
 from scipy import signal
 
-file_path = 'C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_data.csv'
+file_path = 'C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_original.csv'
 ref_path = 'python/data_08092023_x242y56_exp1.xlsx'
 
 recreateVideo = True
 plotSignal = False
-plotComp = True
+plotComp = False
 
 # Use the read_csv function to read the CSV file into a Pandas DataFrame
 df = pd.read_csv(file_path, header=None)
@@ -67,15 +67,16 @@ if recreateVideo:
     df1.clip(0, 255)
 
     # Create the video
-    size = 4*chord, 16*chord
+    size = 2**6, 2**6
     duration = num_columns
     fps = 25
     out = cv2.VideoWriter('dataMap.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]), False)
 
     for col_name in df.columns:
         data = df1[col_name].to_numpy(np.uint8)
-        i, j = int(16*chord - posx*chord/len), int(2*chord - posy*chord/len)
-        data[(i-1)*4*chord+j] = 255
+        # # Place the sensor in the video
+        # i, j = int(16*chord - posx*chord/len), int(2*chord - posy*chord/len)
+        # data[(i-1)*4*chord+j] = 255
         out.write(np.array(data.reshape(size, order='F')))
     out.release()
 

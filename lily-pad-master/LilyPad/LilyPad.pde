@@ -3,11 +3,17 @@ BDIM flow;
 CSV2DigitalTwin body;
 FloodPlot flood;
 SaveData dat;
+PrintWriter output;
 float time=0;
 float[] a={0,.2,-.1};
 
 Table xTable; // Variable to store x-coordinate data
 Table yTable; // Variable to store y-coordinate data
+
+ArrayList<float[]> pressureDataList = new ArrayList<>();
+int numTimeStep = 0;
+int numRows = (int)pow(2,6);                                   // Number of rows
+int numCols = (int)pow(2,6);                                   // Number of columns
 
 void setup(){
   int n=(int)pow(2,6);
@@ -16,34 +22,32 @@ void setup(){
 
   // Load x-coordinate data from CSV file
   xTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv", "header");
-  //xTable = loadTable("C:/Users/blagn771/Desktop/x-pos2.csv", "header");
   // Load y-coordinate data from CSV file
   yTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv", "header");
-  //yTable = loadTable("C:/Users/blagn771/Desktop/y-pos.csv", "header");
   
   //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
   body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
-  //body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), "C:/Users/blagn771/Desktop/x-pos2.csv","C:/Users/blagn771/Desktop/y-pos.csv",view);
   flow = new BDIM(n,n,0.5,body,0.001,true);
   flood = new FloodPlot(view);
   flood.range = new Scale(-.5,.5);
   flood.setLegend("vorticity");
   flood.setColorMode(1); 
   
-  //frameRate(1); // Set the frame rate to 30 frames per second
   
   dat = new SaveData("saved/pressure.txt", body.coords, 0,n,n,1);
+  output = createWriter("testDataSave/pressure_map_customFull.csv"); // open output file
 }
+
 void draw(){
   if (flow.t < 250){
     time += flow.dt;
     body.update(time);
-    //body.update(time);
-    //body.translate(0.1,0);
     flow.update(body); flow.update2();         // 2-step fluid update
-    flood.display(flow.u.curl());              // compute and display vorticity
+    flood.display(flow.p);              // compute and display vorticity
     body.display();                            // display the body
     
+    // Save the x and y values for every points of the body at each time step
+    // This is used to create the labels for YOLO quick training
     int size = body.coords.size();
     dat.output.print(0 + " ");
     for(int i=0; i<size; i++){
@@ -51,35 +55,42 @@ void draw(){
       dat.output.print(body.coords.get(i).y +" ");
     }
     dat.output.println("");
+    
+    // Store pressure data for every point in the window
+    float[] pressureData = new float[numCols * numRows];
+    int index = 0;
+    for (int i = 0; i < numCols; i++) {
+      for (int j = 0; j < numRows; j++) {
+        pressureData[index] = flow.p.extract(i, j);
+        index++;
+      }
+    }
+    // Add the pressure data array to the list for this time step
+    pressureDataList.add(pressureData);
+    numTimeStep++;
+
     saveFrame("saved/frame-####.png");
     
-    //background(255); // Clear the canvas
-    //// Current time step
-    //int currentTimeStep = int(2 * time);
-    //// Plot points for the current time step
-    //plotPoints(currentTimeStep, color(0, 0, 255)); // Blue color for the current time step
-    //// Plot points for the previous time step
-    //int previousTimeStep = currentTimeStep - 1;
-    //if (previousTimeStep >= 0) {
-    //  plotPoints(previousTimeStep, color(255, 0, 0)); // Red color for the previous time step
-    //}
-    
-    //text("sin(omega) = " + 25*sin(2*PI*0.61*flow.t/2/0.466/body.chord),width/4,height-30);
-    //text("t : " + flow.t, width/4,height-60);
   } else {
-    dat.finish();
+    //dat.finish();
+    dataAdd();
     exit(); 
   }
 }
 
-void plotPoints(int timeStep, color pointColor) {
-  for (int j = 0; j < xTable.getRowCount(); j++) {
-    float x = 15*xTable.getFloat(j, timeStep); // Get x-coordinate from CSV (column i)
-    float y = 15*yTable.getFloat(j, timeStep); // Get y-coordinate from CSV (column i)
-    stroke(pointColor); // Set stroke color
-    strokeWeight(4); // Set the size of the points
-    point(x, y); // Plot the point
+void dataAdd() {
+  // Write the pressure data to the CSV file as a single column
+  for (int i = 0; i < numRows * numCols; i++) {
+    for (int tStep = 0; tStep < numTimeStep; tStep++) {
+      float[] pressure = pressureDataList.get(tStep);
+      output.print(pressure[i]);
+      if (tStep < numTimeStep - 1) {
+        output.print(","); // Separate values with newlines
+      }
+    }
+    output.println(); // Move to the next row
   }
+  output.close();
 }
 
 ///*********************************************************
