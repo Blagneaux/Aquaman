@@ -4,6 +4,18 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pysindy as ps
 
+# ---------------------------------------------------------------
+
+
+
+
+# Sandbox for time derivatives
+
+
+
+
+# ---------------------------------------------------------------
+
 a = [0, 0.2, -0.1]
 c = int(2 ** 6 / 3)
 xc = 2 ** 6 / 4 - 0.25 * c
