@@ -7,12 +7,13 @@ h,w = img.shape[:2]
 for i in range(h):
     for j in range(w):
         if (img[i][j][0] != 51) or (img[i][j][1] != 51) or (img[i][j][2] != 153):
-            img[i,j] = [255,255,255]
+            img[i,j] = [0,0,0]
         else:
-            print([i,j])
+            img[i,j] = [255,255,255]
 
 img = cv2.GaussianBlur(img, (11,11), 0)
 canny = cv2.Canny(img, 100, 150)
+cv2.imwrite("frame-0001-label.png", img)
 
 cv2.imshow('img', img)
 cv2.waitKey(0)

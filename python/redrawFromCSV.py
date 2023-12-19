@@ -6,7 +6,7 @@ import matplotlib.animation as animation
 import matplotlib as mpl
 from scipy import signal
 
-file_path = 'C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_original.csv'
+file_path = 'C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_test.csv'
 ref_path = 'python/data_08092023_x242y56_exp1.xlsx'
 
 recreateVideo = True

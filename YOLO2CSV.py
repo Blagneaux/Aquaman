@@ -56,7 +56,9 @@ def predict(model=model, cap=cap):
     screenX, screenY = 640, 640
     resX, resY = 2**6, 2**6
 
-
+    count = 0
+    del XY[290]
+    del XY[393]
     for xy in XY:
         interpolated_f = np.zeros([desired_points_count,2])
 
@@ -101,8 +103,11 @@ def predict(model=model, cap=cap):
         xi0, yi0 = remove_duplicates(xi, yi)
         xi0 = np.r_[xi0, xi0[0]]
         yi0 = np.r_[yi0, yi0[0]]
+        # xi0, yi0 = np.array(xi), np.array(yi)
         tck, _ = interpolate.splprep([xi0, yi0], s=len(xi0) // 2, per=True)
         xi0, yi0 = interpolate.splev(np.linspace(0, 1, desired_points_count), tck)
+        print(count)
+        count += 1
 
         interpolated_f[:,0] = xi0*resX/screenX
         interpolated_f[:,1] = yi0*resY/screenY
@@ -180,6 +185,7 @@ def debug():
 
 
 if __name__ == "__main__":
-    model = YOLO("yolov8n-seg-customNaca-mid.pt")
+    model = YOLO("yolov8n-seg-customNaca-big.pt")
     cap = cv2.VideoCapture("dataNaca_ref.mp4")
     predict(model, cap)
+    # debug()

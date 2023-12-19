@@ -115,22 +115,6 @@ class CSV2DigitalTwin extends NACA {
 
     float velocity(int d, float dt, float x, float y){ // use 'wave' velocity
         float v = super.velocity(d,dt,x,y);
-
-        // // For debug porpose only:
-        // PVector[] currentTest = positionsList.get(index);
-        // int pt_index = 0;
-        // float min_dis = 1e10;
-        // for (int i = 0; i < currentTest.length; i++){
-        //     if (abs(x - currentTest[i].x) < min_dis) {
-        //         pt_index = i;
-        //         min_dis = abs(x - currentTest[i].x);
-        //     }
-        // }
-
-        // if ((x > 10) & (x < 31) & (y > 20) & (y < 40)) {
-        //     println(x, y, currentTest[pt_index].x, currentTest[pt_index].y, hdot(x,y), hdot1(x,y), index, time);
-        // }
-
         if(d==1) return v;
         else return v+hdot(x,y);
     }
@@ -147,8 +131,6 @@ class CSV2DigitalTwin extends NACA {
     void update( float time) { // update 'time' and coords
 
         // Calculate the index based on currentTime
-        // int index = int(map(currentTime, startTime, endTime, 0, numColumns - 1));
-        // index = constrain(index, 0, numColumns - 1);
         int index = (int)(2 * time - 1);
         this.index = index;
         this.time = time;
@@ -172,7 +154,6 @@ class CSV2DigitalTwin extends NACA {
 
     // With this geometry, we don't know the global deformation
     // We thus have to approximate the derivative numerically: dy/dx = y(n+1)-y(n-1)/2DeltaX
-    // We keep the names used in FlexNACA
 
     float spaceDerivative(int a, int b, int c) {
         if (xTable.getFloat(a,c) == xTable.getFloat(b,c)){
@@ -189,10 +170,8 @@ class CSV2DigitalTwin extends NACA {
         int pt_index = 0;
         float min_dis = 1e10;
         for (int i = 0; i < currentPosTimeD.length; i++){
-            // if (abs(x - currentPosTimeD[i].x) < min_dis) {
             if (dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y) <  min_dis) {
                 pt_index = i;
-                // min_dis = abs(x - currentPosTimeD[i].x);
                 min_dis = dist(x, y, currentPosTimeD[i].x, currentPosTimeD[i].y);
             }
         }

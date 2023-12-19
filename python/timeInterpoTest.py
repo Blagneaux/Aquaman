@@ -84,8 +84,8 @@ print(len(Y_data.columns))
 
 x0, y0 = [], []
 for i in range(len(X_data.columns)):
-    x0.append(X_data[i][247])
-    y0.append(Y_data[i][247])
+    x0.append(X_data[i][0])
+    y0.append(Y_data[i][0])
 
 # for i in Y_data[499]:
 #     print(i)
