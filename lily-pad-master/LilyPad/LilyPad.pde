@@ -1,120 +1,125 @@
-//BDIM flow;
-////FlexNACA body;
-//CSV2DigitalTwin body;
-//FloodPlot flood;
-//SaveData dat;
-//PrintWriter output;
-//float time=0;
-//float[] a={0,.2,-.1};
+BDIM flow;
+//FlexNACA body;
+CSV2DigitalTwin body;
+FloodPlot flood;
+SaveData dat;
+PrintWriter output;
+float time=0;
+float[] a={0,.2,-.1};
 
-//Table xTable; // Variable to store x-coordinate data
-//Table yTable; // Variable to store y-coordinate data
+Table xTable; // Variable to store x-coordinate data
+Table yTable; // Variable to store y-coordinate data
 
-//ArrayList<float[]> pressureDataList = new ArrayList<>();
-//int numTimeStep = 0;
-//int numRows = (int)pow(2,6);                                   // Number of rows
-//int numCols = (int)pow(2,6);                                   // Number of columns
-
-//void setup(){
-//  int n=(int)pow(2,6);
-//  size(640,640);      
-//  Window view = new Window(n,n);
-
-//  // Load x-coordinate data from CSV file
-//  xTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv", "header");
-//  // Load y-coordinate data from CSV file
-//  yTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv", "header");
-  
-//  //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
-//  body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
-//  flow = new BDIM(n,n,0.5,body,0.001,true, 1);
-//  flood = new FloodPlot(view);
-//  flood.range = new Scale(-.5,.5);
-//  flood.setLegend("vorticity");
-//  flood.setColorMode(1); 
-  
-  
-//  dat = new SaveData("saved/pressure.txt", body.coords, 0,n,n,1);
-//  output = createWriter("testDataSave/pressure_map_test.csv"); // open output file
-//}
-
-//void draw(){
-//  if (flow.t < 499){
-//    time += flow.dt;
-//    body.update(time);
-//    flow.update(body); flow.update2();         // 2-step fluid update
-//    flood.display(flow.u.curl());              // compute and display vorticity
-//    body.display();                            // display the body
-    
-//    // Save the x and y values for every points of the body at each time step
-//    // This is used to create the labels for YOLO quick training
-//    int size = body.coords.size();
-//    dat.output.print(0 + " ");
-//    for(int i=0; i<size; i++){
-//      dat.output.print(body.coords.get(i).x +" ");
-//      dat.output.print(body.coords.get(i).y +" ");
-//    }
-//    dat.output.println("");
-    
-//    // Store pressure data for every point in the window
-//    float[] pressureData = new float[numCols * numRows];
-//    int index = 0;
-//    for (int i = 0; i < numCols; i++) {
-//      for (int j = 0; j < numRows; j++) {
-//        pressureData[index] = flow.u.curl().extract(i, j);
-//        index++;
-//      }
-//    }
-//    // Add the pressure data array to the list for this time step
-//    pressureDataList.add(pressureData);
-//    numTimeStep++;
-
-//    saveFrame("saved/frame-####.png");
-    
-//  } else {
-//    //dat.finish();
-//    dataAdd();
-//    exit(); 
-//  }
-//}
-
-//void dataAdd() {
-//  // Write the pressure data to the CSV file as a single column
-//  for (int i = 0; i < numRows * numCols; i++) {
-//    for (int tStep = 0; tStep < numTimeStep; tStep++) {
-//      float[] pressure = pressureDataList.get(tStep);
-//      output.print(pressure[i]);
-//      if (tStep < numTimeStep - 1) {
-//        output.print(","); // Separate values with newlines
-//      }
-//    }
-//    output.println(); // Move to the next row
-//  }
-//  output.close();
-//}
-
-// Plot the average field, which need to be computed beforehand in python
-Table mean_field; 
+ArrayList<float[]> pressureDataList = new ArrayList<>();
+int numTimeStep = 0;
+int numRows = (int)pow(2,6);                                   // Number of rows
+int numCols = (int)pow(2,6);                                   // Number of columns
 
 void setup(){
-  size(640,640);
   int n=(int)pow(2,6);
-  int index = 0;
-  mean_field = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/mean_customTest2_field.csv", "header");
-  FloodPlot plot = new FloodPlot(new Window(n,n)); // standard window
-  Field p = new Field(n,n);
-  for( int i=0; i<n; i++){
-  for( int j=0; j<n; j++){
-    if (index < n*n-1){
-    p.a[i][j] = mean_field.getFloat(index,0);
-    index += 1;
-    }
-  }}
-  plot.range = new Scale(-0.5,0.5);
-  plot.setLegend("Mean field");
-  plot.display(p);
-  saveFrame("saved/mean_customTestMid_field.png");
+  size(640,640);      
+  Window view = new Window(n,n);
+
+  // Load x-coordinate data from CSV file
+  xTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv", "header");
+  // Load y-coordinate data from CSV file
+  yTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv", "header");
+  
+  //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
+  body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
+  flow = new BDIM(n,n,0.5,body,0.001,true, 1);
+  flood = new FloodPlot(view);
+  flood.range = new Scale(-.5,.5);
+  flood.setLegend("vorticity");
+  flood.setColorMode(1); 
+  
+  
+  dat = new SaveData("saved/pressure.txt", body.coords, 0,n,n,1);
+  output = createWriter("testDataSave/pressure_map_test.csv"); // open output file
 }
+
+void draw(){
+  if (flow.t < 499){
+    time += flow.dt;
+    body.update(time);
+    flow.update(body); flow.update2();         // 2-step fluid update
+    flood.display(flow.u.curl());              // compute and display vorticity
+    body.display();                            // display the body
+    
+    // Save the x and y values for every points of the body at each time step
+    // This is used to create the labels for YOLO quick training
+    int size = body.coords.size();
+    //dat.output.print(0 + " ");
+    for(int i=0; i<size; i++){
+      dat.output.print("Point numero " + i + " : ");
+      dat.output.print("x: ");
+      dat.output.print(body.coords.get(i).x +" ");
+      dat.output.print("y: ");
+      dat.output.print(body.coords.get(i).y +" ");
+      dat.output.print("p: ");
+      dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+    }
+    dat.output.println("");
+    
+    // Store pressure data for every point in the window
+    float[] pressureData = new float[numCols * numRows];
+    int index = 0;
+    for (int i = 0; i < numCols; i++) {
+      for (int j = 0; j < numRows; j++) {
+        pressureData[index] = flow.p.extract(i, j);
+        index++;
+      }
+    }
+    // Add the pressure data array to the list for this time step
+    pressureDataList.add(pressureData);
+    numTimeStep++;
+
+    saveFrame("saved/frame-####.png");
+    
+  } else {
+    //dat.finish();
+    dataAdd();
+    exit(); 
+  }
+}
+
+void dataAdd() {
+  // Write the pressure data to the CSV file as a single column
+  for (int i = 0; i < numRows * numCols; i++) {
+    for (int tStep = 0; tStep < numTimeStep; tStep++) {
+      float[] pressure = pressureDataList.get(tStep);
+      output.print(pressure[i]);
+      if (tStep < numTimeStep - 1) {
+        output.print(","); // Separate values with newlines
+      }
+    }
+    output.println(); // Move to the next row
+  }
+  output.close();
+}
+
+//// Plot the average field, which need to be computed beforehand in python
+//Table mean_field; 
+
+//void setup(){
+//  size(640,640);
+//  int n=(int)pow(2,6);
+//  int index = 0;
+//  mean_field = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/mean_customTest2_field.csv", "header");
+//  FloodPlot plot = new FloodPlot(new Window(n,n)); // standard window
+//  Field p = new Field(n,n);
+//  for( int i=0; i<n; i++){
+//  for( int j=0; j<n; j++){
+//    if (index < n*n-1){
+//    p.a[i][j] = mean_field.getFloat(index,0);
+//    index += 1;
+//    }
+//  }}
+//  plot.range = new Scale(-0.5,0.5);
+//  plot.setLegend("Mean field");
+//  plot.display(p);
+//  saveFrame("saved/mean_customTestMid_field.png");
+//}
 
 
 
