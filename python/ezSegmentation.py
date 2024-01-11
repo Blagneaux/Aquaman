@@ -25,7 +25,7 @@ if frameSeg:
     cv2.destroyAllWindows()
 
 if videoSeg:
-    cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/T3_Fish3_C2_270923 - Trim0.mp4")
+    cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/T1_Fish1_C1_270923 - Trim0.mp4")
     frames = []
     while cap.isOpened() and len(frames) < 500:
         ret, frame = cap.read()
@@ -35,7 +35,7 @@ if videoSeg:
 
     medianFrame = np.median(frames, axis=0).astype(dtype=np.uint8)
 
-    cv2.imwrite("medianT3_Fish3_C2_270923.png", medianFrame)
+    cv2.imwrite("medianT1_Fish1_C1_270923.png", medianFrame)
     cv2.imshow('medianPicture', medianFrame)
     cv2.waitKey(0)
     
@@ -43,10 +43,10 @@ if videoSeg:
     cv2.destroyAllWindows()
 
 if videoProcess:
-    grayMedian = cv2.imread("C:/Users/blagn771/Documents/Aquaman/Aquaman/medianT3_Fish3_C2_270923.png")
+    grayMedian = cv2.imread("C:/Users/blagn771/Documents/Aquaman/Aquaman/medianT1_Fish1_C1_270923.png")
     grayMedian = cv2.cvtColor(grayMedian, cv2.COLOR_BGR2GRAY)
 
-    cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/T3_Fish3_C2_270923 - Trim2.mp4")
+    cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/T1_Fish1_C1_270923 - Trim1.mp4")
     count = 1
     while cap.isOpened():
         ret, frame = cap.read()
@@ -56,8 +56,8 @@ if videoProcess:
             dframe = cv2.absdiff(gframe, grayMedian)
             th, dframe = cv2.threshold(dframe, 30, 255, cv2.THRESH_BINARY)
 
-            cv2.imwrite("C:/Users/blagn771/Desktop/Fish3/images"+"/frame-"+str(10000+count)[1:]+".png", frame)
-            cv2.imwrite("C:/Users/blagn771/Desktop/Fish3/labels"+"/frame-"+str(10000+count)[1:]+".png", dframe)
+            cv2.imwrite("C:/Users/blagn771/Desktop/Fish1C1/images"+"/Fish1C1_frame-"+str(10000+count)[1:]+".png", frame)
+            cv2.imwrite("C:/Users/blagn771/Desktop/Fish1C1/masks"+"/Fish1C1_frame-"+str(10000+count)[1:]+".png", dframe)
             count+=1
             cv2.imshow('frame', dframe)
             if cv2.waitKey(10) & 0xFF == ord("q"):
