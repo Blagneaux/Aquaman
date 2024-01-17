@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import cv2
 
-file_path = "C:/Users/blagn771/Desktop/nacaDataset/train/labels/frame-1202.txt"
+file_path = "C:/Users/blagn771/Desktop/FishDataset/Fish1C1/labels/Fish1C1_frame-0001.txt"
 df = pd.read_csv(file_path, sep=" ", header=None)
 img = np.zeros((640,640))
 print(df)
