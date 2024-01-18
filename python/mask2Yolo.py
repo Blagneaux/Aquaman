@@ -18,36 +18,37 @@ def mask2txt(file_path, new_file_path):
     # To use for the fast segmentation of video from Nadia
     # ----------------------------------------------------
 
-    # # Filter contours by area
-    # valid_contours = [contour for contour in contours if cv2.contourArea(contour) >= min_area]
+    # Filter contours by area
+    valid_contours = [contour for contour in contours if cv2.contourArea(contour) >= min_area]
 
-    # if valid_contours:
-    #     # Draw the largest valid contour on the result image
-    #     cv2.drawContours(result_img, [max(valid_contours, key=cv2.contourArea)], -1, 255, thickness=cv2.FILLED)
+    if valid_contours:
+        # Draw the largest valid contour on the result image
+        cv2.drawContours(result_img, [max(valid_contours, key=cv2.contourArea)], -1, 255, thickness=cv2.FILLED)
 
-    #     # Find the coordinates of the contour
-    #     contour_coordinates = valid_contours[0].reshape(-1, 2)  # Flatten the array
+        # Find the coordinates of the contour
+        contour_coordinates = valid_contours[0].reshape(-1, 2)  # Flatten the array
 
-    #     strYolo = "0"
-    #     for point in contour_coordinates:
-    #         strYolo += ' '+str(point[0]/w)
-    #         strYolo += ' '+str(point[1]/h)
-        # with open(new_file_path[:-3]+'txt', 'w') as writeFile:
-        #         writeFile.write(strYolo)
-            
-    # -----------------------------------------------------
-
-    strYolo = ''        
-    for contour in contours:
-        cv2.drawContours(result_img, contour, -1, 255, thickness=cv2.FILLED)
-        contour_coordinates = contour.reshape(-1, 2)
-        strYolo += "0"
+        strYolo = "0"
         for point in contour_coordinates:
             strYolo += ' '+str(point[0]/w)
             strYolo += ' '+str(point[1]/h)
-        strYolo += '\n'
-    with open(new_file_path[:-3]+'txt', 'w') as writeFile:
-        writeFile.write(strYolo)
+        with open(new_file_path[:-3]+'txt', 'w') as writeFile:
+                writeFile.write(strYolo)
+            
+    # -----------------------------------------------------
+
+
+    # strYolo = ''        
+    # for contour in contours:
+    #     cv2.drawContours(result_img, contour, -1, 255, thickness=cv2.FILLED)
+    #     contour_coordinates = contour.reshape(-1, 2)
+    #     strYolo += "0"
+    #     for point in contour_coordinates:
+    #         strYolo += ' '+str(point[0]/w)
+    #         strYolo += ' '+str(point[1]/h)
+    #     strYolo += '\n'
+    # with open(new_file_path[:-3]+'txt', 'w') as writeFile:
+    #     writeFile.write(strYolo)
 
 
 input_folder = "C:/Users/blagn771/Desktop/FishDataset/Segmentation/masks"

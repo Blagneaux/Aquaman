@@ -3,8 +3,7 @@ import cv2
 import numpy as np
 
 model = YOLO("C:/Users/blagn771/Desktop/FishDataset/segment/train1280_32_291/weights/best.pt")
-# cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/T1_Fish1_C1_270923 - Trim1.mp4")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/test/video (2160p).mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/T1_Fish1_C1_270923 - Trim1.mp4")
 
 frame_width = int(cap.get(3))//2
 frame_height = int(cap.get(4))//2

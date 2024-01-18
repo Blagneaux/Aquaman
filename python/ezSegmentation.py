@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
 
+# videoSeg part take a video in which there is no fish, and computes the median image
+# The goal is to get delete the flickering of the light
+
+# videoProcess part take a video in which there IS a fish, substract the median that has been computed
+# and create a mask and an image for every frame of the video
+
 frameSeg = False
 videoSeg = False
 videoProcess = True
