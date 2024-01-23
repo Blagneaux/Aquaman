@@ -98,7 +98,7 @@ class CSV2DigitalTwin extends NACA {
             coords.get(k).x = positionsList.get(0)[k].x;
             coords.get(k).y = positionsList.get(0)[k].y;
         }
-        end(true, true);
+        end(true, false);
     }
 
     // float distance(float x, float y) {
@@ -137,6 +137,8 @@ class CSV2DigitalTwin extends NACA {
 
         if (index < numColumns) {
             for (int i=0; i<coords.size(); i++) coords.set(i,orig.coords.get(i).copy());
+            println(orig.box.coords);
+            box.translate(-positionsList.get(index)[0].x + positionsList.get(index+1)[0].x, -positionsList.get(index)[0].y + positionsList.get(index+1)[0].y);
             for (int k=0; k<numRows; k++) {
                 coords.get(k).x = x0_dep + positionsList.get(index)[k].x;
                 coords.get(k).y = y0_dep + positionsList.get(index)[k].y;

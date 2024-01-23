@@ -2,6 +2,12 @@ import cv2
 import os
 import numpy as np
 
+# -----------------------------------------------------------------------------------------------
+
+# Takes a black and white picture corresponding to a mask, finds the contour and makes it a label
+
+# -----------------------------------------------------------------------------------------------
+
 def mask2txt(file_path, new_file_path):
 
     min_area = 2000

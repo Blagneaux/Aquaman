@@ -90,10 +90,10 @@ class Body extends AbstractBody{
       }
       else {
         for ( PVector x: coords ) {
-          mn.x = min(mn.x, x.x);
-          mn.y = xc.y - 2;
-          mx.x = max(mx.x, x.x);
-          mx.y = xc.y + 2;
+          mn.x = xc.x - 200;
+          mn.y = xc.y - 4;
+          mx.x = xc.x - 190;
+          mx.y = xc.y + 4;
         }
       }
       box = new Body(xc.x, xc.y, window);
@@ -251,7 +251,7 @@ class Body extends AbstractBody{
     float dis = -1e10;
     float dis2 = -1e10;
     if (n>4) { // check distance to bounding box
-      if ( box.distance(x, y)>3) return wnormal;
+      if ( box.distance(x, y)>10) return wnormal;
     }
     // check distance to each line, choose max
     for ( OrthoNormal o : orth ) {

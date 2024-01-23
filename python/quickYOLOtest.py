@@ -2,13 +2,20 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 
+# ---------------------------------------------------------
+
+# Takes a video, apply a YOLO model, and display the result
+
+# ---------------------------------------------------------
+
 model = YOLO("C:/Users/blagn771/Desktop/FishDataset/segment/train1280_32_291/weights/best.pt")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/T1_Fish1_C1_270923 - Trim1.mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
 
 frame_width = int(cap.get(3))//2
 frame_height = int(cap.get(4))//2
 
 size = (frame_width, frame_height)
+print(size)
 
 # Init list of all the coordinates
 XY = []
@@ -17,6 +24,7 @@ XY_interpolated = []
 # loop through the video frames
 while cap.isOpened():
     ret, frame = cap.read()
+    frame = cv2.flip(frame, 1)
 
     if ret:
         # run inference on a frame
