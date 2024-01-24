@@ -158,7 +158,7 @@ def predict(model=model, cap=cap):
         perimeter = calculate_shape_perimeter(xy)
         tail = find_most_acute_vertex(xy)
         head = find_opposite_end_point(xy, tail, perimeter)
-        rotation_init_index = tail
+        rotation_init_index = head
 
         x_interp = np.roll(xy[:,0], shift=-rotation_init_index, axis=0)
         y_interp = np.roll(xy[:,1], shift=-rotation_init_index, axis=0)
@@ -205,6 +205,7 @@ def predict(model=model, cap=cap):
         xi0, yi0 = interpolate.splev(np.linspace(0, 1, desired_points_count), tck)
         print(count)
         count += 1
+        # xi0, yi0 = xi0[:-1], yi0[:-1] 
 
         interpolated_f[:,0] = xi0*resX/screenX
         interpolated_f[:,1] = yi0*resY/screenY

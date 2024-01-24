@@ -99,11 +99,48 @@ class CSV2DigitalTwin extends NACA {
             coords.get(k).y = positionsList.get(0)[k].y;
         }
         end(true, false);
+        PVector mn = positionsList.get(0)[0].copy(), mx = positionsList.get(0)[0].copy();
+        for (int k=0; k<numColumns; k++) {
+            for (int i=0; i<numRows; i++) {
+                mn.x = min(mn.x, positionsList.get(k)[i].x);
+                mn.y = min(mn.y, positionsList.get(k)[i].y);
+                mx.x = max(mx.x, positionsList.get(k)[i].x);
+                mx.y = max(mx.y, positionsList.get(k)[i].y);
+            }
+        }
+        // box.coords.get(0).x = x0_dep + mn.x;
+        box.coords.get(0).y = y0_dep + mn.y;
+        // box.coords.get(1).x = x0_dep + mn.x;
+        box.coords.get(1).y = y0_dep + mx.y;
+        box.coords.get(2).x = x0_dep + mx.x;
+        box.coords.get(2).y = y0_dep + mx.y;
+        box.coords.get(3).x = x0_dep + mx.x;
+        box.coords.get(3).y = y0_dep + mn.y;
     }
 
     // float distance(float x, float y) {
     //     return orig.distance(x, y-h(x));
     // }
+
+    float distance( float x, float y ) { // in cells
+    float dis;
+    if (n>4) { // distance to bounding box
+      dis = box.distance(x, y);
+      if (dis>3) return dis;
+    }
+    
+    if(convex){ // distance to convex body
+      // check distance to each line, choose max
+      dis = -1e10;
+      for ( OrthoNormal o : orth ) dis = max(dis, o.distance(x, y));
+      return dis;
+    } else {   // distance to non-convex body
+      // check distance to each line segment, choose min
+      dis = 1e10;
+      for( OrthoNormal o: orth ) dis = min(dis,o.distance(x,y,false));
+      return (wn(x,y)==0)?dis:-dis; // use winding to set inside/outside
+    }
+  }
 
     PVector WallNormal(float x, float y) {// adjust orig normal
         PVector n = orig.WallNormal(x, y);
@@ -136,9 +173,8 @@ class CSV2DigitalTwin extends NACA {
         this.time = time;
 
         if (index < numColumns) {
-            for (int i=0; i<coords.size(); i++) coords.set(i,orig.coords.get(i).copy());
-            println(orig.box.coords);
-            box.translate(-positionsList.get(index)[0].x + positionsList.get(index+1)[0].x, -positionsList.get(index)[0].y + positionsList.get(index+1)[0].y);
+            for (int i=0; i<numRows; i++) coords.set(i,orig.coords.get(i).copy());
+            box.translate(-positionsList.get(index)[0].x + positionsList.get(index+1)[0].x, 0);            
             for (int k=0; k<numRows; k++) {
                 coords.get(k).x = x0_dep + positionsList.get(index)[k].x;
                 coords.get(k).y = y0_dep + positionsList.get(index)[k].y;

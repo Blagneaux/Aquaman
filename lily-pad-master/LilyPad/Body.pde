@@ -97,8 +97,8 @@ class Body extends AbstractBody{
         }
       }
       box = new Body(xc.x, xc.y, window);
-      box.add(mn.x, mn.y);
-      box.add(mn.x, mx.y);
+      box.add(mn.x + 3, mn.y);
+      box.add(mn.x + 3, mx.y);
       box.add(mx.x, mx.y);
       box.add(mx.x, mn.y);
       box.end();
