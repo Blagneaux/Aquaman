@@ -35,25 +35,27 @@ def checkLabels(img_path, label_path):
 
     df = pd.read_csv(label_path, sep=" ", header=None)
     points = []
+    img = cv2.imread(img_path)
+    img_h, img_w = img.shape[:2]
     for i in range(1, len(df.columns), 2):
-        x = int(df[i][0] * 640)
-        y = int(df[i+1][0] * 640)
+        x = int(df[i][0] * img_w)
+        y = int(df[i+1][0] * img_h)
         points.append([x,y])
 
-    img = cv2.imread(img_path)
     # Convert points to a NumPy array
     points_array = np.array([points], dtype=np.int32)
 
     # Draw the polyline
     perimeter = calculate_shape_perimeter(points)
     tail = find_most_acute_vertex(points)
-    head = find_opposite_end_point(points, tail, perimeter)
+    # head = find_opposite_end_point(points, tail, perimeter)
     cv2.polylines(img, [points_array], isClosed=True, color=(0, 0, 255), thickness=2)
-    cv2.circle(img, points_array[0][head], radius=5, color=(0, 255, 0), thickness=-1)
+    # cv2.circle(img, points_array[0][tail], radius=5, color=(0, 255, 0), thickness=-1)
 
     cv2.imshow('img', img)
     # Add a delay (100 milliseconds in this example)
-    cv2.waitKey(50)
+    print(img_path)
+    cv2.waitKey(10)
 
 def calculate_angle(pt1, pt2, pt3):
 
@@ -65,6 +67,7 @@ def calculate_angle(pt1, pt2, pt3):
     magnitude2 = np.linalg.norm(vector2)
 
     cosine_angle = dot_product / (magnitude1 * magnitude2)
+    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
     angle = np.degrees(np.arccos(cosine_angle))
 
     return angle
@@ -119,8 +122,8 @@ def find_opposite_end_point(points, most_acute_index, perimeter):
     return opposite_end_index
 
 
-img_fodler = "C:/Users/blagn771/Desktop/fish3-fully-labelled/images"
-labels_folder = "C:/Users/blagn771/Desktop/fish3-fully-labelled/labels"
+img_fodler = "C:/Users/blagn771/Desktop/FishDataset/Fish1/images"
+labels_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish1/labelsByHand"
 
 # # ---------------------------------------------------------
 # # If the files have been renamded by the labeling software:
@@ -141,10 +144,12 @@ labels_folder = "C:/Users/blagn771/Desktop/fish3-fully-labelled/labels"
 
 for file in os.listdir(img_fodler):
     file_path = os.path.join(img_fodler, file)
-    label_path = os.path.join(labels_folder, file[:-3]+"txt")
-    checkLabels(file_path, label_path)
+    if file_path[-6] != '-':
+    # if file_path[-5] == '4' and file_path[-6] == '-':
+        label_path = os.path.join(labels_folder, file[:-3]+"txt")
+        checkLabels(file_path, label_path)
 
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
 
 cv2.destroyAllWindows()

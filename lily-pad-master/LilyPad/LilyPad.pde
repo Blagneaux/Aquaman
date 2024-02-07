@@ -28,7 +28,8 @@ void setup(){
   
   //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
   body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
-  flow = new BDIM(n,m,0.5,body,0.001,true, 0);
+  flow = new BDIM(n,m,0.31,body,0.19,true, 0);
+  //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
   flood = new FloodPlot(view);
   flood.range = new Scale(-.5,.5);
   flood.setLegend("vorticity");
