@@ -1,6 +1,10 @@
 BDIM flow;
 //FlexNACA body;
 CSV2DigitalTwin body;
+TestLine upWall;
+TestLine bottomWall;
+BodyUnion twin;
+BodyUnion wall;
 FloodPlot flood;
 SaveData dat;
 PrintWriter output;
@@ -27,8 +31,12 @@ void setup(){
   yTable = loadTable("C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv", "header");
   
   //body = new FlexNACA(n/4,n/2,n/3,0.20,0.25,1.2,1.,a,view);
+  upWall = new TestLine(0, 36.5, 256, view); // 37 because 39 grid is the gap between the top and the begining of the tank, but it is 2 grid thick
   body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv","C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv",view);
-  flow = new BDIM(n,m,0.31,body,0.19,true, 0);
+  bottomWall = new TestLine(0, 127-38.5, 256, view);
+  wall = new BodyUnion(upWall, bottomWall);
+  twin = new BodyUnion(body, wall);
+  flow = new BDIM(n,m,0.0069,twin,0.095,true, 0);
   //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
   flood = new FloodPlot(view);
   flood.range = new Scale(-.5,.5);
@@ -41,12 +49,14 @@ void setup(){
 }
 
 void draw(){
-  if (flow.t < 499){
+  if ((int)(flow.t / 0.0069 -1) < 104){
     time += flow.dt;
     body.update(time);
-    flow.update(body); flow.update2();         // 2-step fluid update
+    flow.update(twin); flow.update2();         // 2-step fluid update
     flood.display(flow.u.curl());              // compute and display vorticity
     body.display();                            // display the body
+    upWall.display();
+    bottomWall.display();
     
     // Save the x and y values for every points of the body at each time step
     // This is used to create the labels for YOLO quick training
@@ -78,6 +88,15 @@ void draw(){
 
     saveFrame("saved/frame-####.png");
     
+  } else if ((int)(flow.t / 0.0069 -1) < 6000) {
+    time += flow.dt;
+    //body.translate(0,0);
+    flow.update(twin); flow.update2();         // 2-step fluid update
+    flood.display(flow.u.curl());              // compute and display vorticity
+    //body.display();                            // display the body
+    upWall.display();
+    bottomWall.display();
+    saveFrame("saved/frame-####.png");
   } else {
     //dat.finish();
     dataAdd();

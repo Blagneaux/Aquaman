@@ -9,11 +9,11 @@ from scipy import interpolate, signal
 import pysindy as ps
 import os
 
-model = YOLO("C:/Users/blagn771/Desktop/FishDataset/segment/train1280_32_291/weights/best.pt")
+model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
 
 # model = YOLO("C:/Users/blagn771/Desktop/FishDataset/segment/train1280_32_291/weights/best.pt")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
 
 def calculate_angle(pt1, pt2, pt3):
 
@@ -25,6 +25,7 @@ def calculate_angle(pt1, pt2, pt3):
     magnitude2 = np.linalg.norm(vector2)
 
     cosine_angle = dot_product / (magnitude1 * magnitude2)
+    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
     angle = np.degrees(np.arccos(cosine_angle))
 
     return angle
@@ -78,6 +79,77 @@ def find_opposite_end_point(points, most_acute_index, perimeter):
 
     return opposite_end_index
 
+def crop_and_resize_image(input_image, target_size=(640, 640)):
+    # Read the input image
+    img = input_image
+
+    # Get the dimensions of the input image
+    img_height, img_width = img.shape[:2]
+
+    # Get the bounding box of the detected shape
+    results = model(img)
+    r = results[0]
+    boxes = r.boxes.xyxy.tolist()
+    if boxes == []:
+        return("Nothing to detect")
+
+    xmin, ymin, xmax, ymax = boxes[0]
+    xmin = int(xmin)
+    xmax = int(xmax)
+    ymin = int(ymin)
+    ymax = int(ymax)
+
+    # Calculate the center of the bounding box
+    center_x = (xmin + xmax) // 2
+    center_y = (ymin + ymax) // 2
+
+    # Calculate the cropping coordinates
+    crop_xmin = max(0, center_x - target_size[0] // 2)
+    crop_ymin = max(0, center_y - target_size[1] // 2)
+    crop_xmax = min(img_width, center_x + target_size[0] // 2)
+    crop_ymax = min(img_height, center_y + target_size[1] // 2)
+
+    # Check if the target region exceeds image boundaries
+    if (crop_xmax - crop_xmin) < target_size[0]:
+        if center_x - (target_size[0] // 2) < 0:
+            crop_xmax = crop_xmin + target_size[0]
+        elif center_x + (target_size[0] // 2) > img_width:
+            crop_xmin = crop_xmax - target_size[0]
+
+    if (crop_ymax - crop_ymin) < target_size[1]:
+        if center_y - (target_size[1] // 2) < 0:
+            crop_ymax = crop_ymin + target_size[1]
+        elif center_y + (target_size[1] // 2) > img_height:
+            crop_ymin = crop_ymax - target_size[1]
+
+    # Crop and resize the image
+    cropped_resized_img = img[crop_ymin:crop_ymax, crop_xmin:crop_xmax]
+    return cropped_resized_img
+
+def generalizeLabel(cropped_img, cropped_label, img):
+
+    cropped_h, cropped_w = cropped_img.shape[:2]
+    img_h, img_w = img.shape[:2]
+
+    original_label_list = []
+    label_list = cropped_label
+
+    # If one of the images is the cropped version of the other
+    if img_h > cropped_h:
+
+        # Perform template matching
+        result = cv2.matchTemplate(img, cropped_img, cv2.TM_CCOEFF_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+        top_left_coordinates = max_loc
+
+        x_top, y_top = top_left_coordinates
+
+        # Create new label for the original image
+        for i in label_list:
+            original_label_list.append([i[0] + x_top, i[1] + y_top])
+
+        return original_label_list
+
 def predict(model=model, cap=cap):
 
     frame_width = int(cap.get(3))
@@ -89,55 +161,59 @@ def predict(model=model, cap=cap):
     XY = []
     XY_interpolated = []
 
-    # # loop through the video frames
-    # while cap.isOpened():
-    #     ret, frame = cap.read()
+    # loop through the video frames
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # Apply contrast adjustment
+        alpha = 0.25  # Contrast control (1.0 for no change)
+        beta = 0     # Brightness control (0 for no change)
 
-    #     # frame = cv2.flip(frame, 1)
+        if ret:
+            # run inference on a frame
+            frame_cropped = crop_and_resize_image(frame, (640,640))
+            frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
+            results = model(frame_cropped_contrasted)
 
-    #     if ret:
-    #         # run inference on a frame
-    #         results = model(frame)
+            # view results
+            for r in results:
+                if r.masks == None:
+                    break
+                mask = r.masks.xy
+                xys = mask[0]
+                uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
+                XY.append(np.int32(uncropped_xys))
+                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
-    #         # view results
-    #         for r in results:
-    #             if r.masks == None:
-    #                 break
-    #             mask = r.masks.xy
-    #             xys = mask[0]
-    #             XY.append(np.int32(xys))
-    #             cv2.polylines(frame, np.int32([xys]), True, (0, 255, 255), 2)
+            cv2.imshow("img", frame)
 
-    #         cv2.imshow("img", frame)
-
-    #         #break the loop if 'q' is pressed
-    #         if cv2.waitKey(1) & 0xFF == ord("q"):
-    #             break
+            #break the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
         
-    #     else:
-    #         break
+        else:
+            break
 
-    # cap.release()
-    # cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
 
-    # Test to loop through the labels to see how it works
-    labels_folder = "C:/Users/blagn771/Desktop/fish3-fully-labelled/labels"
-    img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
-    for file in os.listdir(labels_folder):
-        file_path = os.path.join(labels_folder, file)
-        crop_path = os.path.join(img_folder, file[:-3]+'png')
-        uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
-        uncrop = cv2.imread(uncrop_path)
-        crop = cv2.imread(crop_path)
-        result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
-        _, _, _, top_left = cv2.minMaxLoc(result)
-        df_label = pd.read_csv(file_path, sep=' ', header=None)
-        xys = []
-        for i in range(1, len(df_label.columns), 2):
-            x = int(df_label[i][0] * 640 + top_left[0])
-            y = int(df_label[i+1][0] * 640 + top_left[1])
-            xys.append([x,y])
-        XY.append(np.int32(xys))
+    # # Test to loop through the labels to see how it works
+    # labels_folder = "C:/Users/blagn771/Desktop/fish3-fully-labelled"
+    # img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
+    # for file in os.listdir(labels_folder):
+    #     file_path = os.path.join(labels_folder, file)
+    #     crop_path = os.path.join(img_folder, file[:-3]+'png')
+    #     uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
+    #     uncrop = cv2.imread(uncrop_path)
+    #     crop = cv2.imread(crop_path)
+    #     result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
+    #     _, _, _, top_left = cv2.minMaxLoc(result)
+    #     df_label = pd.read_csv(file_path, sep=' ', header=None)
+    #     xys = []
+    #     for i in range(1, len(df_label.columns), 2):
+    #         x = int(df_label[i][0] * 640 + top_left[0])
+    #         y = int(df_label[i+1][0] * 640 + top_left[1])
+    #         xys.append([x,y])
+    #     XY.append(np.int32(xys))
 
     # Set the number of points the segmentation needs to be
     desired_points_count = 256          # power of 2
@@ -158,7 +234,7 @@ def predict(model=model, cap=cap):
         perimeter = calculate_shape_perimeter(xy)
         tail = find_most_acute_vertex(xy)
         head = find_opposite_end_point(xy, tail, perimeter)
-        rotation_init_index = head
+        rotation_init_index = tail
 
         x_interp = np.roll(xy[:,0], shift=-rotation_init_index, axis=0)
         y_interp = np.roll(xy[:,1], shift=-rotation_init_index, axis=0)

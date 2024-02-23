@@ -115,8 +115,9 @@ while cap.isOpened():
             mask = r.masks.xy
             xys = mask[0]
             uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
-            XY.append(np.int32(uncropped_xys))
-            cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
+            if uncropped_xys is not None:
+                XY.append(np.int32(uncropped_xys))
+                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
         cv2.imshow("img", frame)
 

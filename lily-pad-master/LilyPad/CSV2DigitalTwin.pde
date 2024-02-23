@@ -168,7 +168,7 @@ class CSV2DigitalTwin extends NACA {
     void update( float time) { // update 'time' and coords
 
         // Calculate the index based on currentTime
-        int index = (int)(time / 0.31 - 1);
+        int index = (int)(time / 0.00686778 - 1);
         this.index = index;
         this.time = time;
 
