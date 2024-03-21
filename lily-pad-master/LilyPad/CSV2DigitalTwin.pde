@@ -98,7 +98,7 @@ class CSV2DigitalTwin extends NACA {
             coords.get(k).x = positionsList.get(0)[k].x;
             coords.get(k).y = positionsList.get(0)[k].y;
         }
-        end(true, false);
+        end(true, true);
         PVector mn = positionsList.get(0)[0].copy(), mx = positionsList.get(0)[0].copy();
         for (int k=0; k<numColumns; k++) {
             for (int i=0; i<numRows; i++) {
