@@ -77,29 +77,55 @@ class Body extends AbstractBody{
     getOrth(); // get orthogonal projection of line segments
     if(closed) getArea();
 
+    // // make the bounding box
+    // if (n>4) {
+    //   PVector mn = xc.copy(), mx = xc.copy();
+    //   for ( PVector x: coords ) {
+    //     mn.x = min(mn.x, x.x);
+    //     mn.y = min(mn.y, x.y);
+    //     mx.x = max(mx.x, x.x);
+    //     mx.y = max(mx.y, x.y);
+    //   }
+    //   box = new Body(xc.x, xc.y, window);
+    //   if (custom == false) {
+    //     box.add(mn.x, mn.y);
+    //     box.add(mn.x, mx.y);
+    //     box.add(mx.x, mx.y);
+    //     box.add(mx.x, mn.y);
+    //   }
+    //   else if (custom == true) {
+    //     box = new Body(xc.x, xc.y, window);
+    //     box.add(mn.x + 3, mn.y);
+    //     box.add(mn.x + 3, mx.y);
+    //     box.add(mx.x, mx.y);
+    //     box.add(mx.x, mn.y);
+    //   }
+    //   box.end();
+    // }
     // make the bounding box
     if (n>4) {
       PVector mn = xc.copy(), mx = xc.copy();
-      for ( PVector x: coords ) {
-        mn.x = min(mn.x, x.x);
-        mn.y = min(mn.y, x.y);
-        mx.x = max(mx.x, x.x);
-        mx.y = max(mx.y, x.y);
-      }
-      box = new Body(xc.x, xc.y, window);
       if (custom == false) {
-        box.add(mn.x, mn.y);
-        box.add(mn.x, mx.y);
-        box.add(mx.x, mx.y);
-        box.add(mx.x, mn.y);
+        for ( PVector x: coords ) {
+          mn.x = min(mn.x, x.x);
+          mn.y = min(mn.y, x.y);
+          mx.x = max(mx.x, x.x);
+          mx.y = max(mx.y, x.y);
+        }
       }
       else {
-        box = new Body(xc.x, xc.y, window);
-        box.add(mn.x + 3, mn.y);
-        box.add(mn.x + 3, mx.y);
-        box.add(mx.x, mx.y);
-        box.add(mx.x, mn.y);
+        for ( PVector x: coords ) {
+          mn.x = xc.x - 200;
+          mn.y = xc.y - 4;
+          mx.x = xc.x - 190;
+          mx.y = xc.y + 4;
+        }
       }
+      box = new Body(xc.x, xc.y, window);
+      box.add(mn.x + 3, mn.y);
+      box.add(mn.x + 3, mx.y);
+      box.add(mx.x, mx.y);
+      box.add(mx.x, mn.y);
       box.end();
     }
     

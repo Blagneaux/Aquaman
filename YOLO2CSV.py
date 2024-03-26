@@ -9,11 +9,11 @@ from scipy import interpolate, signal
 import pysindy as ps
 import os
 
-model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
+# Best model at the moment: train640_32_500_manuel
+model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
+model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
-
-# model = YOLO("C:/Users/blagn771/Desktop/FishDataset/segment/train1280_32_291/weights/best.pt")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
 
 def calculate_angle(pt1, pt2, pt3):
 
@@ -37,9 +37,9 @@ def find_most_acute_vertex(points):
     most_acute_vertex = None
 
     for i in range(num_points):
-        pt1 = points[i - 1]
+        pt1 = points[i - 5]
         pt2 = points[i]
-        pt3 = points[(i + 1) % num_points]
+        pt3 = points[(i + 5) % num_points]
 
         angle = calculate_angle(pt1, pt2, pt3)
 
@@ -87,7 +87,7 @@ def crop_and_resize_image(input_image, target_size=(640, 640)):
     img_height, img_width = img.shape[:2]
 
     # Get the bounding box of the detected shape
-    results = model(img)
+    results = model2(img)
     r = results[0]
     boxes = r.boxes.xyxy.tolist()
     if boxes == []:
@@ -161,59 +161,60 @@ def predict(model=model, cap=cap):
     XY = []
     XY_interpolated = []
 
-    # loop through the video frames
-    while cap.isOpened():
-        ret, frame = cap.read()
-        # Apply contrast adjustment
-        alpha = 0.25  # Contrast control (1.0 for no change)
-        beta = 0     # Brightness control (0 for no change)
+    # # loop through the video frames
+    # while cap.isOpened():
+    #     ret, frame = cap.read()
+    #     # Apply contrast adjustment
+    #     alpha = 1  # Contrast control (1.0 for no change)
+    #     beta = 0     # Brightness control (0 for no change)
 
-        if ret:
-            # run inference on a frame
-            frame_cropped = crop_and_resize_image(frame, (640,640))
-            frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
-            results = model(frame_cropped_contrasted)
+    #     if ret:
+    #         # run inference on a frame
+    #         frame_cropped = crop_and_resize_image(frame, (640,640))
+    #         frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
+    #         results = model(frame_cropped_contrasted)
 
-            # view results
-            for r in results:
-                if r.masks == None:
-                    break
-                mask = r.masks.xy
-                xys = mask[0]
-                uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
-                XY.append(np.int32(uncropped_xys))
-                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
+    #         # view results
+    #         for r in results:
+    #             if r.masks == None:
+    #                 break
+    #             mask = r.masks.xy
+    #             xys = mask[0]
+    #             uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
+    #             XY.append(np.int32(uncropped_xys))
+    #             cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
-            cv2.imshow("img", frame)
+    #         cv2.imshow("img", frame)
 
-            #break the loop if 'q' is pressed
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+    #         #break the loop if 'q' is pressed
+    #         if cv2.waitKey(1) & 0xFF == ord("q"):
+    #             break
         
-        else:
-            break
+    #     else:
+    #         break
 
-    cap.release()
-    cv2.destroyAllWindows()
+    # cap.release()
+    # cv2.destroyAllWindows()
 
-    # # Test to loop through the labels to see how it works
-    # labels_folder = "C:/Users/blagn771/Desktop/fish3-fully-labelled"
-    # img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
-    # for file in os.listdir(labels_folder):
-    #     file_path = os.path.join(labels_folder, file)
-    #     crop_path = os.path.join(img_folder, file[:-3]+'png')
-    #     uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
-    #     uncrop = cv2.imread(uncrop_path)
-    #     crop = cv2.imread(crop_path)
-    #     result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
-    #     _, _, _, top_left = cv2.minMaxLoc(result)
-    #     df_label = pd.read_csv(file_path, sep=' ', header=None)
-    #     xys = []
-    #     for i in range(1, len(df_label.columns), 2):
-    #         x = int(df_label[i][0] * 640 + top_left[0])
-    #         y = int(df_label[i+1][0] * 640 + top_left[1])
-    #         xys.append([x,y])
-    #     XY.append(np.int32(xys))
+    # Test to loop through the labels to see how it works
+    labels_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/labelsByHandNormalSize"
+    img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
+    for file in os.listdir(labels_folder):
+        if file.endswith('.txt'):
+            file_path = os.path.join(labels_folder, file)
+            crop_path = os.path.join(img_folder, file[:-3]+'png')
+            uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
+            uncrop = cv2.imread(uncrop_path)
+            crop = cv2.imread(crop_path)
+            result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
+            _, _, _, top_left = cv2.minMaxLoc(result)
+            df_label = pd.read_csv(file_path, sep=' ', header=None)
+            xys = []
+            for i in range(1, len(df_label.columns), 2):
+                x = int(df_label[i][0] * 640 + top_left[0])
+                y = int(df_label[i+1][0] * 640 + top_left[1])
+                xys.append([x,y])
+            XY.append(np.int32(xys))
 
     # Set the number of points the segmentation needs to be
     desired_points_count = 256          # power of 2
@@ -234,7 +235,7 @@ def predict(model=model, cap=cap):
         perimeter = calculate_shape_perimeter(xy)
         tail = find_most_acute_vertex(xy)
         head = find_opposite_end_point(xy, tail, perimeter)
-        rotation_init_index = tail
+        rotation_init_index = head
 
         x_interp = np.roll(xy[:,0], shift=-rotation_init_index, axis=0)
         y_interp = np.roll(xy[:,1], shift=-rotation_init_index, axis=0)
@@ -354,8 +355,8 @@ def debug():
         y = Y_data[i]
         ax.plot(x,y,"-o")
         ax.plot(x[0],y[0], "ro")
-        ax.plot(x[50],y[50], "ro")
-        plt.pause(0.1)
+        ax.plot(x[50],y[50], "go")
+        plt.pause(1)
 
 
 if __name__ == "__main__":

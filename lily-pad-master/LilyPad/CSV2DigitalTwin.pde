@@ -98,7 +98,7 @@ class CSV2DigitalTwin extends NACA {
             coords.get(k).x = positionsList.get(0)[k].x;
             coords.get(k).y = positionsList.get(0)[k].y;
         }
-        end(true, true);
+        end(true, false);
         PVector mn = positionsList.get(0)[0].copy(), mx = positionsList.get(0)[0].copy();
         for (int k=0; k<numColumns; k++) {
             for (int i=0; i<numRows; i++) {
@@ -168,7 +168,7 @@ class CSV2DigitalTwin extends NACA {
     void update( float time) { // update 'time' and coords
 
         // Calculate the index based on currentTime
-        int index = (int)(time / 0.00686778 - 1);
+        int index = (int)(time / 0.686778 - 1);
         this.index = index;
         this.time = time;
 
