@@ -161,60 +161,60 @@ def predict(model=model, cap=cap):
     XY = []
     XY_interpolated = []
 
-    # # loop through the video frames
-    # while cap.isOpened():
-    #     ret, frame = cap.read()
-    #     # Apply contrast adjustment
-    #     alpha = 1  # Contrast control (1.0 for no change)
-    #     beta = 0     # Brightness control (0 for no change)
+    # loop through the video frames
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # Apply contrast adjustment
+        alpha = 1  # Contrast control (1.0 for no change)
+        beta = 0     # Brightness control (0 for no change)
 
-    #     if ret:
-    #         # run inference on a frame
-    #         frame_cropped = crop_and_resize_image(frame, (640,640))
-    #         frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
-    #         results = model(frame_cropped_contrasted)
+        if ret:
+            # run inference on a frame
+            frame_cropped = crop_and_resize_image(frame, (640,640))
+            frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
+            results = model(frame_cropped_contrasted)
 
-    #         # view results
-    #         for r in results:
-    #             if r.masks == None:
-    #                 break
-    #             mask = r.masks.xy
-    #             xys = mask[0]
-    #             uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
-    #             XY.append(np.int32(uncropped_xys))
-    #             cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
+            # view results
+            for r in results:
+                if r.masks == None:
+                    break
+                mask = r.masks.xy
+                xys = mask[0]
+                uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
+                XY.append(np.int32(uncropped_xys))
+                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
-    #         cv2.imshow("img", frame)
+            cv2.imshow("img", frame)
 
-    #         #break the loop if 'q' is pressed
-    #         if cv2.waitKey(1) & 0xFF == ord("q"):
-    #             break
+            #break the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
         
-    #     else:
-    #         break
+        else:
+            break
 
-    # cap.release()
-    # cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
 
-    # Test to loop through the labels to see how it works
-    labels_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/labelsByHandNormalSize"
-    img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
-    for file in os.listdir(labels_folder):
-        if file.endswith('.txt'):
-            file_path = os.path.join(labels_folder, file)
-            crop_path = os.path.join(img_folder, file[:-3]+'png')
-            uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
-            uncrop = cv2.imread(uncrop_path)
-            crop = cv2.imread(crop_path)
-            result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
-            _, _, _, top_left = cv2.minMaxLoc(result)
-            df_label = pd.read_csv(file_path, sep=' ', header=None)
-            xys = []
-            for i in range(1, len(df_label.columns), 2):
-                x = int(df_label[i][0] * 640 + top_left[0])
-                y = int(df_label[i+1][0] * 640 + top_left[1])
-                xys.append([x,y])
-            XY.append(np.int32(xys))
+    # # Test to loop through the labels to see how it works
+    # labels_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/labelsByHandNormalSize"
+    # img_folder = "C:/Users/blagn771/Desktop/FishDataset/Fish3/images"
+    # for file in os.listdir(labels_folder):
+    #     if file.endswith('.txt'):
+    #         file_path = os.path.join(labels_folder, file)
+    #         crop_path = os.path.join(img_folder, file[:-3]+'png')
+    #         uncrop_path = os.path.join(img_folder, file[:-6]+'.png')
+    #         uncrop = cv2.imread(uncrop_path)
+    #         crop = cv2.imread(crop_path)
+    #         result = cv2.matchTemplate(uncrop, crop, cv2.TM_CCOEFF_NORMED)
+    #         _, _, _, top_left = cv2.minMaxLoc(result)
+    #         df_label = pd.read_csv(file_path, sep=' ', header=None)
+    #         xys = []
+    #         for i in range(1, len(df_label.columns), 2):
+    #             x = int(df_label[i][0] * 640 + top_left[0])
+    #             y = int(df_label[i+1][0] * 640 + top_left[1])
+    #             xys.append([x,y])
+    #         XY.append(np.int32(xys))
 
     # Set the number of points the segmentation needs to be
     desired_points_count = 256          # power of 2
