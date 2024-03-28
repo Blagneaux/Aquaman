@@ -10,9 +10,9 @@ float speed = 1;    //grid per time step
 float Re = 10000;     // Reynolds number
 float origin = _n/4;      //mean position
 float Ay = _L;      //spatial oscillations amplitude
-float Fy = 2*speed/_n;      //spatial oscillations frequency
+float Fy = 3*speed/_n;      //spatial oscillations frequency
 float Av = speed/2;        //speed oscillations amplitude
-float Fv = speed/_n;        //speed oscillations frequency
+float Fv = 2*speed/_n;        //speed oscillations frequency
 PrintWriter output;
 PrintWriter output2;
 PrintWriter outputFullMap;
@@ -21,7 +21,7 @@ float t = 0;
 float posX = 0;
 SaveData dat;
 SaveData dat2;
-int line = 1;
+int line = 0;
 ArrayList<float[]> pressureDataList = new ArrayList<>();
 int numTimeStep = 0;
 

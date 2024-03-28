@@ -158,7 +158,7 @@ class Body extends AbstractBody{
     display(C, window);
   }
   void display( color C, Window window ) { // note: can display while adding
-       if(n>4) box.display(#FFCC00);
+      //  if(n>4) box.display(#FFCC00);
     fill(C);
     //noStroke();
     stroke(bodyOutline);
