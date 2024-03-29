@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import csv
 import pandas as pd
 from numpy.polynomial import polynomial as pl
-from scipy import interpolate, signal
+from scipy import interpolate, signal, fft
 import pysindy as ps
 import os
 
@@ -358,7 +358,82 @@ def debug():
         ax.plot(x[50],y[50], "go")
         plt.pause(1)
 
+def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
+    # h, dt and nu are the non-dimensioning parameters from Lylipad
+    # h in m/grid
+    # dt is the time step
+    # nu is the dimensionless cinematic viscosity
+    # f_ac is the fps of the camera
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1,2,1)
+    X_data = pd.read_csv("x.csv", header=None)
+    N = len(X_data.columns)
+    Y_data = pd.read_csv("y.csv", header=None)
+    T = np.linspace(0, N/f_ac,N)
+    tail_pos, head_pos = [], []
+
+    for i in range(N):
+        tail_pos.append(Y_data[i][len(Y_data[i]) // 2])
+        head_pos.append(Y_data[i][0])
+
+    head_fft = fft.fft(np.array(head_pos)-np.mean(head_pos))
+    xf = fft.fftfreq(N, 1/f_ac)[:N//2]
+    head_fft_plot = 2.0/N * np.abs(head_fft[0:N//2])
+    max_head_fft = np.max(head_fft_plot)
+    fc_indice = np.where( head_fft_plot[0:N//2] > max_head_fft / 10)
+
+    fc = xf[np.max(fc_indice)]
+
+    # Créer un filtre passe-bas
+    ordre = 2  # Ordre du filtre
+    nyquist = 0.5 * f_ac
+    frequence_normale = fc / nyquist
+    b, a = signal.butter(ordre, frequence_normale, btype='low', analog=False)
+
+    dist = 0
+    fish_length = 0,
+    dist_time = 0
+    tail_freq = 0
+
+    dist = abs(X_data[N-1][0] - X_data[0][0])*h
+    fish_length = abs(X_data[0][0] - X_data[0][len(X_data[0]) // 2])*h
+    dist_time = N/f_ac
+
+
+    tail_filt = signal.filtfilt(b, a, tail_pos)
+    head_filt = signal.filtfilt(b, a, head_pos)
+
+    ax = plt.plot(T, tail_pos - tail_filt)
+    ax = plt.plot(T, head_pos-np.mean(head_pos))
+    # ax = plt.plot(T, tail_filt)
+
+    ax2 = fig.add_subplot(1,2,2)
+    tail_fft = fft.fft(np.array(tail_pos - tail_filt)-np.mean(tail_pos - tail_filt))
+    ax2 = plt.plot(xf, 2.0/N * np.abs(tail_fft[0:N//2]))
+
+    tail_fft_plot = 2.0/N * np.abs(tail_fft[0:N//2])
+    max_tail_fft = np.max(tail_fft_plot)
+    fc_indice = np.where( tail_fft_plot[0:N//2] == np.max(tail_fft_plot))
+
+    tail_freq = xf[fc_indice]
+
+    print("distance of the trajectory in m: ", np.round(dist, 3))
+    print("length of the fish in m: ", np.round(fish_length, 3))
+    print("duration of the trajectory in s: ", dist_time)
+    print("tailbeat frequency in Hz: ", np.round(tail_freq[0], 3))
+    print("distance of the trajectory in fish length: ", np.round(dist/fish_length, 3))
+    print("duration of the trajectory in tailbeat: ", dist_time*tail_freq[0])
+
+    print("Strouhal number: ", tail_freq[0]*fish_length/(dist/dist_time))
+    print("Reynolds number: ", fish_length*fish_length/(dist/dist_time)*1000000)
+
+    plt.show()
+
+    return dist, fish_length, dist_time
+
 
 if __name__ == "__main__":
-    predict(model, cap)
+    # predict(model, cap)
     # debug()
+    fish_scan()
