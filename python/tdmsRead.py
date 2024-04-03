@@ -5,7 +5,9 @@ from tkinter.filedialog import askopenfilename
 from tkinter.simpledialog import askfloat
 import numpy as np
 from scipy.signal import butter, filtfilt
+from scipy.interpolate import splev, splrep
 import pandas as pd
+import similaritymeasures
  
 # Initialiser Tkinter et cacher la fenêtre principale
 root = tk.Tk()
@@ -82,11 +84,27 @@ if chemin_fichier:
                     axs[canal_idx].plot(temps, donnees_filtrees - mean_donnees_filtrees)
                     axs[canal_idx].plot(dt_time, [k * 1025 * 0.0275 * 0.0275 for k in dt_data])
                     axs[canal_idx].plot(dt_time_REF, [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF])
-                    axs[canal_idx].set_title(f'{groupe.name}\n{canal.name} (Filtré)')
-                    axs[canal_idx].set_xlabel('Temps (s)')
-                    axs[canal_idx].set_ylabel('Amplitude')
+                    axs[canal_idx].set_title(f'{canal.name}')
+                    axs[canal_idx].set_xlabel('Time (s)')
+                    axs[canal_idx].set_ylabel('Pressure (Pa)')
                     axs[canal_idx].grid(True)
-                
+                    
+                    # Calcul la distance de Fréchet discrète
+                    exp_data = np.zeros((len(temps),2))
+                    exp_data[:,0] = donnees_filtrees - mean_donnees_filtrees
+                    exp_data[:,1] = temps
+                    num_data = np.zeros((len(dt_time),2))
+                    num_data[:,0] = [k * 1025 * 0.0275 * 0.0275 for k in dt_data]
+                    num_data[:,1] = dt_time
+                    num_data_REF = np.zeros((len(dt_time_REF),2))
+                    num_data_REF[:,0] = [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF]
+                    num_data_REF[:,1] = dt_time_REF
+
+                    dist = similaritymeasures.frechet_dist(exp_data, num_data)
+                    dist_REF = similaritymeasures.frechet_dist(exp_data, num_data_REF)
+                    print("Distance de Fréchet entre la courbe des capteurs et la courbe de HAACHAMA: ", dist)
+                    print("Distance de Fréchet entre la courbe des capteurs et la courbe du DT parfait: ", dist_REF)
+
                     canal_idx += 1
  
         # Cacher les axes non utilisés si le nombre de canaux n'est pas un carré parfait
