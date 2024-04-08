@@ -92,6 +92,10 @@ void draw() {
     float thrust = 2.*forces.x/_L;                     // thrust coefficient
     float lift = 2.*forces.y/_L;
     dat2.addData(t, flow.p);    // add the pressure arounf the foil to the data file
+    for (int i=0; i<21; i++) {
+      dat2.output.print(flow.p.extract(_n+i*_L, 1)+" ");
+    }
+    dat2.output.println("");
     output2.println(""+t+","+thrust+","+lift);           // print to file
   } else {  // close and save everything when t>Time
     output.close();

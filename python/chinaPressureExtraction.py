@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 import os
 import re
+import scipy.signal as signal
+from scipy.stats import linregress, t
 
 
 def find_subfolders_with_parameters(main_folder_path, re_value=None, h_value=None):
@@ -57,9 +59,10 @@ def extract_re_from_file_path(file_path):
 # for folder_path in matching_folders:
 #     print(folder_path)
 
-h = 0.004
+n = 2**7
+h = 1/n
 nu = 1/1000000
-L = 2**7 / 20
+L = n / 20
 
 def read_cp_data(file_path):
     # input_folder = "C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/chinaBenchmark/pressureMotion.txt"
@@ -115,7 +118,7 @@ def plot_cp(data_list, time_list, positions, title, ylim):
         axs[i].set_title(title.format(pos))
         axs[i].set_ylim(ylim)
     axs[i].legend()
-    plt.suptitle("Evolution of Cp with time at different positions")
+    plt.suptitle("Evolution of Cp with time (s) at different positions")
     plt.tight_layout()
 
 def plot_mean_cp(theta, meanCp_list):
@@ -130,25 +133,57 @@ def plot_mean_cp(theta, meanCp_list):
     plt.legend()
     plt.show()
 
+def apply_high_pass_filter(signal_data, fs, cutoff_freq):
+    # Normalize cutoff frequency to Nyquist frequency
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff_freq / nyquist
+
+    # Design high-pass Butterworth filter
+    order = 4
+    b, a = signal.butter(order, normal_cutoff, btype='high', analog=False)
+
+    # Apply the filter to the signal
+    filtered_signal = signal.filtfilt(b, a, signal_data)
+
+    return filtered_signal
+
 # Function to plot Cp on the wall at different positions
-def plot_wall_cp(data_list, time_list, positions, title, ylim):
-    fig, axs = plt.subplots(4, 6, figsize=(18, 12))
+def plot_wall_cp(data_list, time_list, positions, title, ylim, fixedRe):
+    fig, axs = plt.subplots(3, 4, figsize=(18, 12))
     axs = axs.flatten()
+
     for i, pos in enumerate(positions):
         for j in range(len(data_list)):
-            axs[i].semilogx(time_list[j][4:], data_list[j][pos][4:], label=f"{j+1}")
+            filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*re_value/1000)
+            axs[i].plot(time_list[j][4:], filtered_signal, label=f"{j+1}")
+        axs[i].grid()
+        axs[i].set_title(title.format(pos))
+        axs[i].set_ylim(ylim)
+    for i, pos in enumerate(positions):
+        for j in range(len(data_list)):
+            time_cyl = np.linspace(0, time_list[j][-1], 500)
+            pos_cyl = np.zeros(time_cyl.shape)
+            for k in range(len(time_cyl)-1):
+                if fixedRe:
+                    u = 0.02 * re_value/1000
+                else:
+                    u = 0.02 * re_values[j]/1000
+                if u*time_cyl[k] > 2**7*h - i*L*h - L*h/2 and u*time_cyl[k] < 2**7*h - i*L*h + L*h/2:
+                    pos_cyl[k] = 0.2
+                
+            axs[i].plot(time_cyl, pos_cyl-1)
         axs[i].grid()
         axs[i].set_title(title.format(pos))
         axs[i].set_ylim(ylim)
     axs[i].legend()
-    plt.suptitle("Evolution of Cp with time at different positions on the wall")
+    plt.suptitle("Evolution of Cp with time (s) at different positions on the wall")
     plt.tight_layout()
 
 re_values = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 h_values = np.round(np.linspace(1,5,10),2)
 main_folder_path = "D:/simuChina"
-re_value = 1000  # Example Re value
-h_value = 30  # Example h value
+re_value = 10000  # Example Re value
+h_value = 16  # Example h value
 re_1000_subfolders = find_subfolders_with_parameters(main_folder_path, re_value, None)
 h_6_subfolders = find_subfolders_with_parameters(main_folder_path, None, h_value)
 
@@ -159,9 +194,9 @@ def plot_min_pressure(data_list, time_list, positions, title, x):
     for i, pos in enumerate(positions):
         min_pressures = []
         for j in range(len(data_list)):
-            min_pressure = np.min(data_list[j][pos][4:])
+            min_pressure = np.max(data_list[j][pos][4:]) - np.min(data_list[j][pos][4:])
             min_pressures.append(min_pressure)
-        axs[i].plot(x, np.log10(np.abs(min_pressures)), marker='o', linestyle='-')
+        axs[i].semilogx(x, np.log10(np.abs(min_pressures)), marker='o', linestyle='-')
         axs[i].grid()
         axs[i].set_title(title.format(pos))
     plt.xlabel('Experiment')
@@ -190,7 +225,7 @@ def plot_time_min_pressure_single_fixedH(data_list, time_list, positions, x):
             for j in range(len(data_list)):
                 min_pressure_time = time_list[j][np.argmin(data_list[j][pos][4:])]
                 min_pressure_times.append(min_pressure_time)
-            plt.semilogx(x, np.log10(min_pressure_times), marker='o', linestyle='-', label=f"{i+1}")
+            plt.plot(np.log10(x), np.log10(min_pressure_times) - np.min(np.log10(min_pressure_times)), marker='o', linestyle='-', label=f"{i+1}")
     plt.legend()
     plt.xlabel("Log of Re")
     plt.ylabel("Log of the time of the min Cp")
@@ -201,13 +236,28 @@ def plot_min_pressure_single_fixedRe(data_list, time_list, positions, x):
     for i, pos in enumerate(positions):
         min_pressures = []
         for j in range(len(data_list)):
-            min_pressure = np.min(data_list[j][pos][4:])
+            filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*re_value/1000)
+            min_pressure = np.max(filtered_signal) - np.min(filtered_signal)
             min_pressures.append(min_pressure)
-        plt.plot(x, np.log10(np.abs(min_pressures)), marker='o', linestyle='-', label=f"{i+1}")
+        plt.plot(np.log10(x), np.log10(np.power(np.abs(min_pressures),-4)) - np.min(np.log10(np.power(np.abs(min_pressures),-4))), marker='o', linestyle='-', label=f"{i+1}")
     plt.legend()
-    plt.xlabel("h")
-    plt.ylabel("Log of the min Cp")
-    plt.title(f"Log(T_min) with h at different position along the wall with Re={re_value}")
+    plt.xlabel("Log(h)")
+    plt.ylabel("Log(1/(P_max - P_min)^4)")
+    plt.title(f"Log(1/(P_max - P_min)^4) with log(h) at different position along the wall with Re={re_value}")
+
+def plot_drag(subfolders):
+    fig = plt.figure()
+    for folder in subfolders:
+        file_path = os.path.join(folder, "Motion.csv")
+        Re = extract_re_from_file_path(file_path)
+        _nu = L / Re
+        df = pd.read_csv(file_path, header=None)
+        time = df[0] * h * h * _nu / nu
+
+        lift_fft = fft(np.array(df[2]))
+        N = len(df[2])
+        xf = fftfreq(N, df[0][1] - df[0][0])[:N//2]
+        plt.plot(xf, 2.0/N * np.abs(lift_fft[0:N//2]))
 
 # Lists to store data from all experiments
 all_cylinder_data = []
@@ -225,31 +275,108 @@ for folder in h_6_subfolders:
 
 cylinder_positions = range(16)
 # plot_cp(all_cylinder_data, all_times, cylinder_positions, "Cp on the cylinder at θ=π+{}π/8", (-2.25, 1.5))
-mean_cps = [[np.mean(cylinder_data[i][4:]) for i in range(len(cylinder_data.columns))] for cylinder_data in all_cylinder_data]
+# mean_cps = [[np.mean(cylinder_data[i][4:]) for i in range(len(cylinder_data.columns))] for cylinder_data in all_cylinder_data]
 # plot_mean_cp(np.linspace(180, 540, 17), mean_cps)
 
-wall_positions = range(21)
-plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [h]", (-1, 0.4))
-# plot_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp on the wall at n+{}L [h]", re_values)
-# plot_time_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp time on the wall at n+{}L [h]", re_values)
-plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
-plt.show()
+wall_positions = range(11)
+# plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [h]", (-1, 0.4), False)
+# plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
+# plt.show()
 
 # Lists to store data from all experiments
 all_cylinder_data = []
 all_wall_data = []
 all_times = []
+file_path2 = None
 
 for folder in re_1000_subfolders:
     file_path = os.path.join(folder, "pressureMotion.txt")
+    # file_path2 = os.path.join(folder, "pressureAfterMotion.txt")
     cylinder_data, wall_data, time = read_cp_data(file_path)
+    if file_path2 is not None:
+        cylinder_data2, wall_data2, time2 = read_cp_data(file_path2)
+        all_cylinder_data.append(pd.concat([cylinder_data, cylinder_data2[1:]]))
+        all_wall_data.append(pd.concat([wall_data, wall_data2[1:]]))
+        all_times.append(time + time2[1:])
     all_cylinder_data.append(cylinder_data)
     all_wall_data.append(wall_data)
     all_times.append(time)
 
-wall_positions = range(21)
-plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [Re]", (-1, 0.4))
+wall_positions = range(11)
+plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [Re]", (-1, 0.4), True)
 # plot_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp on the wall at n+{}L [Re]", h_values)
 plot_min_pressure_single_fixedRe(all_wall_data, all_times, wall_positions, h_values)
-# plot_time_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp time on the wall at n+{}L [Re]", h_values)
+# plot_drag(re_1000_subfolders)
 plt.show()
+
+def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
+    slopes = []  # List to store slopes from linear regressions
+    intercepts = []  # List to store intercepts from linear regressions
+    
+    fig = plt.figure()
+    
+    for i, pos in enumerate(positions):
+        min_pressures = []
+        for j in range(len(data_list)):
+            # Apply high-pass filter to the signal
+            filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*re_value/1000)
+            min_pressure = np.max(filtered_signal) - np.min(filtered_signal)
+            min_pressures.append(min_pressure)
+        
+        # Compute log-transformed values
+        log_h = np.log10(x)
+        log_p = np.log10(np.power(np.abs(min_pressures), -4))# - np.min(np.log10(np.power(np.abs(min_pressures), -4)))
+        
+        # Perform linear regression (affine)
+        slope, intercept, r_value, p_value, std_err = linregress(log_h, log_p)
+        slopes.append(slope)  # Store the slope
+        intercepts.append(intercept)  # Store the intercept
+        
+        # Calculate confidence intervals for the slope and intercept
+        confidence_level = 0.99
+        alpha = 1 - confidence_level
+        n = len(log_h)
+        se_slope = std_err
+        se_intercept = std_err * np.sqrt(np.mean(log_h**2))
+        t_value = np.abs(t.ppf(alpha/2, n - 2))  # Use t-distribution to get t-value
+        
+        slope_ci = (slope - t_value * se_slope, slope + t_value * se_slope)
+        intercept_ci = (intercept - t_value * se_intercept, intercept + t_value * se_intercept)
+        
+        # Plot log-transformed data and fitted line with uncertainty intervals
+        plt.plot(log_h, log_p, marker='o', linestyle='-', label=f"Position {i+1}")
+        # plt.plot(log_h, slope * log_h + intercept, color='red', label='Fitted line')
+        # plt.fill_between(log_h, (slope_ci[0] * log_h + intercept_ci[0]), (slope_ci[1] * log_h + intercept_ci[1]),
+        #                  color='gray', alpha=0.2, label='Confidence interval')
+    
+    # Calculate mean slope and intercept
+    mean_slope = np.mean(slopes)
+    mean_intercept = np.mean(intercepts)
+    
+    # Calculate uncertainty interval for the mean slope
+    se_mean_slope = np.std(slopes) / np.sqrt(len(slopes))
+    t_value_mean = np.abs(t.ppf(alpha/2, len(slopes) - 1))
+    mean_slope_ci = (mean_slope - t_value_mean * se_mean_slope, mean_slope + t_value_mean * se_mean_slope)
+    
+    # Plot mean regression line with uncertainty interval
+    plt.plot(log_h, mean_slope * log_h + mean_intercept, color='blue', linestyle='--', label='Mean Regression')
+    plt.fill_between(log_h, (mean_slope_ci[0] * log_h + mean_intercept), (mean_slope_ci[1] * log_h + mean_intercept),
+                     color='lightblue', alpha=0.4, label='Mean Slope Confidence Interval')
+    
+    plt.legend()
+    plt.xlabel("Log(h)")
+    plt.ylabel("Log(1/(P_max - P_min)^4) - min(Log(1/(P_max - P_min)^4))")
+    plt.title(f"Log(1/(P_max - P_min)^4) vs. Log(h) at different positions along the wall with Re={re_value}")
+    plt.grid(True)
+    if show:
+        plt.show()
+    
+    return mean_slope, mean_slope_ci, slopes, intercepts
+
+
+mean_slope, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, False)
+# mean_slopes = []
+# for r in re_values:
+#     m, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, r, False)
+#     mean_slopes.append(m)
+# print(np.mean(mean_slopes))
