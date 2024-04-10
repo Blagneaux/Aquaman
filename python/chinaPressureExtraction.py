@@ -149,7 +149,7 @@ def apply_high_pass_filter(signal_data, fs, cutoff_freq):
 
 # Function to plot Cp on the wall at different positions
 def plot_wall_cp(data_list, time_list, positions, title, ylim, fixedRe):
-    fig, axs = plt.subplots(3, 4, figsize=(18, 12))
+    fig, axs = plt.subplots(4, 6, figsize=(18, 12))
     axs = axs.flatten()
 
     for i, pos in enumerate(positions):
@@ -181,9 +181,10 @@ def plot_wall_cp(data_list, time_list, positions, title, ylim, fixedRe):
 
 re_values = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 h_values = np.round(np.linspace(1,5,10),2)
+h_values_extended = [1, 1.44, 1.89, 2.33, 2.78, 3.22, 3.67, 4.11, 4.56, 5, 5.44, 5.89, 6.33, 7.22, 8.11, 9, 10]
 main_folder_path = "D:/simuChina"
 re_value = 10000  # Example Re value
-h_value = 16  # Example h value
+h_value = 16  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
 re_1000_subfolders = find_subfolders_with_parameters(main_folder_path, re_value, None)
 h_6_subfolders = find_subfolders_with_parameters(main_folder_path, None, h_value)
 
@@ -218,6 +219,7 @@ def plot_time_min_pressure(data_list, time_list, positions, title, x):
     plt.xlabel('Log (experiment)')
     plt.ylabel('Log Time of Minimum Pressure')
 
+# Function to plot time instances when minimum pressure is reached for each experiment on a single graph with a fixed h
 def plot_time_min_pressure_single_fixedH(data_list, time_list, positions, x):
     fig = plt.figure()
     for i, pos in enumerate(positions):
@@ -225,12 +227,13 @@ def plot_time_min_pressure_single_fixedH(data_list, time_list, positions, x):
             for j in range(len(data_list)):
                 min_pressure_time = time_list[j][np.argmin(data_list[j][pos][4:])]
                 min_pressure_times.append(min_pressure_time)
-            plt.plot(np.log10(x), np.log10(min_pressure_times) - np.min(np.log10(min_pressure_times)), marker='o', linestyle='-', label=f"{i+1}")
+            plt.plot(np.log10(x), np.log10(min_pressure_times), marker='o', linestyle='-', label=f"{i+1}")
     plt.legend()
     plt.xlabel("Log of Re")
     plt.ylabel("Log of the time of the min Cp")
     plt.title(f"Log(T_min) with Log(Re) at different position along the wall with h={h_value}")
 
+# Function to plot minimum pressure values for each experiment on a single graph with a fixed Re
 def plot_min_pressure_single_fixedRe(data_list, time_list, positions, x):
     fig = plt.figure()
     for i, pos in enumerate(positions):
@@ -239,12 +242,15 @@ def plot_min_pressure_single_fixedRe(data_list, time_list, positions, x):
             filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*re_value/1000)
             min_pressure = np.max(filtered_signal) - np.min(filtered_signal)
             min_pressures.append(min_pressure)
-        plt.plot(np.log10(x), np.log10(np.power(np.abs(min_pressures),-4)) - np.min(np.log10(np.power(np.abs(min_pressures),-4))), marker='o', linestyle='-', label=f"{i+1}")
+        if len(min_pressures) > len(x):
+            x = h_values_extended
+        plt.plot(np.log10(x), np.log10(np.power(np.abs(min_pressures),-4)), marker='o', linestyle='-', label=f"{i+1}")
     plt.legend()
     plt.xlabel("Log(h)")
     plt.ylabel("Log(1/(P_max - P_min)^4)")
     plt.title(f"Log(1/(P_max - P_min)^4) with log(h) at different position along the wall with Re={re_value}")
 
+# Function to plot the drag frequency for each experiment on a single graph
 def plot_drag(subfolders):
     fig = plt.figure()
     for folder in subfolders:
@@ -258,6 +264,30 @@ def plot_drag(subfolders):
         N = len(df[2])
         xf = fftfreq(N, df[0][1] - df[0][0])[:N//2]
         plt.plot(xf, 2.0/N * np.abs(lift_fft[0:N//2]))
+
+# Function to compute the correlation between signals of differents sensors
+def compute_correlation(data_list, time_list, positions, x, ref):
+    fig, axs = plt.subplots(4, 6, figsize=(18, 12))
+    axs = axs.flatten()
+    all_correlations = []
+    for i, pos in enumerate(positions):
+        correlations = []
+        for j in range(len(data_list)):
+            correlation_coefficient = np.corrcoef(data_list[j][pos][4:], data_list[j][ref][4:])[0,1]
+            correlations.append(correlation_coefficient)
+        if len(correlations) > len(x):
+            x = h_values_extended
+        all_correlations.append(correlations)
+        axs[i].plot(x, np.log2(np.power(np.array(correlations)+0.6,-1)), marker='o', linestyle='-')
+        axs[i].plot(x,x)
+        axs[i].grid()
+    plt.xlabel("h")
+    plt.suptitle("Evolution of ln(1/(correlation+0.6)) coefficient between sensors and last sensor for varying h")
+
+    # fig = plt.figure()
+    # for j in range(len(data_list)):
+    #     plt.plot(positions, [sensor[j] for sensor in all_correlations], marker='o', linestyle='-', label=f"{j+1}")
+    # plt.legend()
 
 # Lists to store data from all experiments
 all_cylinder_data = []
@@ -279,7 +309,7 @@ cylinder_positions = range(16)
 # plot_mean_cp(np.linspace(180, 540, 17), mean_cps)
 
 wall_positions = range(11)
-# plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [h]", (-1, 0.4), False)
+# plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[h={h_value}]", (-1, 0.7), False)
 # plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
 # plt.show()
 
@@ -302,11 +332,13 @@ for folder in re_1000_subfolders:
     all_wall_data.append(wall_data)
     all_times.append(time)
 
-wall_positions = range(11)
-plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n+{}L [Re]", (-1, 0.4), True)
+wall_positions = range(21)
+plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[Re={re_value}]", (-1, 0.75), True)
 # plot_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp on the wall at n+{}L [Re]", h_values)
 plot_min_pressure_single_fixedRe(all_wall_data, all_times, wall_positions, h_values)
+# plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, h_values)
 # plot_drag(re_1000_subfolders)
+compute_correlation(all_wall_data, all_times, wall_positions, h_values, 4)
 plt.show()
 
 def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
@@ -374,9 +406,9 @@ def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
     return mean_slope, mean_slope_ci, slopes, intercepts
 
 
-mean_slope, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, False)
+# mean_slope, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, True)
 # mean_slopes = []
 # for r in re_values:
 #     m, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, r, False)
 #     mean_slopes.append(m)
-# print(np.mean(mean_slopes))
+# print(np.mean(mean_slopes), mean_slopes)

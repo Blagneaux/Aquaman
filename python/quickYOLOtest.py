@@ -8,7 +8,8 @@ import numpy as np
 
 # ---------------------------------------------------------
 
-model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
+model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
+model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
 cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/zoomed.mp4")
 # cap = cv2.VideoCapture("E:/data_Bastien/datasetFish/video (2160p).mp4")
@@ -27,7 +28,7 @@ def crop_and_resize_image(input_image, target_size=(640, 640)):
     img_height, img_width = img.shape[:2]
 
     # Get the bounding box of the detected shape
-    results = model(img)
+    results = model2(img)
     r = results[0]
     boxes = r.boxes.xyxy.tolist()
     if boxes == []:
@@ -99,7 +100,7 @@ count = 1
 while cap.isOpened():
     ret, frame = cap.read()
     # Apply contrast adjustment
-    alpha = 0.25  # Contrast control (1.0 for no change)
+    alpha = 1  # Contrast control (1.0 for no change)
     beta = 0     # Brightness control (0 for no change)
 
     if ret:
