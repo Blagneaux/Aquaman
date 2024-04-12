@@ -181,10 +181,10 @@ def plot_wall_cp(data_list, time_list, positions, title, ylim, fixedRe):
 
 re_values = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 h_values = np.round(np.linspace(1,5,10),2)
-h_values_extended = [1, 1.44, 1.89, 2.33, 2.78, 3.22, 3.67, 4.11, 4.56, 5, 5.44, 5.89, 6.33, 7.22, 8.11, 9, 10]
+h_values_extended = [1, 1.44, 1.89, 2.33, 2.78, 3.22, 3.67, 4.11, 4.56, 5, 6, 7, 8, 9, 10]
 main_folder_path = "D:/simuChina"
 re_value = 10000  # Example Re value
-h_value = 16  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
+h_value = 6  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
 re_1000_subfolders = find_subfolders_with_parameters(main_folder_path, re_value, None)
 h_6_subfolders = find_subfolders_with_parameters(main_folder_path, None, h_value)
 
@@ -222,16 +222,19 @@ def plot_time_min_pressure(data_list, time_list, positions, title, x):
 # Function to plot time instances when minimum pressure is reached for each experiment on a single graph with a fixed h
 def plot_time_min_pressure_single_fixedH(data_list, time_list, positions, x):
     fig = plt.figure()
+    min_pressure_first_point = []
     for i, pos in enumerate(positions):
             min_pressure_times = []
             for j in range(len(data_list)):
                 min_pressure_time = time_list[j][np.argmin(data_list[j][pos][4:])]
                 min_pressure_times.append(min_pressure_time)
             plt.plot(np.log10(x), np.log10(min_pressure_times), marker='o', linestyle='-', label=f"{i+1}")
+            min_pressure_first_point.append(np.log10(min_pressure_times[0]))
     plt.legend()
     plt.xlabel("Log of Re")
     plt.ylabel("Log of the time of the min Cp")
     plt.title(f"Log(T_min) with Log(Re) at different position along the wall with h={h_value}")
+    print("mean of the first point: ", np.mean(min_pressure_first_point))
 
 # Function to plot minimum pressure values for each experiment on a single graph with a fixed Re
 def plot_min_pressure_single_fixedRe(data_list, time_list, positions, x):
@@ -279,10 +282,10 @@ def compute_correlation(data_list, time_list, positions, x, ref):
             x = h_values_extended
         all_correlations.append(correlations)
         axs[i].plot(x, np.log2(np.power(np.array(correlations)+0.6,-1)), marker='o', linestyle='-')
-        axs[i].plot(x,x)
+        axs[i].plot(x,[y*2.87/10 for y in x])
         axs[i].grid()
     plt.xlabel("h")
-    plt.suptitle("Evolution of ln(1/(correlation+0.6)) coefficient between sensors and last sensor for varying h")
+    plt.suptitle(f"Evolution of ln(1/(correlation+0.6)) coefficient between sensors and last sensor for varying h for Re={re_value}")
 
     # fig = plt.figure()
     # for j in range(len(data_list)):
@@ -308,7 +311,7 @@ cylinder_positions = range(16)
 # mean_cps = [[np.mean(cylinder_data[i][4:]) for i in range(len(cylinder_data.columns))] for cylinder_data in all_cylinder_data]
 # plot_mean_cp(np.linspace(180, 540, 17), mean_cps)
 
-wall_positions = range(11)
+wall_positions = range(21)
 # plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[h={h_value}]", (-1, 0.7), False)
 # plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
 # plt.show()
@@ -333,15 +336,15 @@ for folder in re_1000_subfolders:
     all_times.append(time)
 
 wall_positions = range(21)
-plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[Re={re_value}]", (-1, 0.75), True)
+# plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[Re={re_value}]", (-1, 0.75), True)
 # plot_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp on the wall at n+{}L [Re]", h_values)
-plot_min_pressure_single_fixedRe(all_wall_data, all_times, wall_positions, h_values)
+# plot_min_pressure_single_fixedRe(all_wall_data, all_times, wall_positions, h_values)
 # plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, h_values)
 # plot_drag(re_1000_subfolders)
-compute_correlation(all_wall_data, all_times, wall_positions, h_values, 4)
-plt.show()
+# compute_correlation(all_wall_data, all_times, wall_positions, h_values, 20)
+# plt.show()
 
-def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
+def plot_affine_regression(data_list, time_list, positions, x, r, show):
     slopes = []  # List to store slopes from linear regressions
     intercepts = []  # List to store intercepts from linear regressions
     
@@ -351,11 +354,13 @@ def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
         min_pressures = []
         for j in range(len(data_list)):
             # Apply high-pass filter to the signal
-            filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*re_value/1000)
+            filtered_signal = apply_high_pass_filter(data_list[j][pos][4:], fs=1/(time_list[j][1] - time_list[j][0]), cutoff_freq=0.004*r/1000)
             min_pressure = np.max(filtered_signal) - np.min(filtered_signal)
             min_pressures.append(min_pressure)
         
         # Compute log-transformed values
+        if len(x) < len(min_pressures):
+            x = h_values_extended
         log_h = np.log10(x)
         log_p = np.log10(np.power(np.abs(min_pressures), -4))# - np.min(np.log10(np.power(np.abs(min_pressures), -4)))
         
@@ -397,18 +402,14 @@ def plot_affine_regression(data_list, time_list, positions, x, re_value, show):
     
     plt.legend()
     plt.xlabel("Log(h)")
-    plt.ylabel("Log(1/(P_max - P_min)^4) - min(Log(1/(P_max - P_min)^4))")
+    plt.ylabel("Log(1/(P_max - P_min)^4)")
     plt.title(f"Log(1/(P_max - P_min)^4) vs. Log(h) at different positions along the wall with Re={re_value}")
     plt.grid(True)
     if show:
         plt.show()
     
-    return mean_slope, mean_slope_ci, slopes, intercepts
+    return mean_slope, mean_slope_ci, slopes, mean_intercept
 
 
-# mean_slope, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, True)
-# mean_slopes = []
-# for r in re_values:
-#     m, _, _, _ = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, r, False)
-#     mean_slopes.append(m)
-# print(np.mean(mean_slopes), mean_slopes)
+mean_slop, _, _, mean_intercept = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, True)
+print(mean_slop, mean_intercept)
