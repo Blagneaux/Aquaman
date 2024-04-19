@@ -397,9 +397,8 @@ def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
     tail_freq = 0
 
     dist = abs(X_data[N-1][0] - X_data[0][0])*h
-    fish_length = abs(X_data[0][0] - X_data[0][len(X_data[0]) // 2])*h
+    fish_length = np.mean([np.sqrt((X_data[i][0] - X_data[i][len(X_data[0]) // 2])**2 + (Y_data[i][0] - Y_data[i][len(X_data[0]) // 2])**2)*h for i in X_data.columns])
     dist_time = N/f_ac
-
 
     tail_filt = signal.filtfilt(b, a, tail_pos)
     head_filt = signal.filtfilt(b, a, head_pos)
@@ -428,12 +427,12 @@ def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
     print("Strouhal number: ", tail_freq[0]*fish_length/(dist/dist_time))
     print("Reynolds number: ", fish_length*fish_length/(dist/dist_time)*1000000)
 
-    plt.show()
+    # plt.show()
 
     return dist, fish_length, dist_time
 
 
 if __name__ == "__main__":
-    predict(model, cap)
+    # predict(model, cap)
     # debug()
     fish_scan()

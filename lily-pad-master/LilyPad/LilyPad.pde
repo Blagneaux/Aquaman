@@ -4,11 +4,14 @@
 BDIM flow;
 Body circle;
 FloodPlot flood;
+
+Table parameters;
+
 int _n=(int)pow(2, 7);
 float _L=_n/20;
 float speed = 1;    //grid per time step
-float Re = 10000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
-float origin = 3.67*_L;      //mean position                                                            Read from coordinates file generates by python GPR code
+float Re; // = 10000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
+float origin; // = 1*_L;      //mean position                                                            Read from coordinates file generates by python GPR code
 float Ay = _L;      //spatial oscillations amplitude                                               Read from coordinates file generates by python GPR code
 float Fy = 3*speed/_n;      //spatial oscillations frequency                                       Read from coordinates file generates by python GPR code
 float Av = speed/2;        //speed oscillations amplitude                                          Read from coordinates file generates by python GPR code
@@ -24,9 +27,14 @@ SaveData dat2;
 int line = 0;
 ArrayList<float[]> pressureDataList = new ArrayList<>();
 int numTimeStep = 0;
-String name = "Re"+(int)Re+"_h"+(int)origin;
+String name;
 
 void setup() {
+  parameters = loadTable("D:/simuChina/metric_test_next_param.csv", "header");
+  Re = parameters.getFloat(0,0);
+  origin = parameters.getFloat(0,1);
+  name = "Re"+(int)Re+"_h"+(int)origin;
+  
   size(1400, 700);                             // display window size
   int n=_n;                                   // number of grid points      n = 1m
   float L = _L;                            // length-scale in grid units    L = 5cm, so L = n/20
@@ -38,7 +46,7 @@ void setup() {
   flood.setLegend("vorticity", -.5, .5);       //    and its legend
   output = createWriter("D:/simuChina/"+name+"/Motion.csv");        // open output file
   output2 = createWriter("D:/simuChina/"+name+"/AfterMotion.csv");        // open output file
-  outputFullMap = createWriter("D:/simuChina/"+name+"/FullMap.csv");
+  //outputFullMap = createWriter("D:/simuChina/"+name+"/FullMap.csv");
   dat = new SaveData("D:/simuChina/"+name+"/pressureMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
   dat2 = new SaveData("D:/simuChina/"+name+"/pressureAfterMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
 }
@@ -68,17 +76,17 @@ void draw() {
     }
     dat.output.println("");
 
-    // Store pressure data for every point in the window
-    float[] pressureData = new float[2*_n * _n];
-    int index = 0;
-    for (int i = 0; i < 2*_n; i++) {
-      for (int j = 0; j < _n; j++) {
-        pressureData[index] = flow.p.extract(i, j);
-        index++;
-      }
-    }
-    // Add the pressure data array to the list for this time step
-    pressureDataList.add(pressureData);
+    //// Store pressure data for every point in the window
+    //float[] pressureData = new float[2*_n * _n];
+    //int index = 0;
+    //for (int i = 0; i < 2*_n; i++) {
+    //  for (int j = 0; j < _n; j++) {
+    //    pressureData[index] = flow.p.extract(i, j);
+    //    index++;
+    //  }
+    //}
+    //// Add the pressure data array to the list for this time step
+    //pressureDataList.add(pressureData);
     numTimeStep++;
   } else if (posX < 2*_n) {
     circle.follow();
@@ -102,7 +110,7 @@ void draw() {
     output2.close();
     dat.finish();
     dat2.finish();
-    dataAdd();
+    //dataAdd();
     exit();
   }
   fill(0);

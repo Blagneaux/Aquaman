@@ -33,7 +33,7 @@ Field MGsolver( float itmx, PoissonMatrix A, Field x, Field b ) {
     solver.update();
     if (solver.r.inner(solver.r)<solver.tol) break;
   }
-  println("residual: "+solver.r.L_inf()+", iter: "+solver.iter);
+  // println("residual: "+solver.r.L_inf()+", iter: "+solver.iter);
   return solver.x;
 }
 
