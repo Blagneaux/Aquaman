@@ -3,6 +3,7 @@ import os
 import re
 import socket
 import subprocess
+import threading
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -23,12 +24,12 @@ wall_sensors = range(21)
 
 # Create the whole space of X
 re_values = np.linspace(start=1000, stop=10000, num=10)
-h_values = np.linspace(start=6, stop=60, num=60)
+h_values = np.linspace(start=6, stop=60, num=550)
 X1, X2 = np.meshgrid(re_values, h_values)
 X = np.column_stack([X1.ravel(), X2.ravel()])
 
 # Create theorical Y values
-theorical_y1 = -np.log10(re_values)+3.71
+theorical_y1 = -np.log10(re_values)+3.55
 theorical_y2 = 7.69*np.log10(h_values/6)-0.87
 theorical_Y1, theorical_Y2 = np.meshgrid(theorical_y1, theorical_y2)
 theorical_Y = np.column_stack([theorical_Y1.ravel(), theorical_Y2.ravel()])
@@ -175,7 +176,7 @@ def find_next_exp_param(metric_file):
     
     # Create the Gaussian process model
     # kernel = RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(1, 10))
-    kernel = Exponentiation(1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(1, 10)), exponent=4)
+    kernel = Exponentiation(1 * RBF(length_scale=np.array([1, 1]), length_scale_bounds=(0.1, 100)), exponent=4)
     gaussian_process = GaussianProcessRegressor(
         kernel=kernel, n_restarts_optimizer=9
     )
@@ -200,27 +201,51 @@ def write_new_parameters(param_file_path, re, h):
     df = pd.DataFrame([(re, h)], columns=['Re', 'h'])
     df.to_csv(param_file_path, index=False)
 
+class TimeoutExpired(Exception):
+    pass
+
+def run_with_timeout(command, timeout=300):
+    process = subprocess.Popen(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=False, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+    timer = threading.Timer(timeout, lambda: subprocess.run(['taskkill', '/F', '/T', '/PID', str(process.pid)], shell=True))
+
+    try:
+        timer.start()
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, command, stderr)
+        return stdout, stderr
+    except subprocess.CalledProcessError as e:
+        raise e
+    except Exception as e:
+        raise e
+    finally:
+        timer.cancel()
+
 def run_lilypad_simulation():
     n = 0
     try:
-        subprocess.run([
+        stdout, stderr = run_with_timeout([
             'C:/Users/blagn771/Desktop/software/processing-4.2/processing-java.exe', 
             '--sketch=C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad',
             '--run'
-        ], check=True, stderr=subprocess.PIPE, timeout=3)
+        ], timeout=300)
+
+        # Process stdout and stderr if needed
+        print(stdout.decode())
+        print(stderr.decode())
+
     except subprocess.CalledProcessError as e:
-        # Check if the error message indicates a port conflict
-        if b'Address already in use' in e.stderr:
+        if e.stderr is not None and b'Address already in use' in e.stderr:
             print("Error: Address already in use. Restarting the subprocess with a different configuration...")
             # Handle the port conflict by choosing a different port and restart
             restart_lilypad_simulation(n)
         else:
             # Handle other subprocess errors
             print(f"Subprocess error: {e}")
-            run_lilypad_simulation()
+            restart_lilypad_simulation(n)
 
-    except subprocess.TimeoutExpired as e:
-        print(f"Timeout of 5min as expired")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def find_available_port():
     """Find an available port by binding to a socket and then releasing it."""
@@ -231,29 +256,35 @@ def find_available_port():
 def restart_lilypad_simulation(n):
     n += 1
     print(f"Restarting Lilypad simulation with a different configuration... {n}/n")
-    try:
-        # Find an available port dynamically
-        port = find_available_port()
-        print(f"Using port: {port}")
+    # Find an available port dynamically
+    port = find_available_port()
+    print(f"Using port: {port}")
 
-        # Construct subprocess command with dynamic port
-        subprocess.run([
-            'C:/Users/blagn771/Desktop/software/processing-4.2/processing-java.exe', 
-            '--sketch=C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad',
-            f'--run --port={port}'
-        ], check=True, stderr=subprocess.PIPE, timeout=300)
+    # Construct subprocess command with dynamic port
+    command = [
+        'C:/Users/blagn771/Desktop/software/processing-4.2/processing-java.exe', 
+        '--sketch=C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad',
+        f'--run --port={port}'
+    ]
+    try:
+        stdout, stderr = run_with_timeout(command, timeout=300)
+
+        # Process stdout and stderr if needed
+        print(stdout.decode())
+        print(stderr.decode())
 
     except subprocess.CalledProcessError as e:
-        # Check if the error message indicates a port conflict
-        if b'Address already in use' in e.stderr:
-            print("Error: Address already in use. Restarting the subprocess with a different port...")
-            restart_lilypad_simulation(n)  # Restart with a new port
+        if e.stderr is not None and b'Address already in use' in e.stderr:
+            print("Error: Address already in use. Restarting the subprocess with a different configuration...")
+            # Handle the port conflict by choosing a different port and restart
+            restart_lilypad_simulation(n)
         else:
             # Handle other subprocess errors
             print(f"Subprocess error: {e}")
+            restart_lilypad_simulation(n)
 
-    except subprocess.TimeoutExpired as e:
-        print(f"Timeout of 5min as expired")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def run_autoexperiments(iteration, threshold=0.01, debug=False):
     count = 0

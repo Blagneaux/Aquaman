@@ -6,11 +6,11 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel, Exponentiation
 
 # Build toy data in 3D space
 x1 = np.linspace(start=1000, stop=10000, num=10)
-x2 = np.linspace(start=6, stop=60, num=55)
+x2 = np.linspace(start=6, stop=60, num=550)
 X1, X2 = np.meshgrid(x1, x2)
 X = np.column_stack([X1.ravel(), X2.ravel()])
 # y = np.squeeze(X[:, 0] * np.sin(X[:, 1]))
-y1 = -np.log10(x1)+3.71
+y1 = -np.log10(x1)+3.55
 y2 = 7.69*np.log10(x2/6)-0.87
 Y1, Y2 = np.meshgrid(y1*10, y2)
 y = np.column_stack([Y1.ravel(), Y2.ravel()])
@@ -49,19 +49,19 @@ while True:
             # Write a file with the coordinates of the next observation, to use it as input for Lilypad
             # ------------------------------------------------------------
     else:
-        training_indices = rng.choice(np.arange(200), size=10, replace=False)
+        training_indices = [0, 5000, 5499]
 
     X_train, y_train = X[training_indices], y[training_indices]
 
     print(training_indices)
 
     # Add some noise
-    noise_std = 0.75
+    noise_std = 0.075
     y_train_noisy = y_train + rng.normal(loc=0.0, scale=noise_std, size=y_train.shape)
 
     # Create the Gaussian process model
     # kernel = 1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(1, 10))
-    kernel = Exponentiation(1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(1, 10)), exponent=4)
+    kernel = Exponentiation(1 * RBF(length_scale=np.array([1, 1]), length_scale_bounds=(0.1, 100)), exponent=4)
     gaussian_process = GaussianProcessRegressor(
         kernel=kernel, n_restarts_optimizer=9
     )
