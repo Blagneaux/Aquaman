@@ -33,7 +33,7 @@ void setup() {
   parameters = loadTable("D:/simuChina/metric_test_next_param.csv", "header");
   Re = parameters.getFloat(0,0);
   origin = parameters.getFloat(0,1);
-  name = "Re"+(int)Re+"_h"+(int)origin;
+  name = "Re"+(int)Re+"_h"+origin;
   
   size(1400, 700);                             // display window size
   int n=_n;                                   // number of grid points      n = 1m

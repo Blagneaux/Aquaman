@@ -182,7 +182,7 @@ def plot_wall_cp(data_list, time_list, positions, title, ylim, fixedRe):
 re_values = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 h_values = np.round(np.linspace(1,5,10),2)
 h_values_extended = [1, 1.44, 1.89, 2.33, 2.78, 3.22, 3.67, 4.11, 4.56, 5, 6, 7, 8, 9, 10]
-main_folder_path = "D:/simuChina"
+main_folder_path = "D:/simuChina/cartesianBDD"
 re_value = 10000  # Example Re value
 h_value = 6  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
 re_1000_subfolders = find_subfolders_with_parameters(main_folder_path, re_value, None)
@@ -256,17 +256,20 @@ def plot_min_pressure_single_fixedRe(data_list, time_list, positions, x):
 # Function to plot the drag frequency for each experiment on a single graph
 def plot_drag(subfolders):
     fig = plt.figure()
-    for folder in subfolders:
+    for i, folder in enumerate(subfolders):
         file_path = os.path.join(folder, "Motion.csv")
         Re = extract_re_from_file_path(file_path)
         _nu = L / Re
         df = pd.read_csv(file_path, header=None)
         time = df[0] * h * h * _nu / nu
 
-        lift_fft = fft(np.array(df[2]))
-        N = len(df[2])
-        xf = fftfreq(N, df[0][1] - df[0][0])[:N//2]
-        plt.plot(xf, 2.0/N * np.abs(lift_fft[0:N//2]))
+        plt.plot(time, np.mean(np.array(df[2]))*np.ones(time.shape), label=f"{i+1}")
+
+        # lift_fft = fft(np.array(df[2]))
+        # N = len(df[2])
+        # xf = fftfreq(N, df[0][1] - df[0][0])[:N//2]
+        # plt.plot(xf, 2.0/N * np.abs(lift_fft[0:N//2]))
+    plt.legend()
 
 # Function to compute the correlation between signals of differents sensors
 def compute_correlation(data_list, time_list, positions, x, ref):
@@ -340,9 +343,9 @@ wall_positions = range(21)
 # plot_min_pressure(all_wall_data, all_times, wall_positions, "Min Cp on the wall at n+{}L [Re]", h_values)
 # plot_min_pressure_single_fixedRe(all_wall_data, all_times, wall_positions, h_values)
 # plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, h_values)
-# plot_drag(re_1000_subfolders)
+plot_drag(re_1000_subfolders)
 # compute_correlation(all_wall_data, all_times, wall_positions, h_values, 20)
-# plt.show()
+plt.show()
 
 def plot_affine_regression(data_list, time_list, positions, x, r, show):
     slopes = []  # List to store slopes from linear regressions
@@ -411,5 +414,5 @@ def plot_affine_regression(data_list, time_list, positions, x, r, show):
     return mean_slope, mean_slope_ci, slopes, mean_intercept
 
 
-mean_slop, _, _, mean_intercept = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, True)
-print(mean_slop, mean_intercept)
+# mean_slop, _, _, mean_intercept = plot_affine_regression(all_wall_data, all_times, wall_positions, h_values, re_value, True)
+# print(mean_slop, mean_intercept)

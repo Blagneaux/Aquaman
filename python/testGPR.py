@@ -5,7 +5,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel, Exponentiation, ExpSineSquared
 
 # Build toy data in 3D space
-x1 = np.linspace(start=1000, stop=10000, num=10)
+x1 = np.linspace(start=1000, stop=10000, num=40)
 x2 = np.linspace(start=6, stop=60, num=550)
 X1, X2 = np.meshgrid(x1, x2)
 X = np.column_stack([X1.ravel(), X2.ravel()])
@@ -21,6 +21,7 @@ y = np.column_stack([Y1.ravel(), Y2.ravel()])
 
 # Initialize std_prediction for the first loop
 std_prediction = None
+std_prediction2 = None
 
 # Random state
 rng = np.random.RandomState(1)
@@ -42,31 +43,38 @@ while True:
     count += 1
     # Select experimental measurements from toy data
     if std_prediction is not None:
-        new_index = np.argmax([np.linalg.norm(s) for s in std_prediction])
+        new_index = np.argmax([np.linalg.norm(np.abs(s1-s2)) for s1, s2 in zip(std_prediction, std_prediction2)])
         if new_index not in training_indices:
             training_indices = np.append(training_indices, new_index)
             # ------------------------------------------------------------
             # Write a file with the coordinates of the next observation, to use it as input for Lilypad
             # ------------------------------------------------------------
     else:
-        training_indices = [0, 5000, 5499]
+        training_indices = [0, len(x1)-1, len(x1)*(len(x2)-1), len(x1)*len(x2)-1]
 
     X_train, y_train = X[training_indices], y[training_indices]
 
     print(training_indices)
 
     # Add some noise
-    noise_std = 0.075
+    noise_std = 0.5
     y_train_noisy = y_train + rng.normal(loc=0.0, scale=noise_std, size=y_train.shape)
 
     # Create the Gaussian process model
-    # kernel = 1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(1, 10))
-    kernel = Exponentiation(1 * RBF(length_scale=np.array([1, 1]), length_scale_bounds=(0.1, 100)), exponent=4)
+    # kernel = 1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(0.1, 100))
+    kernel = Exponentiation(2 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=[(10, 1e6), (1e-2, 1e3)]), exponent=4)
     gaussian_process = GaussianProcessRegressor(
         kernel=kernel, n_restarts_optimizer=9
     )
-    gaussian_process.fit(X_train, y_train_noisy)
+    gaussian_process.fit(X_train, y_train)
     mean_prediction, std_prediction = gaussian_process.predict(X, return_std=True)
+    # kernel2 = 1 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=(0.1, 100))
+    kernel2 = Exponentiation(2 * RBF(length_scale=np.array([1000, 1]), length_scale_bounds=[(10, 1e6), (1e-2, 1e3)]), exponent=4)
+    gaussian_process2 = GaussianProcessRegressor(
+        kernel=kernel2, n_restarts_optimizer=9
+    )
+    gaussian_process2.fit(X_train, y_train_noisy)
+    mean_prediction2, std_prediction2 = gaussian_process2.predict(X, return_std=True)
 
     # Plot the result in 3D
     ax.scatter(X_train[:, 0], X_train[:, 1], y_train_noisy[:, 0], color='blue', label='Observations')
