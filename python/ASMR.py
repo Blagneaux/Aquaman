@@ -135,6 +135,7 @@ def read_pressure_data(file_path):
     max_binary_value = 32768
     min_pressure_value = -500
     max_pressure_value = 500
+    raw_data = raw_data - raw_data.mean()
     scaled_data = (raw_data - min_binary_value) * (max_pressure_value - min_pressure_value) / (max_binary_value - min_binary_value) + min_pressure_value
     for i in range(len(df[0])-1):
         wall_data.append(scaled_data.iloc[i, :])
@@ -160,7 +161,7 @@ def compute_Re_exp(data, time, positions):
         min_pressure_time = time[np.argmin(data[pos])]
         min_pressure_points.append(np.log10(min_pressure_time))
 
-    return np.mean(min_pressure_points)
+    return np.max([np.mean(min_pressure_points), -1])
 
 def compute_h(data, time, positions, file_path):
     Re = extract_re_from_file_path(file_path)
@@ -242,8 +243,8 @@ def find_next_exp_param(metric_file):
         df_exp = pd.read_csv(metric_file_exp)
         x1_train_exp = df_exp['Re']
         x2_train_exp = df_exp['h']
-        y1_exp = df['f_re']
-        y2_exp = df['f_h']
+        y1_exp = df_exp['f_re']
+        y2_exp = df_exp['f_h']
         X_train_exp = np.array([[x1_train_exp[i], x2_train_exp[i]] for i in range(len(x1_train_exp))])
         Y_exp = np.array([[y1_exp[i], y2_exp[i]] for i in range(len(y1_exp))])
 
@@ -360,18 +361,21 @@ def run_read_pressure_from_sensors():
 
 def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
     count = 0 + already
-    fig = plt.figure(figsize=(14, 12))
-    ax = fig.add_subplot(221, projection='3d')
-    ax2 = fig.add_subplot(222, projection='3d')
-    ax3 = fig.add_subplot(223, projection='3d')
-    ax4 = fig.add_subplot(224, projection='3d')
-    fig.tight_layout()
+    fig = plt.figure(figsize=(18, 12))
+    ax = fig.add_subplot(231, projection='3d')
+    ax2 = fig.add_subplot(234, projection='3d')
+    ax3 = fig.add_subplot(232, projection='3d')
+    ax4 = fig.add_subplot(235, projection='3d')
+    ax5 = fig.add_subplot(233, projection='3d')
+    ax6 = fig.add_subplot(236, projection='3d')
 
     while count < iteration+already:
         ax.clear()
         ax2.clear()
         ax3.clear()
         ax4.clear()
+        ax5.clear()
+        ax6.clear()
         count += 1
         print("iteration n⁰: ", count)
 
@@ -385,7 +389,7 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
 
         # Wait for the water to calm down
         print("Going to sleep")
-        time.sleep(10)
+        time.sleep(30)
         print("Waking up")
 
         # Get the lattest simulation subfolder
@@ -432,19 +436,37 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         ax4.set_zlabel('f(Re, h)')
         ax4.set_title("f(h) simulated minus f(h) measured")
 
+        ax5.set_xlabel('log(Re)')
+        ax5.set_ylabel('h (in pixels)')
+        ax5.set_zlabel('f(Re, h)')
+        ax5.set_title("Prediction VS theory for f(Re) measured")
+
+        ax6.set_xlabel('log(Re)')
+        ax6.set_ylabel('h (in pixels)')
+        ax6.set_zlabel('f(Re, h)')
+        ax6.set_title("Prediction VS theory for f(h) measured")
+
         ax.scatter(np.log10(X_train[:, 0]), X_train[:, 1], Y[:, 0], color='blue', label='Observations')
         ax.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
         ax.plot_surface(np.log10(X1), X2, theorical_Y[:, 0].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
+        ax5.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 0], color='blue', label='Observations')
+        ax5.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        ax5.plot_surface(np.log10(X1), X2, theorical_Y[:, 0].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
+        
         ax3.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 0] - Y_exp[:, 0], color='blue', label='Observations')
-        ax3.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 0] - mean_prediction_exp[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        ax3.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,0], mean_prediction_exp[:,0])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
 
         ax2.scatter(np.log10(X_train[:, 0]), X_train[:, 1], Y[:, 1], color='blue', label='Observations')
         ax2.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
         ax2.plot_surface(np.log10(X1), X2, theorical_Y[:, 1].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
+        ax6.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 1], color='blue', label='Observations')
+        ax6.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        ax6.plot_surface(np.log10(X1), X2, theorical_Y[:, 1].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
+        
         ax4.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 1] - Y_exp[:, 1], color='blue', label='Observations')
-        ax4.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 1] - mean_prediction_exp[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        ax4.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,1], mean_prediction_exp[:,1])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
 
         plt.tight_layout() 
         if debug:
