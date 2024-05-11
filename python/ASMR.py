@@ -7,27 +7,32 @@
 
 import glob
 import os
+import queue
 import re
 import subprocess
 import threading
 import time
 from matplotlib import pyplot as plt
+import nidaqmx
 import numpy as np
 import pandas as pd
 from scipy import signal
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 from readPressure import SerialReader
+from forceSensor_connect import DataProcessor
 
 
-input_folder_simu = "D:/simuChina"
-input_folder_exp = "D:/sensorExpChina/wall"
+input_folder_simu = "E:/simuChina"
+input_folder_exp = "E:/sensorExpChina/wall"
 file_name_simu = "pressureMotion.txt"
 file_name_exp = "pressureMotion.xlsx"
 
 # Sensors
 serial_port = None
 data_buffer = []
+task = nidaqmx.Task()
+task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
 
 # Parameters of the simulation
 n = 2**7
@@ -36,6 +41,9 @@ nu = 1/1000000
 L = n/20
 wall_sensors = range(21)
 wall_sensors_exp = range(8)
+
+# Initialize a queue to store the result from run_lilypad_simulation
+result_queue = queue.Queue()
 
 # Create the whole space of X
 re_values = np.linspace(start=1000, stop=10000, num=40)
@@ -139,7 +147,7 @@ def read_pressure_data(file_path):
     scaled_data = (raw_data - min_binary_value) * (max_pressure_value - min_pressure_value) / (max_binary_value - min_binary_value) + min_pressure_value
     for i in range(len(df[0])-1):
         wall_data.append(scaled_data.iloc[i, :])
-        time.append(raw_time[i]/500-raw_time[0]/500)
+        time.append(i/500)
     
     wall_pressure_dataframe = pd.DataFrame(wall_data)
 
@@ -291,15 +299,50 @@ def create_metric_file(name, fromZero=False):
 
     countFiles = 0
     if not fromZero:
-        for folder in os.listdir(input_folder_simu):
-            if folder[0:2] == "Re" and folder[2] != "a":
-                countFiles += 1
-                print("Already existing file n⁰: ", countFiles)
-                cp_txt2metrics_csv(os.path.join(input_folder_simu,folder+"/"+file_name), input_folder_simu+'/metric_test.csv')
+        # for folder in os.listdir(input_folder_simu):
+        #     if folder[0:2] == "Re" and folder[2] != "a":
+        #         countFiles += 1
+        #         print("Already existing file n⁰: ", countFiles)
+        #         cp_txt2metrics_csv(os.path.join(input_folder_simu,folder+"/"+file_name), input_folder_simu+'/metric_test.csv')
+        print("To modify to include the exp data")
 
 def write_new_parameters(param_file_path, re, h):
     df = pd.DataFrame([(re, h)], columns=['Re', 'h'])
     df.to_csv(param_file_path, index=False)
+
+    traj_file_path = "E:/sensorExpChina/trajectory.csv"
+    tank_width = 1318       # in mm
+    wall_width = 315        # in mm
+    h_max = tank_width / 2 - wall_width
+
+    x_0 = 1000          # in mm
+    dist = 1000         # in mm
+    speed = re * 1e-6 / 0.05    # in m/s
+    Delta_t = dist / speed     # in ms
+    delta_t = 1000          # in ms
+    step = Delta_t // delta_t
+    print(Delta_t)
+
+    y_tank_pos = int(h_max - h*50/6)
+
+    X_tank_pos, Y_tank_pos, T_tank, Z_tank_pos, C_tank_pos =[], [], [], [], []
+    for i in range(int(step)+1):
+        Y_tank_pos.append(y_tank_pos)
+        T_tank.append(delta_t)
+        X_tank_pos.append(x_0 + i*speed*delta_t)
+        Z_tank_pos.append(0)
+        C_tank_pos.append(-150)
+
+    data_tank_traj = {'X': X_tank_pos,
+                      'T': T_tank,
+                      'Y': Y_tank_pos,
+                      'T2': T_tank,
+                      'X2': Z_tank_pos,
+                      'T3': T_tank,
+                      'C': C_tank_pos,
+                      'T4': T_tank}
+    df_traj = pd.DataFrame(data_tank_traj)
+    df_traj.to_csv(traj_file_path, index=False, header=False)
 
 class TimeoutExpired(Exception):
     pass
@@ -321,12 +364,13 @@ def run_with_timeout(command, timeout=3):
     finally:
         timer.cancel()
 
-def run_lilypad_simulation(n=0, time=300):
+def run_lilypad_simulation(queue, n=0, time=300):
     if n > 0:
         print(f"Retrying to run the process for the {n}th time")
 
     if n > 10:
-        return "Something weent wrong"
+        result = "Something went wrong"
+        queue.put(result)
 
     try:
         stdout, stderr = run_with_timeout([
@@ -343,7 +387,7 @@ def run_lilypad_simulation(n=0, time=300):
         # Handle subprocess errors
         print(f"Subprocess error: {e}")
         print("-------------------------restarting---------------------------------")
-        run_lilypad_simulation(n+1)
+        run_lilypad_simulation(queue, n+1)
 
     except TimeoutExpired:
         print("Timeout expired. Terminating the subprocess...")
@@ -353,11 +397,15 @@ def run_lilypad_simulation(n=0, time=300):
 
 def run_read_pressure_from_sensors():
     reader = SerialReader()
-    next_param_df = pd.read_csv("D:/simuChina/metric_test_next_param.csv")
+    next_param_df = pd.read_csv("E:/simuChina/metric_test_next_param.csv")
     Re = next_param_df['Re'][0]
     duration = 0.05*1e6/Re  # Duration of reading in seconds
     h = next_param_df['h'][0]
     reader.start_reading(duration, Re, h)
+
+def run_read_force_from_sensor():
+    force_reader = DataProcessor()
+    force_reader.read_data(task)
 
 def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
     count = 0 + already
@@ -380,11 +428,30 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         print("iteration n⁰: ", count)
 
         # Run the towing tank experiment
-        run_read_pressure_from_sensors()
+        # pressure_thread = threading.Thread(target=run_read_pressures_from_sensor)
+        # run_read_pressure_from_sensors()
+
+        # Run the force sensing
+        force_thread = threading.Thread(target=run_read_force_from_sensor)
+        # run_read_force_from_sensor()
         
         # Run a Lilypad simulation
-        e = run_lilypad_simulation()
-        if e is not None:
+        lilypad_thread = threading.Thread(target=run_lilypad_simulation, args=(result_queue,))
+        # e = run_lilypad_simulation()
+
+        # Start threads
+        # pressure_thread.start()
+        force_thread.start()
+        lilypad_thread.start()
+
+        # Wait for all threads to finish before rocessing to the next iteration
+        # pressure_thread.join()
+        force_thread.join()
+        lilypad_thread.join()
+
+        # Check if any error occurred in any of the threads
+        if not result_queue.empty():
+            e = result_queue.get()
             break
 
         # Wait for the water to calm down
@@ -485,6 +552,6 @@ create_metric_file(input_folder_simu+"/metric_test.csv", True)
 new_re, new_h, _, _, _, _, _, _, _ = find_next_exp_param(metric_file="/metric_test.csv")
 write_new_parameters(input_folder_simu+'/metric_test_next_param.csv', new_re, new_h)
 
-run_autoexperiments(200, debug=False)
+run_autoexperiments(2, debug=False)
 # run_autoexperiments(100, already=101, debug=False)
 run_autoexperiments(1, debug=True)

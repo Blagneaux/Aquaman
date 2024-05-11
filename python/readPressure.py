@@ -1,3 +1,4 @@
+import datetime
 import os
 import serial
 import serial.tools.list_ports
@@ -12,9 +13,10 @@ class SerialReader:
         self.is_reading = False
         self.data_filename = None
         self.data_buffer = []
-        self.output_folder = "D:/sensorExpChina/wall"
+        self.output_folder = "E:/sensorExpChina/wall"
 
     def start_reading(self, duration=6, Re=1000, h=6):
+        print("Start reading wall pressure data")
         self.data_buffer.clear()  # Clear buffer before starting
         filename = "pressureMotion.xlsx"
         directory = f"Re{Re}_h{h}"
@@ -32,7 +34,7 @@ class SerialReader:
             self.is_reading = False
             self.serial_port.close()
             self.write_to_excel()
-            print("Lecture arrêtée avec succès.")
+            print("Finished reading wall pressure data")
 
     def read_serial(self):
         while self.is_reading:
@@ -55,7 +57,7 @@ class SerialReader:
         if len(parts) == 9:
             try:
                 pressure_data = [float(part) for part in parts[:8]]
-                timestamp = float(parts[-1])
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 return pressure_data, timestamp
             except ValueError:
                 print(f"Erreur de conversion des données : {data}")
@@ -94,8 +96,8 @@ class SerialReader:
 
 if __name__ == "__main__":
     reader = SerialReader()
-    next_param_df = pd.read_csv("D:/simuChina/metric_test_next_param.csv")
-    Re = next_param_df['Re'][0]
+    next_param_df = pd.read_csv("E:/simuChina/metric_test_next_param.csv")
+    Re = 10000
     duration = 0.05*1e6/Re  # Duration of reading in seconds
     h = next_param_df['h'][0]
     reader.start_reading(duration, Re, h)

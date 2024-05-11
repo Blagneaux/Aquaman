@@ -30,7 +30,7 @@ int numTimeStep = 0;
 String name;
 
 void setup() {
-  parameters = loadTable("D:/simuChina/metric_test_next_param.csv", "header");
+  parameters = loadTable("E:/simuChina/metric_test_next_param.csv", "header");
   Re = parameters.getFloat(0,0);
   origin = parameters.getFloat(0,1);
   name = "Re"+(int)Re+"_h"+origin;
@@ -44,11 +44,11 @@ void setup() {
   flow = new BDIM(2*n, n, 0, circle, (float)L/Re, true);             // solve for flow using BDIM
   flood = new FloodPlot(view);               // initialize a flood plot...
   flood.setLegend("vorticity", -.5, .5);       //    and its legend
-  output = createWriter("D:/simuChina/"+name+"/Motion.csv");        // open output file
-  output2 = createWriter("D:/simuChina/"+name+"/AfterMotion.csv");        // open output file
-  //outputFullMap = createWriter("D:/simuChina/"+name+"/FullMap.csv");
-  dat = new SaveData("D:/simuChina/"+name+"/pressureMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
-  dat2 = new SaveData("D:/simuChina/"+name+"/pressureAfterMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
+  output = createWriter("E:/simuChina/"+name+"/Motion.csv");        // open output file
+  output2 = createWriter("E:/simuChina/"+name+"/AfterMotion.csv");        // open output file
+  //outputFullMap = createWriter("E:/simuChina/"+name+"/FullMap.csv");
+  dat = new SaveData("E:/simuChina/"+name+"/pressureMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
+  dat2 = new SaveData("E:/simuChina/"+name+"/pressureAfterMotion.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
 }
 void draw() {
   if (flow.QUICK) {
