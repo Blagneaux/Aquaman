@@ -19,8 +19,7 @@ import pandas as pd
 from scipy import signal
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
-from readPressure import SerialReader
-from forceSensor_connect import DataProcessor
+from readSensors import SensorReading
 
 
 input_folder_simu = "E:/simuChina"
@@ -32,7 +31,8 @@ file_name_exp = "pressureMotion.xlsx"
 serial_port = None
 data_buffer = []
 task = nidaqmx.Task()
-task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
+# task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
+# sensors_reader = SensorReading(task)
 
 # Parameters of the simulation
 n = 2**7
@@ -248,13 +248,14 @@ def find_next_exp_param(metric_file):
         X_train = np.array([[x1_train[i], x2_train[i]] for i in range(len(x1_train))])
         Y = np.array([[y1[i], y2[i]] for i in range(len(y1))])
 
-        df_exp = pd.read_csv(metric_file_exp)
-        x1_train_exp = df_exp['Re']
-        x2_train_exp = df_exp['h']
-        y1_exp = df_exp['f_re']
-        y2_exp = df_exp['f_h']
-        X_train_exp = np.array([[x1_train_exp[i], x2_train_exp[i]] for i in range(len(x1_train_exp))])
-        Y_exp = np.array([[y1_exp[i], y2_exp[i]] for i in range(len(y1_exp))])
+        print("Also uncomment when wall sensors are on")
+        # df_exp = pd.read_csv(metric_file_exp)
+        # x1_train_exp = df_exp['Re']
+        # x2_train_exp = df_exp['h']
+        # y1_exp = df_exp['f_re']
+        # y2_exp = df_exp['f_h']
+        # X_train_exp = np.array([[x1_train_exp[i], x2_train_exp[i]] for i in range(len(x1_train_exp))])
+        # Y_exp = np.array([[y1_exp[i], y2_exp[i]] for i in range(len(y1_exp))])
 
     else:
         return "No metrics to use, please do a few experiments first"
@@ -272,8 +273,11 @@ def find_next_exp_param(metric_file):
     gaussian_process2 = GaussianProcessRegressor(
         kernel=kernel2, n_restarts_optimizer=9
     )
-    gaussian_process2.fit(X_train_exp, Y_exp)
-    mean_prediction2, std_prediction2 = gaussian_process2.predict(X, return_std=True)
+    print("And here too")
+    # gaussian_process2.fit(X_train_exp, Y_exp)
+    # mean_prediction2, std_prediction2 = gaussian_process2.predict(X, return_std=True)
+    std_prediction2 = std_prediction*0
+    mean_prediction2, X_train_exp, Y_exp = 0, 0, 0
     
     # Select the most uncertain point
     listDiff = [np.linalg.norm(np.abs(s1-s2)) for s1, s2 in zip(std_prediction, std_prediction2)]
@@ -304,7 +308,7 @@ def create_metric_file(name, fromZero=False):
         #         countFiles += 1
         #         print("Already existing file n⁰: ", countFiles)
         #         cp_txt2metrics_csv(os.path.join(input_folder_simu,folder+"/"+file_name), input_folder_simu+'/metric_test.csv')
-        print("To modify to include the exp data")
+        return "To modify to include the exp data"
 
 def write_new_parameters(param_file_path, re, h):
     df = pd.DataFrame([(re, h)], columns=['Re', 'h'])
@@ -395,17 +399,32 @@ def run_lilypad_simulation(queue, n=0, time=300):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def run_read_pressure_from_sensors():
-    reader = SerialReader()
-    next_param_df = pd.read_csv("E:/simuChina/metric_test_next_param.csv")
-    Re = next_param_df['Re'][0]
-    duration = 0.05*1e6/Re  # Duration of reading in seconds
-    h = next_param_df['h'][0]
-    reader.start_reading(duration, Re, h)
+# ------------------------------------------------------------------------------------------
+# Moved to readSensors.py
+# ------------------------------------------------------------------------------------------
+# def run_read_pressure_from_sensors():
+#     reader = SerialReader()
+#     next_param_df = pd.read_csv("E:/simuChina/metric_test_next_param.csv")
+#     Re = next_param_df['Re'][0]
+#     duration = 0.05*1e6/Re  # Duration of reading in seconds
+#     h = next_param_df['h'][0]
+#     reader.start_reading(duration, Re, h)
 
-def run_read_force_from_sensor():
-    force_reader = DataProcessor()
-    force_reader.read_data(task)
+# def run_read_force_from_sensor():
+#     force_reader = DataProcessor()
+#     force_reader.read_data(task)
+# ------------------------------------------------------------------------------------------
+
+def run_read_from_sensors():
+    sensors_reader.run_sensor_reading()
+
+def run_tank():
+    command = ["C:\\path_to_your_exe\\MyConsoleApp.exe"]
+
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+    stdout, stderr = process. communicate()
+    print("Output: ", stdout.decode())
+    print("Error: ", stderr.decode())
 
 def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
     count = 0 + already
@@ -428,25 +447,17 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         print("iteration n⁰: ", count)
 
         # Run the towing tank experiment
-        # pressure_thread = threading.Thread(target=run_read_pressures_from_sensor)
-        # run_read_pressure_from_sensors()
-
-        # Run the force sensing
-        force_thread = threading.Thread(target=run_read_force_from_sensor)
-        # run_read_force_from_sensor()
+        sensors_thread = threading.Thread(target=run_tank)
         
         # Run a Lilypad simulation
         lilypad_thread = threading.Thread(target=run_lilypad_simulation, args=(result_queue,))
-        # e = run_lilypad_simulation()
 
         # Start threads
-        # pressure_thread.start()
-        force_thread.start()
+        sensors_thread.start()
         lilypad_thread.start()
 
         # Wait for all threads to finish before rocessing to the next iteration
-        # pressure_thread.join()
-        force_thread.join()
+        sensors_thread.join()
         lilypad_thread.join()
 
         # Check if any error occurred in any of the threads
@@ -467,11 +478,12 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         cp_txt2metrics_csv(new_input_folder_simu, input_folder_simu+'/metric_test.csv', "simu")
 
         # Get the lattest experiment subfolder
-        new_subfolder = find_newest_exp_path(input_folder_exp, "exp")
-        new_input_folder_exp = os.path.join(input_folder_exp, new_subfolder)
+        print("To uncomment when wall sensors are on")
+        # new_subfolder = find_newest_exp_path(input_folder_exp, "exp")
+        # new_input_folder_exp = os.path.join(input_folder_exp, new_subfolder)
 
         # Compute the metrics
-        cp_txt2metrics_csv(new_input_folder_exp, input_folder_exp+'/metric_test.csv', "exp")
+        # cp_txt2metrics_csv(new_input_folder_exp, input_folder_exp+'/metric_test.csv', "exp")
 
         # Run a new GPR with all the existing values to find the next exp
         new_re, new_h, std_predictions, mean_prediction, X_train, Y, mean_prediction_exp, X_train_exp, Y_exp = find_next_exp_param(metric_file="/metric_test.csv")
@@ -517,23 +529,23 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         ax.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
         ax.plot_surface(np.log10(X1), X2, theorical_Y[:, 0].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
-        ax5.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 0], color='blue', label='Observations')
-        ax5.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
-        ax5.plot_surface(np.log10(X1), X2, theorical_Y[:, 0].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
+        # ax5.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 0], color='blue', label='Observations')
+        # ax5.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 0], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        # ax5.plot_surface(np.log10(X1), X2, theorical_Y[:, 0].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
-        ax3.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 0] - Y_exp[:, 0], color='blue', label='Observations')
-        ax3.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,0], mean_prediction_exp[:,0])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        # ax3.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 0] - Y_exp[:, 0], color='blue', label='Observations')
+        # ax3.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,0], mean_prediction_exp[:,0])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
 
         ax2.scatter(np.log10(X_train[:, 0]), X_train[:, 1], Y[:, 1], color='blue', label='Observations')
         ax2.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
         ax2.plot_surface(np.log10(X1), X2, theorical_Y[:, 1].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
-        ax6.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 1], color='blue', label='Observations')
-        ax6.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
-        ax6.plot_surface(np.log10(X1), X2, theorical_Y[:, 1].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
+        # ax6.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y_exp[:, 1], color='blue', label='Observations')
+        # ax6.plot_trisurf(np.log10(X[:, 0]), X[:, 1], mean_prediction_exp[:, 1], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        # ax6.plot_surface(np.log10(X1), X2, theorical_Y[:, 1].reshape(X1.shape), color='tab:orange', alpha=0.3, label='Real surface')  # Adding real surface
         
-        ax4.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 1] - Y_exp[:, 1], color='blue', label='Observations')
-        ax4.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,1], mean_prediction_exp[:,1])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
+        # ax4.scatter(np.log10(X_train_exp[:, 0]), X_train_exp[:, 1], Y[:, 1] - Y_exp[:, 1], color='blue', label='Observations')
+        # ax4.plot_trisurf(np.log10(X[:, 0]), X[:, 1], [m1-m2 for m1,m2 in zip(mean_prediction[:,1], mean_prediction_exp[:,1])], linewidth=0.2, antialiased=True, cmap='viridis', alpha=0.5, label='Mean prediction')
 
         plt.tight_layout() 
         if debug:

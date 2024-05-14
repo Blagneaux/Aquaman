@@ -4,7 +4,6 @@ import os
 import datetime
 import numpy as np
 import nidaqmx
-import config
 
 
 class DataProcessor:
@@ -16,7 +15,7 @@ class DataProcessor:
         self.filename = f"Re{Re}_h{h}.csv"
         self.desktop_dir = desktop_dir
         self.filepath1 = os.path.join(desktop_dir, self.filename)
-        title = pd.DataFrame(columns=['world time', 'force_x_n', 'force_y', 'force_z', 'tx_lbfin', 'ty', 'tz', 'co_drag'])
+        title = pd.DataFrame(columns=['world time', 'force_x_n', 'force_y', 'force_z', 'tx_lbfin', 'ty', 'tz', 'co_drag', 'pressure_30', 'pressure_100', 'pressure_150', 'pressure_260', 'pressure_330'])
         title.to_csv(self.filepath1, index=0, encoding="utf-8")
 
         # self.task = nidaqmx.Task()
@@ -36,7 +35,7 @@ class DataProcessor:
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         rightnow = [formatted_time]
         data_all = [
-            [rightnow, force[0], force[1], force[2], force[3], force[4], force[5], co_drag]]
+            [rightnow, force[0], force[1], force[2], force[3], force[4], force[5], co_drag, force[6], force[7], force[8], force[9], force[10]]]
         data_all = pd.DataFrame(data_all)
         data_all.to_csv(self.filepath1, mode="a+", index=0, header=0)
 
@@ -60,6 +59,11 @@ class DataProcessor:
         force_matrix[0] = force_matrix_lbf[0] * 4.44822162
         force_matrix[1] = force_matrix_lbf[1] * 4.44822162
         force_matrix[2] = force_matrix_lbf[2] * 4.44822162
+        force_matrix[6] = force_matrix_lbf[6] * 689476
+        force_matrix[7] = force_matrix_lbf[7] * 689476
+        force_matrix[8] = force_matrix_lbf[8] * 689476
+        force_matrix[9] = force_matrix_lbf[9] * 689476
+        force_matrix[10] = force_matrix_lbf[10] * 689476
         return force_matrix
 
 
