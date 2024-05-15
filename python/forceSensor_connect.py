@@ -30,12 +30,12 @@ class DataProcessor:
             [4.36689, -0.24081, -2.30034, 0.92527, -2.13793, -0.81700],
             [0.11835, -2.30599, 0.10847, -2.24479, 0.12206, -2.39381]])
 
-    def add2file(self, force, co_drag):
+    def add2file(self, force, co_drag, pressure):
         current_time = datetime.datetime.now()
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         rightnow = [formatted_time]
         data_all = [
-            [rightnow, force[0], force[1], force[2], force[3], force[4], force[5], co_drag, force[6], force[7], force[8], force[9], force[10]]]
+            [rightnow, force[0], force[1], force[2], force[3], force[4], force[5], co_drag, pressure[0], pressure[1], pressure[2], pressure[3], pressure[4]]]
         data_all = pd.DataFrame(data_all)
         data_all.to_csv(self.filepath1, mode="a+", index=0, header=0)
 
@@ -47,28 +47,29 @@ class DataProcessor:
             data2 = np.array(task.read())
             data = data2
             co_drag = 0
-            force_matrix = self.process_data(data)
-            self.add2file(force_matrix, co_drag)
-            # print(force_matrix)
+            force_matrix, pressure_data = self.process_data(data)
+            self.add2file(force_matrix, co_drag, pressure_data)
+            print(force_matrix, pressure_data)
         print("Finished reading force data")
 
     def process_data(self, data):
         transfer_matrix1 = self.transfer_matrix.T
-        force_matrix_lbf = np.dot(data, transfer_matrix1)
+        force_matrix_lbf = np.dot(data[0:6], transfer_matrix1)
         force_matrix = force_matrix_lbf
+        pressure_data = data
         force_matrix[0] = force_matrix_lbf[0] * 4.44822162
         force_matrix[1] = force_matrix_lbf[1] * 4.44822162
         force_matrix[2] = force_matrix_lbf[2] * 4.44822162
-        force_matrix[6] = force_matrix_lbf[6] * 689476
-        force_matrix[7] = force_matrix_lbf[7] * 689476
-        force_matrix[8] = force_matrix_lbf[8] * 689476
-        force_matrix[9] = force_matrix_lbf[9] * 689476
-        force_matrix[10] = force_matrix_lbf[10] * 689476
-        return force_matrix
+        pressure_data[17] = data[17] * 689476
+        pressure_data[18] = data[18] * 689476
+        pressure_data[19] = data[19] * 689476
+        pressure_data[20] = data[20] * 689476
+        pressure_data[21] = data[21] * 689476
+        return force_matrix, pressure_data[17:22]
 
 
 if __name__ == "__main__":
     data_processor = DataProcessor()
     task = nidaqmx.Task()
-    task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
+    task.ai_channels.add_ai_voltage_chan("Dev2/ai0:21")
     data_processor.read_data(task)

@@ -74,7 +74,7 @@ namespace motion2
             Task killreadSensorsTask = Task.Run(() => killReadSensors());
             await Task.WhenAll(killNIChannelsTask, killreadSensorsTask)
             await Task.Run(() => BackHome());
-            Task delayTask = Task.Delay(30000);  // waiting for 5s
+            Task delayTask = Task.Delay(30000);  // waiting for 30s
 
         }
 

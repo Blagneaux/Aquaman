@@ -315,29 +315,44 @@ def write_new_parameters(param_file_path, re, h):
     df.to_csv(param_file_path, index=False)
 
     traj_file_path = "E:/sensorExpChina/trajectory.csv"
+    traj_file_save_path = f"E:/sensorExpChina/trajectories/Re{re}_h{h}.csv"
     tank_width = 1318       # in mm
     wall_width = 315        # in mm
     h_max = tank_width / 2 - wall_width
 
-    x_0 = 1000          # in mm
+    x_0 = 0          # in mm
     dist = 1000         # in mm
     speed = re * 1e-6 / 0.05    # in m/s
-    Delta_t = dist / speed     # in ms
-    delta_t = 1000          # in ms
-    step = Delta_t // delta_t
-    print(Delta_t)
+    Delta_t = dist / speed / 1000    # in s
+    delta_t = Delta_t / 101          # in s
+    tau = 1 / speed
+    decceleration_iter = int(tau / delta_t)
+    acceleretation_iter = decceleration_iter
+    print("Number of steps for decceleration: ", decceleration_iter)
+    print("Duration of the trajectory: ", Delta_t)
 
-    y_tank_pos = int(h_max - h*50/6)
+    y_tank_pos = -int(h_max - h*50/6)
 
-    X_tank_pos, Y_tank_pos, T_tank, Z_tank_pos, C_tank_pos =[], [], [], [], []
-    for i in range(int(step)+1):
+    Y_tank_pos, T_tank, Z_tank_pos, C_tank_pos =[], [], [], []
+
+    X_tank_acceleration = [1000*speed/2/tau*(i*delta_t)**2 for i in range(acceleretation_iter)]
+    X_tank_pos = np.linspace(x_0, x_0 + dist, 101)
+    X_tank_decceleration = [x_0 + dist + speed*(i*delta_t - Delta_t)*1000 - 1000*(speed/2/tau)*(i*delta_t - Delta_t)**2 for i in range(102,102 + decceleration_iter)]
+    X_tank_full = []
+    for x_a in X_tank_acceleration:
+        X_tank_full.append(x_a - 1000*speed/2/tau*((acceleretation_iter)*delta_t)**2)
+    for x_t in X_tank_pos:
+        X_tank_full.append(x_t)
+    for x_d in X_tank_decceleration:
+        X_tank_full.append(x_d)
+
+    for i in range(len(X_tank_full)):
         Y_tank_pos.append(y_tank_pos)
-        T_tank.append(delta_t)
-        X_tank_pos.append(x_0 + i*speed*delta_t)
+        T_tank.append(delta_t*1000)
         Z_tank_pos.append(0)
-        C_tank_pos.append(-150)
+        C_tank_pos.append(0)
 
-    data_tank_traj = {'X': X_tank_pos,
+    data_tank_traj = {'X': X_tank_full,
                       'T': T_tank,
                       'Y': Y_tank_pos,
                       'T2': T_tank,
@@ -347,6 +362,7 @@ def write_new_parameters(param_file_path, re, h):
                       'T4': T_tank}
     df_traj = pd.DataFrame(data_tank_traj)
     df_traj.to_csv(traj_file_path, index=False, header=False)
+    df_traj.to_csv(traj_file_save_path, index=False, header=False)
 
 class TimeoutExpired(Exception):
     pass
@@ -413,18 +429,24 @@ def run_lilypad_simulation(queue, n=0, time=300):
 # def run_read_force_from_sensor():
 #     force_reader = DataProcessor()
 #     force_reader.read_data(task)
+
+# def run_read_from_sensors():
+#     sensors_reader.run_sensor_reading()
+        
 # ------------------------------------------------------------------------------------------
 
-def run_read_from_sensors():
-    sensors_reader.run_sensor_reading()
-
 def run_tank():
-    command = ["C:\\path_to_your_exe\\MyConsoleApp.exe"]
+    # Path to the compiled C# file
+    exe_path  = "D:/dehan/Proj/Motioncontrol/bin/Release/net8.0/Motioncontrol.exe"
 
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
-    stdout, stderr = process. communicate()
-    print("Output: ", stdout.decode())
-    print("Error: ", stderr.decode())
+    # Run the executable
+    result = subprocess.run([exe_path], capture_output=True, text=True)
+
+    # Print the output and errors
+    print("Output:")
+    print(result.stdout)
+    print("Errors:")
+    print(result.stderr)
 
 def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
     count = 0 + already
@@ -453,11 +475,11 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
         lilypad_thread = threading.Thread(target=run_lilypad_simulation, args=(result_queue,))
 
         # Start threads
-        sensors_thread.start()
+        # sensors_thread.start()
         lilypad_thread.start()
 
         # Wait for all threads to finish before rocessing to the next iteration
-        sensors_thread.join()
+        # sensors_thread.join()
         lilypad_thread.join()
 
         # Check if any error occurred in any of the threads
