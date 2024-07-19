@@ -36,6 +36,6 @@ class SensorReading():
 # Example usage
 if __name__ == "__main__":
     task = nidaqmx.Task()
-    task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
+    task.ai_channels.add_ai_voltage_chan("Dev2/ai0:21")
     sensor_reading_instance = SensorReading(task)
     sensor_reading_instance.run_sensor_reading()

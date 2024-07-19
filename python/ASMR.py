@@ -31,7 +31,7 @@ file_name_exp = "pressureMotion.xlsx"
 serial_port = None
 data_buffer = []
 task = nidaqmx.Task()
-# task.ai_channels.add_ai_voltage_chan("Dev2/ai0:5")
+# task.ai_channels.add_ai_voltage_chan("Dev2/ai0:21")
 # sensors_reader = SensorReading(task)
 
 # Parameters of the simulation
@@ -314,24 +314,27 @@ def write_new_parameters(param_file_path, re, h):
     df = pd.DataFrame([(re, h)], columns=['Re', 'h'])
     df.to_csv(param_file_path, index=False)
 
+def write_new_traj(re, h):
     traj_file_path = "E:/sensorExpChina/trajectory.csv"
     traj_file_save_path = f"E:/sensorExpChina/trajectories/Re{re}_h{h}.csv"
     tank_width = 1318       # in mm
     wall_width = 315        # in mm
+    y_0 = 95.5     # in mm
     h_max = tank_width / 2 - wall_width
 
     x_0 = 0          # in mm
     dist = 1000         # in mm
+    acceleration_dist = 500     # in mm
     speed = re * 1e-6 / 0.05    # in m/s
     Delta_t = dist / speed / 1000    # in s
     delta_t = Delta_t / 101          # in s
-    tau = 1 / speed
+    tau = 2*acceleration_dist/1000 / speed
     decceleration_iter = int(tau / delta_t)
     acceleretation_iter = decceleration_iter
     print("Number of steps for decceleration: ", decceleration_iter)
     print("Duration of the trajectory: ", Delta_t)
 
-    y_tank_pos = -int(h_max - h*50/6)
+    y_tank_pos = -int(y_0 + h_max - h*50/6)
 
     Y_tank_pos, T_tank, Z_tank_pos, C_tank_pos =[], [], [], []
 
@@ -350,7 +353,7 @@ def write_new_parameters(param_file_path, re, h):
         Y_tank_pos.append(y_tank_pos)
         T_tank.append(delta_t*1000)
         Z_tank_pos.append(0)
-        C_tank_pos.append(0)
+        C_tank_pos.append(-155)
 
     data_tank_traj = {'X': X_tank_full,
                       'T': T_tank,
@@ -488,8 +491,8 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
             break
 
         # Wait for the water to calm down
-        print("Going to sleep")
-        time.sleep(30)
+        print("Going to sleep, waiting for water to get still")
+        time.sleep(300)
         print("Waking up")
 
         # Get the lattest simulation subfolder
@@ -516,6 +519,7 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
 
         # Rewrite the file for the next parameters
         write_new_parameters(input_folder_simu+'/metric_test_next_param.csv', new_re, new_h)
+        write_new_traj(new_re, new_h)
 
         ax.set_xlabel('log(Re)')
         ax.set_ylabel('h (in pixels)')
@@ -585,7 +589,8 @@ def run_autoexperiments(iteration, already=0, threshold=0.01, debug=False):
 create_metric_file(input_folder_simu+"/metric_test.csv", True)
 new_re, new_h, _, _, _, _, _, _, _ = find_next_exp_param(metric_file="/metric_test.csv")
 write_new_parameters(input_folder_simu+'/metric_test_next_param.csv', new_re, new_h)
+write_new_traj(new_re, new_h)
 
-run_autoexperiments(2, debug=False)
+run_autoexperiments(200, debug=False)
 # run_autoexperiments(100, already=101, debug=False)
-run_autoexperiments(1, debug=True)
+# run_autoexperiments(1, debug=True)

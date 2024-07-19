@@ -181,14 +181,13 @@ class SerialReaderApp:
 
             integer_style = NamedStyle(name="integer", number_format="0")
 
-            for row_index, (pressure_data, timestamp) in enumerate(
-                self.data_buffer, start=1
-            ):
-                for col_index, value in enumerate(pressure_data + [timestamp], start=1):
+            for row_index, (pressure_data, timestamp) in enumerate(self.data_buffer, start=1):
+                for col_index, value in enumerate(pressure_data, start=1):
                     cleaned_value = int(value)
-                    sheet.cell(
-                        row=row_index, column=col_index, value=cleaned_value
-                    ).style = integer_style
+                    sheet.cell(row=row_index, column=col_index, value=cleaned_value).style = integer_style
+
+                # Write the timestamp in the next column without converting it to int
+                sheet.cell(row=row_index, column=len(pressure_data) + 1, value=timestamp)
 
             workbook.save(self.data_filename)
             self.data_buffer = []
