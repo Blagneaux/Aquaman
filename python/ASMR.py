@@ -296,10 +296,10 @@ def find_next_exp_param(metric_file):
 def create_metric_file(name, fromZero=False):
     df = pd.DataFrame()
     df.to_csv(name, index=False)
-    cp_txt2metrics_csv(os.path.join(input_folder_simu,"cartesianBDD/Re1000_h6.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
-    cp_txt2metrics_csv(os.path.join(input_folder_simu,"cartesianBDD/Re1000_h60.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
-    cp_txt2metrics_csv(os.path.join(input_folder_simu,"cartesianBDD/Re10000_h60.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
-    cp_txt2metrics_csv(os.path.join(input_folder_simu,"cartesianBDD/Re10000_h6.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
+    cp_txt2metrics_csv(os.path.join(input_folder_simu,"init/Re1000_h6.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
+    cp_txt2metrics_csv(os.path.join(input_folder_simu,"init/Re1000_h60.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
+    cp_txt2metrics_csv(os.path.join(input_folder_simu,"init/Re10000_h60.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
+    cp_txt2metrics_csv(os.path.join(input_folder_simu,"init/Re10000_h6.0/"+file_name_simu), input_folder_simu+'/metric_test.csv', "simu")
 
     countFiles = 0
     if not fromZero:

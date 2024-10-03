@@ -1,14 +1,10 @@
+# From https://github.com/dynamicslab/pysindy/blob/master/examples/3_original_paper.ipynb
+# Gives the evolution with time of the first three POD modes
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.cm import rainbow
 import numpy as np
-from scipy.integrate import solve_ivp
 from scipy.io import loadmat
-from pysindy.utils import linear_damped_SHO
-from pysindy.utils import cubic_damped_SHO
-from pysindy.utils import linear_3D
-from pysindy.utils import hopf
-from pysindy.utils import lorenz
+from sklearn.metrics import mean_squared_error
 
 import pysindy as ps
 
@@ -18,11 +14,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 np.random.seed(1000)  # Seed for reproducibility
 
-# Integrator keywords for solve_ivp
-integrator_keywords = {}
-integrator_keywords['rtol'] = 1e-12
-integrator_keywords['method'] = 'LSODA'
-integrator_keywords['atol'] = 1e-12
+# Instantiate and fit the SINDy model
+feature_names = ['x', 'y', 'z']
 
 # Load training data
 
@@ -53,12 +46,16 @@ library = ps.PolynomialLibrary(degree=5)
 model = ps.SINDy(
     optimizer=optimizer, 
     feature_library=library, 
-    feature_names=["x", "y", "z"]
+    feature_names=feature_names
 )
 model.fit(x_train, t_train, multiple_trajectories=True, quiet=True)
 model.print()
 
-# Simulate the model
+## -------------------------------------------------------------------------
+
+# Simulate the model with basic parameters
+print("--- Raw model with POD coefficients ---")
+## -------------------------------------------------------------------------
 
 x_simulate_run1 = model.simulate(x_run1[0], np.arange(0, 100, 0.02))
 x_simulate_run2 = model.simulate(x_run2[0], np.arange(0, 95, 0.02))
@@ -86,4 +83,5 @@ ax = fig.add_subplot(122, projection="3d")
 ax.plot(x_simulate_run2[:, 0], x_simulate_run2[:, 1], x_simulate_run2[:, 2])
 ax.set(xlabel="$x$", ylabel="$y$", zlabel="$z$")
 plt.title("Identified System")
+
 plt.show()
