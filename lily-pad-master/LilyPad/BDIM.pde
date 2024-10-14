@@ -85,6 +85,45 @@ class BDIM{
     updateUP( F, c );
   }
   
+  void solveSteadyState(float tolerance, int maxIterations) {
+    int count = 0;
+    float change = tolerance + 1; // Ensure the loop starts
+
+    while (change > tolerance && count < maxIterations) {
+        VectorField previousU = new VectorField(u); // Copy current state
+        Field previousP = new Field(p);
+
+        update();  // First step of simulation update
+        update2(); // Second step of simulation update
+
+        change = calculateChange(previousU, u, previousP, p);
+        println("Iteration " + count + ": Change = " + change); // Log change for debugging
+
+        if (change < tolerance) {
+            println("Steady state achieved after " + count + " iterations.");
+            break;
+        }
+
+        count++;
+    }
+
+    if (count >= maxIterations) {
+        println("Maximum iterations reached without steady state.");
+      }
+  }
+  
+  float calculateChange(VectorField oldU, VectorField newU, Field oldP, Field newP) {
+      float maxChange = 0;
+      for (int i = 0; i < n; i++) {
+          for (int j = 0; j < m; j++) {
+              float uChange = dist(newU.x.a[i][j], newU.y.a[i][j], oldU.x.a[i][j], oldU.y.a[i][j]);
+              float pChange = abs(newP.a[i][j] - oldP.a[i][j]);
+              maxChange = max(maxChange, max(uChange, pChange));
+          }
+      }
+      return maxChange;
+  }
+  
   void update2(){
     // O(dt^2,dt^2) BDIM correction step:
     VectorField us = new VectorField(u), F = new VectorField(u);
