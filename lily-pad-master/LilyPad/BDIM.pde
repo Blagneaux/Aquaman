@@ -87,28 +87,40 @@ class BDIM{
   
   void solveSteadyState(float tolerance, int maxIterations) {
     int count = 0;
-    float change = tolerance + 1; // Ensure the loop starts
+    float lastChange = Float.MAX_VALUE; // Initialize to maximum value to ensure the first comparison is valid
+    boolean isDecreasing = true; // Flag to track if the changes were previously decreasing
 
-    while (change > tolerance && count < maxIterations) {
-        VectorField previousU = new VectorField(u); // Copy current state
-        Field previousP = new Field(p);
+    while (count < maxIterations) {
+        VectorField previousU = new VectorField(u); // Copy current state of velocity field
+        Field previousP = new Field(p); // Copy current state of pressure field
 
-        update();  // First step of simulation update
-        update2(); // Second step of simulation update
+        update();  // Perform the simulation's update step
+        update2(); // Perform the simulation's secondary update step
 
-        change = calculateChange(previousU, u, previousP, p);
-        println("Iteration " + count + ": Change = " + change); // Log change for debugging
+        float currentChange = calculateChange(previousU, u, previousP, p);
+        println("Iteration " + count + ": Change = " + currentChange); // Log current change for debugging
 
-        if (change < tolerance) {
+        // Check if the current change is less than the tolerance for steady state
+        if (currentChange < tolerance) {
             println("Steady state achieved after " + count + " iterations.");
             break;
         }
 
-        count++;
-    }
+        // Check if change was previously decreasing but now starts increasing
+        if (isDecreasing && currentChange > lastChange) {
+            println("Change was decreasing but increased from last iteration. Simulation stopped to prevent instability.");
+            break;
+        }
 
-    if (count >= maxIterations) {
-        println("Maximum iterations reached without steady state.");
+        // Update the decreasing flag and lastChange for the next iteration
+        isDecreasing = currentChange < lastChange;
+        lastChange = currentChange;
+        
+        count++;
+      }
+  
+      if (count >= maxIterations) {
+          println("Maximum iterations reached without achieving steady state.");
       }
   }
   

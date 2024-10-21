@@ -19,11 +19,11 @@ def csv_to_mat(csv_file_path, mat_file_path):
     # Step 2: Convert the DataFrame to a NumPy array
     data_array = df.to_numpy()
     
-    # Step 3: Normalize the data with the desired min and max values
-    normalized_array = normalize_data(data_array, new_min=-18.2524, new_max=18.2524)
+    # # Step 3: Normalize the data with the desired min and max values
+    # normalized_array = normalize_data(data_array, new_min=-18.2524, new_max=18.2524)
     
     # Step 4: Store the normalized data in a dictionary under the key 'VORTALL'
-    data_dict = {'VORTALL': normalized_array, 'nx': 2**7, 'ny': 2**8}
+    data_dict = {'VORTALL': data_array[:, 1390:], 'nx': 2**7, 'ny': 2**8}
     
     # Step 5: Save the dictionary to a .mat file
     sio.savemat(mat_file_path, data_dict)

@@ -1,35 +1,39 @@
-/*********************************************************
-                  Main Window!
-
-Click the "Run" button to Run the simulation.
-
-Change the geometry, flow conditions, numerical parameters,
-visualizations, and measurements from this window.
-
-This screen has an example. Other examples are found at 
-the top of each tab. Copy/paste them here to run, but you 
-can only have one setup & run at a time.
-
-*********************************************************/
+ //----------------------------------------------------------------------------------------------------------------------------------------------
+ //Sandbox for INA: base flow estimation
+ //----------------------------------------------------------------------------------------------------------------------------------------------
 
 BDIM flow;
-Body body;
+Body circle;
 FloodPlot flood;
+
+Table parameters;
+
+int _n=(int)pow(2, 7);
+float _L=_n/20;
+float Re = 100;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
+PrintWriter outputFullMap;
+float dt;
+float t = 0;
+int line = 0;
+ArrayList<float[]> pressureDataList = new ArrayList<>();
+int numTimeStep = 0;
 boolean steadyStateAchieved = false;  // Flag to check if steady state is reached
 
-void setup(){
-  size(700,700);                               // Display window size
-  int n=(int)pow(2,7);                         // Number of grid points
-  float L = n/8.;                              // Length-scale in grid units
-  Window view = new Window(n,n);
+void setup() {
+  size(1400, 700);                             // display window size
+  int n=_n;                                   // number of grid points      n = 1m
+  float L = _L;                            // length-scale in grid units    L = 5cm, so L = n/20
+  Window view = new Window(2*n, n);
 
-  body = new CircleBody(n/3,n/2,L,view);       // Define geometry
-  flow = new BDIM(n, n, 0.01, body, 0.01, true, 1);  // Initialize BDIM with small dt and nu, set QUICK mode true
-  flood = new FloodPlot(view);                 // Initialize a flood plot...
-  flood.setLegend("vorticity", -.5, .5);       // ...and its legend
+  circle = new CircleBody(4*n/7, n/2, L, view);     // define geom
+  flow = new BDIM(2*n, n, 0, circle, (float)L/Re, true, 1);             // solve for flow using BDIM
+  flood = new FloodPlot(view);               // initialize a flood plot...
+  flood.setLegend("vorticity", -.5, .5);       //    and its legend
+  
+  outputFullMap = createWriter("E:/benchmark_SINDy/FullVorticityMapRe100_h60_baseFlow.csv");
 
   // Call to the new steady state solver, tolerance and max iterations need to be tuned based on the case
-  flow.solveSteadyState(0.0001, 10000);           // Tolerance for steady state and max iterations
+  flow.solveSteadyState(0.0001, 1000);           // Tolerance for steady state and max iterations
   steadyStateAchieved = true;
 }
 
@@ -38,15 +42,40 @@ void draw(){
     println("Steady state not achieved, check console for details.");
     noLoop();  // Stop the drawing loop if steady state is not achieved
   } else {
-    body.follow();                           // Update the body
+    circle.follow();                           // Update the body
     flood.display(flow.u.curl());            // Compute and display vorticity
-    body.display();                          // Display the body
+    circle.display();                          // Display the body
+    saveFrame("saved/baseFlowRe_"+Re+"h_"+60+".png");
+    // Store pressure data for every point in the window
+    float[] pressureData = new float[2*_n * _n];
+    int index = 0;
+    for (int i = 0; i < 2*_n; i++) {
+      for (int j = 0; j < _n; j++) {
+        pressureData[index] = flow.u.curl().extract(i, j);
+        index++;
+      }
+    }
+    // Add the pressure data array to the list for this time step
+    pressureDataList.add(pressureData);
+    numTimeStep++;
+    dataAdd();
   }
 }
 
-void mousePressed(){body.mousePressed();}    // User mouse...
-void mouseReleased(){body.mouseReleased();}  // Interaction methods
-void mouseWheel(MouseEvent event){body.mouseWheel(event);}  // Zoom or rotate body
+void dataAdd() {
+  // Write the pressure data to the CSV file as a single column
+  for (int i = 0; i < _n * 2*_n; i++) {
+    for (int tStep = 0; tStep < numTimeStep; tStep++) {
+      float[] pressure = pressureDataList.get(tStep);
+      outputFullMap.print(pressure[i]);
+      if (tStep < numTimeStep - 1) {
+        outputFullMap.print(","); // Separate values with newlines
+      }
+    }
+    outputFullMap.println(); // Move to the next row
+  }
+  outputFullMap.close();
+}
 
 
 //// ----------------------------------------------------------------------------------------------------------------------------------------------
