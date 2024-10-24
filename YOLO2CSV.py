@@ -433,6 +433,6 @@ def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
 
 
 if __name__ == "__main__":
-    # predict(model, cap)
+    predict(model, cap)
     # debug()
-    fish_scan()
+    # fish_scan()

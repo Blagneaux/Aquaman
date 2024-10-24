@@ -10,7 +10,7 @@ import numpy as np
 
 model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Downloads/fish23_crop1.mp4")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/zoomed.mp4")
 # cap = cv2.VideoCapture("E:/data_Bastien/datasetFish/video (2160p).mp4")
 
@@ -99,8 +99,11 @@ count = 1
 # loop through the video frames
 while cap.isOpened():
     ret, frame = cap.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     # Apply contrast adjustment
-    alpha = 1  # Contrast control (1.0 for no change)
+    alpha = 0.5  # Contrast control (1.0 for no change)
     beta = 0     # Brightness control (0 for no change)
 
     if ret:

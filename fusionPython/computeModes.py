@@ -12,9 +12,6 @@ def load_data(path):
 
 def compute_mean_flow(snapshots, strat_index=0):
     """Compute the mean flow by averaging the flow snapshots over time"""
-    # period_to_add = (3000 - len(snapshots[0]))//(3398-2400)
-    # for i in range(period_to_add):
-    #     snapshots = np.hstack([snapshots, snapshots[:, 2400:]])
     mean_flow = np.mean(snapshots[:, strat_index:], axis=1)
     return mean_flow
 
@@ -93,11 +90,9 @@ def plot_frames_and_signals(frames, signals):
         # Plotting the signals
         plt.subplot(1, 2, 2)
         max_length = max(len(signal), len(a[:, i+1]))
-        x_axis_signal = np.linspace(0, max_length-1, len(signal))
-        x_axis_a = np.linspace(0, max_length-1, len(a[:, i+1]))
         
-        plt.plot(x_axis_signal, signal, label='Signal')
-        plt.plot(x_axis_a, a[:, i+1], label='Real Signal')
+        plt.plot(signal, label='Signal')
+        plt.plot(a[:, i+1], label='Real Signal')
         plt.title(f'Signal {i+1}')
         plt.xlabel('Time')
         plt.ylabel('Signal Amplitude')
@@ -110,7 +105,7 @@ def plot_frames_and_signals(frames, signals):
         
     # Plotting the frame
     plt.subplot(1, 2, 1)  # 1 row, 2 columns, 1st subplot
-    plt.imshow(np.rot90(compute_mean_flow(load_data(full_data_path), 2400).reshape(256, 128)), cmap='seismic', aspect='auto')
+    plt.imshow(np.rot90(compute_mean_flow(load_data(full_data_path)[:, :287], 0).reshape(256, 128)), cmap='seismic', aspect='auto')
     plt.title(f'Frame {i+1}')
     plt.colorbar(label='Pixel Intensity')
     plt.xlabel('X-axis')
@@ -130,7 +125,7 @@ def flow_reconstruction(frames, signals):
 
     for i in range(steps):
         frame = frames @ signals[:, i]
-        frame = np.vstack([frame + mean_flow, real_frames[:, i]])
+        frame = np.vstack([frame, real_frames[:, i]])
         frame = frame.reshape(256*2, 128)
         frame_rotated = np.rot90(frame)
 
@@ -146,6 +141,7 @@ def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
 
     # Load the full data 
     full_data = load_data(flow_path)
+    print("Size of full data: ", full_data.shape)
 
     # Apply the POD to the mean-substracted flow on a single period of vortex shedding
     if period_start == None:
@@ -153,11 +149,13 @@ def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
         if period_cutoff == None:
             return ("Error: ", "Flow has no periodic vortex shedding")
     else:
-        print("Period start:", find_min_difference_column(full_data))
         period_cutoff = find_min_difference_column(full_data)
+        if full_data.shape[-1] - period_cutoff < 100:
+            period_cutoff = full_data.shape[-1] - 100
+        print("Period start:", period_cutoff)
 
     # Compute the mean flow
-    mean_flow = compute_mean_flow(full_data, 2400)
+    mean_flow = compute_mean_flow(full_data, period_cutoff)
 
     # Select a vortex shedding period
     cut_data = full_data[:, period_cutoff:] - mean_flow[:, np.newaxis]
@@ -175,26 +173,22 @@ def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
     # Compute the mean-field correction u⁰ - u_s, with u_s the solution to steady Navier-Stokes 
     # print("Uncomment following line if you have access to a real base flow measurement")
     steady_flow = load_data(base_path)
-    uΔa = min_max_normalize(compute_mean_flow(full_data, 2400) - steady_flow[:,0])
+    uΔa = compute_mean_flow(full_data[:, :287], 0)# - steady_flow[:,0]
 
     # Apply Gram-Schmidt to the POD modes + shift mode to build a new orhtonormal base
     Ur = np.column_stack((Ur, uΔa))  # Augmented spatial modes
     Ur = np.linalg.qr(Ur)[0]
 
     # Compute the dynamics from the projected full data and the modes
-    A = np.dot(Ur.T, full_data - mean_flow[:, np.newaxis])
+    A = np.dot(Ur.T, full_data)
 
     # Return the modes from the POD and the shift mode, and the dynamics of these modes on the full data
     return (Ur, A)
 
-full_data_path = 'E:/benchmark_SINDy/testRe100_h60.csv'
-base_flow_path = 'E:/benchmark_SINDy/FullVorticityMapRe100_h60_baseFlow.csv'
-n_modes = 9  # Number of POD modes to extract + shift mode
+full_data_path = 'E:/benchmark_SINDy/FullPressureMapRe10000_h6.csv'
+base_flow_path = 'E:/benchmark_SINDy/FullVorticityMapRe100_h6_baseFlow.csv'
+n_modes = 49  # Number of POD modes to extract + shift mode
 period_start = 2400 
-
-# plt.figure()
-# plt.imshow(np.rot90(compute_mean_flow(load_data(full_data_path), 2400).reshape(256, 128)), cmap='seismic', aspect='auto')
-# plt.show()
 
 U, A = POD_with_shift_mode(full_data_path, base_flow_path, n_modes, period_start)
 U_test = U[:,:-1]
@@ -204,9 +198,8 @@ a = np.loadtxt('fusionPython/data/vonKarman_pod/vonKarman_a.dat')
 if (isinstance(U, str)):
     print(A)
 else:
-    plot_frames_and_signals(U, A)
-    # flow_reconstruction(U, A)
-    # flow_reconstruction(U_test, A_test)
+    # plot_frames_and_signals(U, A)
+    flow_reconstruction(U, A)
 
 # define energies of the DNS
 E = np.sum(A.T ** 2, axis=1)
