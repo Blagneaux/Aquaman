@@ -90,8 +90,8 @@ Table parameters;
 
 int _n=(int)pow(2, 7);
 float _L=_n/20;
-float Re = 1000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
-float origin = 1.44*_L;
+float Re = 9000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
+float origin = 2.33*_L;
 PrintWriter outputFullMap;
 float dt;
 float t = 0;

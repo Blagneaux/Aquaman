@@ -10,7 +10,7 @@ import numpy as np
 
 model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
-cap = cv2.VideoCapture("C:/Users/blagn771/Downloads/fish23_crop1.mp4")
+cap = cv2.VideoCapture("C:/Users/blagn771/Downloads/fish13_crop1.mp4")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/zoomed.mp4")
 # cap = cv2.VideoCapture("E:/data_Bastien/datasetFish/video (2160p).mp4")
 
@@ -32,7 +32,7 @@ def crop_and_resize_image(input_image, target_size=(640, 640)):
     r = results[0]
     boxes = r.boxes.xyxy.tolist()
     if boxes == []:
-        return("Nothing to detect")
+        return([[["Nothing to detect"]]])
 
     xmin, ymin, xmax, ymax = boxes[0]
     xmin = int(xmin)
@@ -103,25 +103,26 @@ while cap.isOpened():
     frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     # Apply contrast adjustment
-    alpha = 0.5  # Contrast control (1.0 for no change)
+    alpha = 1  # Contrast control (1.0 for no change)
     beta = 0     # Brightness control (0 for no change)
 
     if ret:
         # run inference on a frame
         frame_cropped = crop_and_resize_image(frame, (640,640))
-        frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
-        results = model(frame_cropped_contrasted)
+        if frame_cropped[0][0][0] != "Nothing to detect":
+            frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
+            results = model(frame_cropped_contrasted)
 
-        # view results
-        for r in results:
-            if r.masks == None:
-                break
-            mask = r.masks.xy
-            xys = mask[0]
-            uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
-            if uncropped_xys is not None:
-                XY.append(np.int32(uncropped_xys))
-                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
+            # view results
+            for r in results:
+                if r.masks == None:
+                    break
+                mask = r.masks.xy
+                xys = mask[0]
+                uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
+                if uncropped_xys is not None:
+                    XY.append(np.int32(uncropped_xys))
+                    cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
         cv2.imshow("img", frame)
 
