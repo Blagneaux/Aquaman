@@ -10,6 +10,7 @@ import numpy as np
 
 model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
+# model = YOLO("C:/Users/blagn771/Desktop/best_combined.pt")
 cap = cv2.VideoCapture("C:/Users/blagn771/Downloads/fish13_crop1.mp4")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/zoomed.mp4")
 # cap = cv2.VideoCapture("E:/data_Bastien/datasetFish/video (2160p).mp4")

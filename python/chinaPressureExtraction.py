@@ -184,7 +184,7 @@ h_values = np.round(np.linspace(1,5,10),2)
 h_values_extended = [1, 1.44, 1.89, 2.33, 2.78, 3.22, 3.67, 4.11, 4.56, 5, 6, 7, 8, 9, 10]
 main_folder_path = "E:/simuChina/cartesianBDD_original"
 re_value = 1000  # Example Re value
-h_value = 30  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
+h_value = 6  # Example h value [6, 8, 11, 13, 16, 19, 22, 24, 27, 30]
 re_1000_subfolders = find_subfolders_with_parameters(main_folder_path, re_value, None)
 # temp = re_1000_subfolders[0]
 # re_1000_subfolders.pop(0)
@@ -325,9 +325,9 @@ for folder in h_6_subfolders:
 # plot_mean_cp(np.linspace(180, 540, 17), mean_cps)
 
 wall_positions = range(21)
-# plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[h={h_value}]", (-1, 0.7), False)
-plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
-# plt.show()
+plot_wall_cp(all_wall_data, all_times, wall_positions, "Cp on the wall at n/2+{}L"+f"[h={h_value}]", (-1, 0.7), False)
+# plot_time_min_pressure_single_fixedH(all_wall_data, all_times, wall_positions, re_values)
+plt.show()
 
 # Lists to store data from all experiments, with a fixed Re
 all_cylinder_data = []

@@ -114,6 +114,28 @@ def plot_frames_and_signals(frames, signals):
     plt.show()
 
 
+def crop_image(flattened_image, window_width, window_height, x, middle_y):
+    # Constants for image dimensions
+    height = 128
+    width = 256
+
+    # Reshape the flattened image back into 2D
+    image_2d = flattened_image.reshape(height, width)
+
+    # Calculate the y starting point to center the crop around middle_y
+    start_y = max(0, middle_y - window_height // 2)
+    end_y = min(height, start_y + window_height)
+
+    # Adjust start_y if the window exceeds image bounds
+    if end_y > height:
+        end_y = height
+        start_y = max(0, end_y - window_height)
+
+    # Crop the image
+    crop = image_2d[x:x+window_width, start_y:end_y]
+    return crop
+
+
 def flow_reconstruction(frames, signals):
     steps = signals.shape[1]
     fig = plt.figure()  # Initialize the figure outside the loop
@@ -129,9 +151,14 @@ def flow_reconstruction(frames, signals):
         frame = frame.reshape(256*2, 128)
         frame_rotated = np.rot90(frame)
 
-        img.append([plt.imshow(frame_rotated, cmap="seismic", aspect='auto')])
+        img.append([plt.imshow(frame_rotated, cmap="seismic", aspect='auto', vmin=-1, vmax=1)])
 
     ani = animation.ArtistAnimation(fig, img, interval=50, blit=True, repeat_delay=100)
+
+    # Save the animation to the specified path
+    ani.save("animation.gif", writer="pillow")
+    print(f"Animation saved")
+
     plt.show()
 
 def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
@@ -185,9 +212,10 @@ def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
     # Return the modes from the POD and the shift mode, and the dynamics of these modes on the full data
     return (Ur, A)
 
-full_data_path = 'E:/benchmark_SINDy/FullPressureMapRe10000_h6.csv'
+full_data_path = 'E:/simuChina/cartesianBDD_FullPressureMap/Re10000_h6.0/FullMap.csv'
+# full_data_path = "E:/crop_nadia/11/7/pressure_map.csv"
 base_flow_path = 'E:/benchmark_SINDy/FullVorticityMapRe100_h6_baseFlow.csv'
-n_modes = 49  # Number of POD modes to extract + shift mode
+n_modes = 69  # Number of POD modes to extract + shift mode
 period_start = 2400 
 
 U, A = POD_with_shift_mode(full_data_path, base_flow_path, n_modes, period_start)
@@ -199,7 +227,7 @@ if (isinstance(U, str)):
     print(A)
 else:
     # plot_frames_and_signals(U, A)
-    flow_reconstruction(U, A)
+    flow_reconstruction(U_test, A_test)
 
 # define energies of the DNS
 E = np.sum(A.T ** 2, axis=1)
