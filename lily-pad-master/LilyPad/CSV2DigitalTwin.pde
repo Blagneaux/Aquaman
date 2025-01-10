@@ -13,13 +13,16 @@ class CSV2DigitalTwin extends NACA {
     float x0_dep = 0;
     float y0_dep = 0;
 
+    float prevNoseX; // Previous x-coordinate of the nose
+    float prevDx;    // Previous horizontal velocity
+
     // For test purpose only
     float[] a={0,.2,-.1};
     float k, omega, T, xc, time=0;
     float x_init = (int)pow(2,6)/4;
     float c = (int)pow(2,6)/3;
 
-    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, String yFilteredFilePath, Window window) {
+    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, String yFilteredFilePath, Window window, int startIndex) {
         // Just as in flex NACA, set a regular NACA coords and save as orig
         super(x0+0.25*(int)pow(2,6)/3, y0, (int)pow(2,6)/3, 0.2, m / 2, window);
         orig = new NACA(x0+0.25*(int)pow(2,6)/3,y0,(int)pow(2,6)/3,0.2,m/2,window);
@@ -39,6 +42,14 @@ class CSV2DigitalTwin extends NACA {
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
         yFilteredTable = loadTable(yFilteredFilePath);
+    
+        xTable = cropTableColumns(xTable, startIndex);
+        yTable = cropTableColumns(yTable, startIndex);
+        yFilteredTable = cropTableColumns(yFilteredTable, startIndex);
+
+        this.prevNoseX = coords.get(0).x; // Set the initial nose position
+        this.prevDx = 0;                  // Initial velocity is zero
+
 
         // Get the number of columns in the tables
         numColumns = xTable.getColumnCount();
@@ -108,15 +119,65 @@ class CSV2DigitalTwin extends NACA {
                 mx.y = max(mx.y, positionsList.get(k)[i].y);
             }
         }
-        // box.coords.get(0).x = x0_dep + mn.x;
-        box.coords.get(0).y = y0_dep + mn.y;
-        // box.coords.get(1).x = x0_dep + mn.x;
-        box.coords.get(1).y = y0_dep + mx.y;
-        box.coords.get(2).x = x0_dep + mx.x;
-        box.coords.get(2).y = y0_dep + mx.y;
-        box.coords.get(3).x = x0_dep + mx.x;
-        box.coords.get(3).y = y0_dep + mn.y;
+        // // box.coords.get(0).x = x0_dep + mn.x;
+        // box.coords.get(0).y = y0_dep + mn.y;
+        // // box.coords.get(1).x = x0_dep + mn.x;
+        // box.coords.get(1).y = y0_dep + mx.y;
+        // box.coords.get(2).x = x0_dep + mx.x;
+        // box.coords.get(2).y = y0_dep + mx.y;
+        // box.coords.get(3).x = x0_dep + mx.x;
+        // box.coords.get(3).y = y0_dep + mn.y;
+        // box.coords.get(0).x = 1;
+        // box.coords.get(0).y = 39;
+        // box.coords.get(1).x = 510;
+        // box.coords.get(1).y = 39;
+        // box.coords.get(2).x = 510;
+        // box.coords.get(2).y = 127-39;
+        // box.coords.get(3).x = 1;
+        // box.coords.get(3).y = 127-39;
     }
+
+    CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, String yFilteredFilePath, Window window) {
+        this(x0, y0, m, xFilePath, yFilePath, yFilteredFilePath, window, 0);
+    }
+
+    Table cropTableColumns(Table table, int startIndex) {
+        Table croppedTable = new Table(); // Create a new table to store cropped data
+        
+        // Add columns from startIndex to the end of the original table
+        for (int col = startIndex; col < table.getColumnCount(); col++) {
+            String columnTitle = table.getColumnTitle(col);
+            croppedTable.addColumn(columnTitle); // Add the column with the same title
+        }
+        
+        // Copy rows into the cropped table
+        for (int row = 0; row < table.getRowCount(); row++) {
+            TableRow originalRow = table.getRow(row);
+            TableRow newRow = croppedTable.addRow(); // Add a new row to the cropped table
+            
+            for (int col = startIndex; col < table.getColumnCount(); col++) {
+                // Copy data from the original table to the cropped table
+                newRow.setFloat(col - startIndex, originalRow.getFloat(col));
+            }
+        }
+        
+        return croppedTable; // Return the cropped table
+    }
+
+    boolean isUTurn() {
+        float currentNoseX = coords.get(0).x; // Current x-coordinate of the nose
+        float dx = currentNoseX - prevNoseX; // Compute the change in x-direction (velocity)
+
+        // Detect if the direction of the nose changes
+        boolean isUTurn = (dx < 0 && prevDx > 0) || (dx > 0 && prevDx < 0);
+
+        // Update previous values for the next check
+        prevNoseX = currentNoseX;
+        prevDx = dx;
+
+        return isUTurn;
+    }
+
 
     // float distance(float x, float y) {
     //     return orig.distance(x, y-h(x));

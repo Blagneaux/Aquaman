@@ -94,10 +94,10 @@ class Body extends AbstractBody{
         box.add(mx.x, mn.y);
       }
       else if (custom == true) {
-        box.add(mn.x + 3, mn.y);
-        box.add(mn.x + 3, mx.y);
-        box.add(mx.x, mx.y);
-        box.add(mx.x, mn.y);
+        box.add(mn.x + 3, 39);
+        box.add(mn.x + 3, 127-39);
+        box.add(mx.x, 127-39);
+        box.add(mx.x, 39);
       }
       box.end();
     }

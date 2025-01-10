@@ -9,11 +9,15 @@ from scipy import interpolate, signal, fft
 import pysindy as ps
 import os
 
+haato = '37'
+haachama = '8'
+
 # Best model at the moment: train640_32_500_manuel
 model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
-cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
+cap = cv2.VideoCapture("E:/crop_nadia/"+haato+"/"+haachama+"/"+haachama+".mp4")
+# cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
 
 def calculate_angle(pt1, pt2, pt3):
 
@@ -91,7 +95,7 @@ def crop_and_resize_image(input_image, target_size=(640, 640)):
     r = results[0]
     boxes = r.boxes.xyxy.tolist()
     if boxes == []:
-        return("Nothing to detect")
+        return([[["Nothing to detect"]]])
 
     xmin, ymin, xmax, ymax = boxes[0]
     xmin = int(xmin)
@@ -164,6 +168,11 @@ def predict(model=model, cap=cap):
     # loop through the video frames
     while cap.isOpened():
         ret, frame = cap.read()
+        if not ret:
+            break
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         # Apply contrast adjustment
         alpha = 1  # Contrast control (1.0 for no change)
         beta = 0     # Brightness control (0 for no change)
@@ -171,18 +180,20 @@ def predict(model=model, cap=cap):
         if ret:
             # run inference on a frame
             frame_cropped = crop_and_resize_image(frame, (640,640))
-            frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
-            results = model(frame_cropped_contrasted)
+            if frame_cropped[0][0][0] != "Nothing to detect":
+                frame_cropped_contrasted = cv2.convertScaleAbs(frame_cropped, alpha=alpha, beta=beta)
+                results = model(frame_cropped_contrasted)
 
-            # view results
-            for r in results:
-                if r.masks == None:
-                    break
-                mask = r.masks.xy
-                xys = mask[0]
-                uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
-                XY.append(np.int32(uncropped_xys))
-                cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
+                # view results
+                for r in results:
+                    if r.masks == None:
+                        break
+                    mask = r.masks.xy
+                    xys = mask[0]
+                    uncropped_xys = generalizeLabel(frame_cropped, xys, frame)
+                    if uncropped_xys is not None:
+                        XY.append(np.int32(uncropped_xys))
+                        cv2.polylines(frame, np.int32([uncropped_xys]), True, (0, 0, 255), 2)
 
             cv2.imshow("img", frame)
 
@@ -291,9 +302,12 @@ def predict(model=model, cap=cap):
         XY_interpolated.append(interpolated_f)
 
     # Define the names for the output CSV files
-    x_file = 'x.csv'
-    y_file = 'y.csv'
-    y_dot_file = 'y_dot.csv'
+    x_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_x.csv'
+    y_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y.csv'
+    y_dot_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y_dot.csv'
+    # x_file = "x.csv"
+    # y_file = "y.csv"
+    # y_dot_file = "y_dot.csv"
 
     # Open the CSV files for writing
     with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as file2:
@@ -313,8 +327,8 @@ def predict(model=model, cap=cap):
     print(f"CSV files {x_file} and {y_file} have been created.")
 
     # Create a filtered Y to smooth the evolution in time and have a better derivative
-    X_data = pd.read_csv("x.csv", header=None)
-    Y_data = pd.read_csv("y.csv", header=None)
+    X_data = pd.read_csv(x_file, header=None)
+    Y_data = pd.read_csv(y_file, header=None)
     y_dot = pd.DataFrame(index=range(len(Y_data[0])), columns=range(len(Y_data.columns)))
 
     sfd = ps.SmoothedFiniteDifference(smoother_kws={'window_length': 11}) # pySINDy smooth finite differenciation
@@ -340,6 +354,12 @@ def predict(model=model, cap=cap):
             writer.writerow(columnFilteredY)
 
     print(f"CSV files {y_dot_file} has been created.")
+    
+    print("Desired number of points for the edge:", desired_points_count)
+    print("Screen size:", screenX, screenY)
+    print("Resolution of the simulation:", resX, resY)
+
+    print("Uncomment ligne 170 to 172 for vertical and RGB videos")
 
 
 def debug():
