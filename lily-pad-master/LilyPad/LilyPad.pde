@@ -322,12 +322,16 @@ float pas = 0.686778;
 float mu = 0.00095;
 int startIndex = 0;
 
-int haato = 40;
-int haachama = 18;
+int haato = 1;
+int haachama = 1;
 
 String xFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_x.csv";
 String yFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y.csv";
 String yDotFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y_dot.csv";
+
+//String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
+//String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
+//String yDotFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv";
 
 Table xTable; // Variable to store x-coordinate data
 Table yTable; // Variable to store y-coordinate data
@@ -366,13 +370,16 @@ void setup(){
 
 
   dat = new SaveData("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/bodyPressure.txt", body.coords, 0,n,n,1);
+  //dat = new SaveData("E:/data_HAACHAMA/bodyPressure.txt", body.coords, 0, n, n, 1);
   output = createWriter("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+  //output = createWriter("E:/data_HAACHAMA/pressure_map.csv");
 }
 
 void draw(){
   if ((int)(flow.t / pas -1) < loadTable(xFile, "header").getColumnCount() - 2 - startIndex){
     time += flow.dt;
     // Check if the nose changes direction (U-turn)
+    //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
     if (body.isUTurn() && Uturn == 1) {
         println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
         //Uturn = 1;

@@ -74,7 +74,7 @@ def flow_reconstruction(X):
         if crop:
             frame = X[:, i].reshape(window_width, -1)
         else:
-            frame = X[:, i].reshape(256, 128)
+            frame = X[:, i].reshape(256*2, 128*2)
 
         frame_rotated = np.rot90(frame)
 
@@ -141,9 +141,9 @@ def mean_of_elements(list_of_lists):
 
 plt.rcParams.update({"text.usetex": False})
 
-Path = 'C:/Users/blagn771/Desktop/DATA/FLUIDS/'
-save_path = 'E:/Blog_Posts/OpenFOAM/ROM_Series/Post22/'
-Files = os.listdir(Path)
+# Path = 'C:/Users/blagn771/Desktop/DATA/FLUIDS/'
+# save_path = 'E:/Blog_Posts/OpenFOAM/ROM_Series/Post22/'
+# Files = os.listdir(Path)
 
 # -------------------------------------------------------------------------------------------------------
 # Cropping parameters
@@ -155,7 +155,7 @@ window_height = int(window_width/2)
 # x_start = int(3*n/7)
 x_start = int(2*n/7)
 middle_y = None
-crop = True
+crop = False
 
 full_path = "E:/simuChina/cartesianBDD_FullVorticityMapFixed/Re100_h64.0/FullMap.csv"
 ### Data Matrix
@@ -311,7 +311,7 @@ ref_error = reconstruction_error(X,Phi[:, :index99],a[:index99, :], window_width
 # Analysis of sensibility of POD for SUBARU
 # ----------------------------------------------------------------------------------------
 
-folder = "E:/simuChina/cartesianBDD_FullVorticityMapFixed"
+folder = "E:/simuChina/cartesianBDD_FullVorticityMap_Fixed_HiRes"
 # folder = "E:/simuChina/cartesianBDD_FullVorticityMap"
 subfolders = os.listdir(folder)
 file_name = "/FullMap.csv"
@@ -325,8 +325,9 @@ debug = 0
 # ------------------------------------------------------------------------------------------------------------
 # Change the two next line for fixed Re or fixed h
 # ------------------------------------------------------------------------------------------------------------
-for re in h_list:
-    re_list = find_subfolders_with_parameters(folder, re_value=None, h_value=re)
+for re in Re_list:
+    re_list = find_subfolders_with_parameters(folder, re_value=re, h_value=None)
+    re_list = [re_list[2],re_list[5],re_list[6],re_list[7],re_list[8],re_list[9],re_list[0],re_list[10],re_list[11],re_list[1],re_list[3],re_list[4],]
     re99_list = []
     re95_list = []
     nrj_first_mode = []
@@ -339,13 +340,13 @@ for re in h_list:
         X = load_data(full_path)
         # X = X[:, :X.shape[1]//4]  Crop to keep an equivalent length as to the moving scenarios
 
-        h_val = float(subfolder.split('_')[2].replace("h", ""))
+        h_val = float(subfolder.split('_')[4].replace("h", ""))
 
         ### Crop to a narrower window
         if crop:
             X = crop_video(X, window_width=window_width, window_height=window_height, x=x_start, middle_y=h_val)
 
-        if (h_val == 6.0) and (debug == 0):
+        if (h_val == 12.0) and (debug == 0):
             flow_reconstruction(X)
             debug = 1
 
@@ -406,82 +407,82 @@ print(erro_mean)
 # _____________________________________________________________________________________________
 gap_list = [round((h-128/20/2)/(128/20),2) for h in h_list]
 
-plt.figure()
-plt.title("Number of modes to keep at least 99% of the energy with respect to \n the Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
-for i, elmt in enumerate(index99_list):
-    plt.plot(Re_list, elmt, marker='o', label=f"h={gap_list[i]}", linestyle='dashed')
-plt.plot(Re_list, [ref99]*len(Re_list), label="Reference")
-plt.xlabel("Reynolds number")
-plt.ylabel("Number of modes")
-plt.legend()
-
-plt.figure()
-plt.title("Number of modes to keep at least 95% of the energy with respect to \n the Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
-for i, elmt in enumerate(index95_list):
-    plt.plot(Re_list, elmt, marker='o', label=f"h={gap_list[i]}", linestyle='dashed')
-plt.plot(Re_list, [ref95]*len(Re_list), label="Reference")
-plt.xlabel("Reynolds number")
-plt.ylabel("Number of modes")
-plt.legend()
-
-plt.figure()
-plt.title("Energy of the most energetic mode with respect to the Reynolds number \n at a fixed normalized gap between the center of the cylinder and the wall")
-for i, elmt in enumerate(nrj_first_mode_list):
-    plt.plot(Re_list, elmt, label=f"h={gap_list[i]}", marker='o', linestyle='dashed')
-plt.plot(Re_list, [ref1]*len(Re_list), label="Reference")
-plt.xlabel("Reynolds number")
-plt.ylabel("Energy of the most energetic mode")
-plt.legend()
-
-plt.figure()
-plt.title("RMSE of the reconstruction of the flow with 99% of the energy with respect to the \n Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
-for i, elmt in enumerate(error_reconstruction_list):
-    plt.plot(Re_list, elmt, label=f"h={gap_list[i]}", marker='o', linestyle='dashed')
-plt.plot(Re_list, [ref_error]*len(Re_list), label="Reference")
-plt.xlabel("Reynolds number")
-plt.ylabel("RMSE of reconstruction with 99% of the energy")
-plt.legend()
-plt.show()
-
-# ---------------------------------------------------------------------------------
-
 # plt.figure()
-# plt.title("Number of modes to keep at least 99% of the energy with respect to \n the normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+# plt.title("Number of modes to keep at least 99% of the energy with respect to \n the Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
 # for i, elmt in enumerate(index99_list):
-#     plt.plot(gap_list, elmt, marker='o', label=f"Re={Re_list[i]}", linestyle='dashed')
-# plt.plot(gap_list, [ref99]*len(gap_list), label="Reference")
-# plt.legend()
-# plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
-# plt.xticks(gap_list)
+#     plt.plot(Re_list, elmt, marker='o', label=f"h={gap_list[i]}", linestyle='dashed')
+# plt.plot(Re_list, [ref99]*len(Re_list), label="Reference")
+# plt.xlabel("Reynolds number")
 # plt.ylabel("Number of modes")
+# plt.legend()
 
 # plt.figure()
-# plt.title("Number of modes to keep at least 95% of the energy with respect to \n the normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+# plt.title("Number of modes to keep at least 95% of the energy with respect to \n the Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
 # for i, elmt in enumerate(index95_list):
-#     plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
-# plt.plot(gap_list, [ref95]*len(gap_list), label="Reference")
-# plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
-# plt.xticks(gap_list)
+#     plt.plot(Re_list, elmt, marker='o', label=f"h={gap_list[i]}", linestyle='dashed')
+# plt.plot(Re_list, [ref95]*len(Re_list), label="Reference")
+# plt.xlabel("Reynolds number")
 # plt.ylabel("Number of modes")
 # plt.legend()
 
 # plt.figure()
-# plt.title("Energy of the most energetic mode with respect to the distance between \n the normalized gap of the cylinder and the wall, at a fixed Reynolds number")
+# plt.title("Energy of the most energetic mode with respect to the Reynolds number \n at a fixed normalized gap between the center of the cylinder and the wall")
 # for i, elmt in enumerate(nrj_first_mode_list):
-#     plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
-# plt.plot(gap_list, [ref1]*len(gap_list), label="Reference")
-# plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
-# plt.xticks(gap_list)
+#     plt.plot(Re_list, elmt, label=f"h={gap_list[i]}", marker='o', linestyle='dashed')
+# plt.plot(Re_list, [ref1]*len(Re_list), label="Reference")
+# plt.xlabel("Reynolds number")
 # plt.ylabel("Energy of the most energetic mode")
 # plt.legend()
 
 # plt.figure()
-# plt.title("RMSE of the reconstruction of the flow with 99% of the energy with respect to the \n  normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+# plt.title("RMSE of the reconstruction of the flow with 99% of the energy with respect to the \n Reynolds number, at a fixed normalized gap between the center of the cylinder and the wall")
 # for i, elmt in enumerate(error_reconstruction_list):
-#     plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
-# plt.plot(gap_list, [ref_error]*len(gap_list), label="Reference")
-# plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
-# plt.xticks(gap_list)
+#     plt.plot(Re_list, elmt, label=f"h={gap_list[i]}", marker='o', linestyle='dashed')
+# plt.plot(Re_list, [ref_error]*len(Re_list), label="Reference")
+# plt.xlabel("Reynolds number")
 # plt.ylabel("RMSE of reconstruction with 99% of the energy")
 # plt.legend()
 # plt.show()
+
+# ---------------------------------------------------------------------------------
+
+plt.figure()
+plt.title("Number of modes to keep at least 99% of the energy with respect to \n the normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+for i, elmt in enumerate(index99_list):
+    plt.plot(gap_list, elmt, marker='o', label=f"Re={Re_list[i]}", linestyle='dashed')
+plt.plot(gap_list, [ref99]*len(gap_list), label="Reference")
+plt.legend()
+plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
+plt.xticks(gap_list)
+plt.ylabel("Number of modes")
+
+plt.figure()
+plt.title("Number of modes to keep at least 95% of the energy with respect to \n the normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+for i, elmt in enumerate(index95_list):
+    plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
+plt.plot(gap_list, [ref95]*len(gap_list), label="Reference")
+plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
+plt.xticks(gap_list)
+plt.ylabel("Number of modes")
+plt.legend()
+
+plt.figure()
+plt.title("Energy of the most energetic mode with respect to the distance between \n the normalized gap of the cylinder and the wall, at a fixed Reynolds number")
+for i, elmt in enumerate(nrj_first_mode_list):
+    plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
+plt.plot(gap_list, [ref1]*len(gap_list), label="Reference")
+plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
+plt.xticks(gap_list)
+plt.ylabel("Energy of the most energetic mode")
+plt.legend()
+
+plt.figure()
+plt.title("RMSE of the reconstruction of the flow with 99% of the energy with respect to the \n  normalized gap between the center of the cylinder and the wall, at a fixed Reynolds number")
+for i, elmt in enumerate(error_reconstruction_list):
+    plt.plot(gap_list, elmt, label=f"Re={Re_list[i]}", marker='o', linestyle='dashed')
+plt.plot(gap_list, [ref_error]*len(gap_list), label="Reference")
+plt.xlabel("Distance between the center of the cylinder and the wall over the diameter of the cylinder")
+plt.xticks(gap_list)
+plt.ylabel("RMSE of reconstruction with 99% of the energy")
+plt.legend()
+plt.show()

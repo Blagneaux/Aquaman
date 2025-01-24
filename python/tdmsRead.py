@@ -15,7 +15,7 @@ root.withdraw()
 
 # Open the simulated pressure file
 # digital_twin_pressure = pd.read_csv('C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_JCGE.csv', header=None)
-digital_twin_pressure = pd.read_csv('C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_test.csv', header=None)
+digital_twin_pressure = pd.read_csv('E:/data_HAACHAMA/pressure_map.csv', header=None)
 digital_twin_pressure_REF = pd.read_csv('C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad/testDataSave/pressure_map_test_REF.csv', header=None)
 
 # Ouvrir la boîte de dialogue pour choisir un fichier et obtenir le chemin du fichier
@@ -52,8 +52,8 @@ if chemin_fichier:
                         dt_data = [digital_twin_pressure[i][210*128+39] for i in digital_twin_pressure.columns]
                         dt_data_REF = [digital_twin_pressure_REF[i][210*128+39] for i in digital_twin_pressure_REF.columns]
                     if canal.name == 'S2':
-                        dt_data = [digital_twin_pressure[i][164*128+127-39] for i in digital_twin_pressure.columns]
-                        dt_data_REF = [digital_twin_pressure_REF[i][164*128+127-39] for i in digital_twin_pressure_REF.columns]
+                        dt_data = [digital_twin_pressure[i][164*128+39+42] for i in digital_twin_pressure.columns]
+                        dt_data_REF = [digital_twin_pressure_REF[i][164*128+39+42] for i in digital_twin_pressure_REF.columns]
                     if canal.name == 'S7':
                         dt_data = [-digital_twin_pressure[i][105*128+39] for i in digital_twin_pressure.columns]
                         dt_data_REF = [-digital_twin_pressure_REF[i][105*128+39] for i in digital_twin_pressure_REF.columns]
@@ -82,7 +82,7 @@ if chemin_fichier:
     
                     # Configurer le graphique
                     axs[canal_idx].plot(temps, donnees_filtrees - mean_donnees_filtrees)
-                    axs[canal_idx].plot(dt_time, [k * 1025 * 0.0275 * 0.0275 for k in dt_data])
+                    axs[canal_idx].plot(dt_time, [k * 1025 * 0.0275 * 0.0275 for k in dt_data], color="red")
                     axs[canal_idx].plot(dt_time_REF, [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF])
                     axs[canal_idx].set_title(f'{canal.name}')
                     axs[canal_idx].set_xlabel('Time (s)')

@@ -16,8 +16,8 @@ haachama = '8'
 model2 = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
 # cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/testDetection.mp4")
-cap = cv2.VideoCapture("E:/crop_nadia/"+haato+"/"+haachama+"/"+haachama+".mp4")
-# cap = cv2.VideoCapture("C:/Users/blagn771/Desktop/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
+# cap = cv2.VideoCapture("E:/crop_nadia/"+haato+"/"+haachama+"/"+haachama+".mp4")
+cap = cv2.VideoCapture("E:/data_HAACHAMA/FishDataset/videoNadia/T3_Fish3_C2_270923 - Trim2.mp4")
 
 def calculate_angle(pt1, pt2, pt3):
 
@@ -302,12 +302,12 @@ def predict(model=model, cap=cap):
         XY_interpolated.append(interpolated_f)
 
     # Define the names for the output CSV files
-    x_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_x.csv'
-    y_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y.csv'
-    y_dot_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y_dot.csv'
-    # x_file = "x.csv"
-    # y_file = "y.csv"
-    # y_dot_file = "y_dot.csv"
+    # x_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_x.csv'
+    # y_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y.csv'
+    # y_dot_file = 'E:/crop_nadia/'+haato+'/rawYolo'+haachama+'_y_dot.csv'
+    x_file = "x.csv"
+    y_file = "y.csv"
+    y_dot_file = "y_dot.csv"
 
     # Open the CSV files for writing
     with open(x_file, 'w', newline='') as file1, open(y_file, 'w', newline='') as file2:
