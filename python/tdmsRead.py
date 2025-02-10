@@ -81,13 +81,14 @@ if chemin_fichier:
                     mean_donnees_filtrees = np.mean(donnees_filtrees)
     
                     # Configurer le graphique
-                    axs[canal_idx].plot(temps, donnees_filtrees - mean_donnees_filtrees)
-                    axs[canal_idx].plot(dt_time, [k * 1025 * 0.0275 * 0.0275 for k in dt_data], color="red")
-                    axs[canal_idx].plot(dt_time_REF, [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF])
+                    axs[canal_idx].plot(temps, donnees_filtrees - mean_donnees_filtrees, label='Sensors')
+                    # axs[canal_idx].plot(dt_time[2:], [k * 1025 * 0.0275 * 0.0275 for k in dt_data[2:]], label='Automated DT')
+                    axs[canal_idx].plot(dt_time_REF[2:], [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF[2:]], label='Manual DT')
                     axs[canal_idx].set_title(f'{canal.name}')
                     axs[canal_idx].set_xlabel('Time (s)')
                     axs[canal_idx].set_ylabel('Pressure (Pa)')
                     axs[canal_idx].grid(True)
+                    axs[canal_idx].legend()
                     
                     # Calcul la distance de Fréchet discrète
                     exp_data = np.zeros((len(temps),2))
@@ -100,8 +101,8 @@ if chemin_fichier:
                     num_data_REF[:,0] = [k * 1025 * 0.0275 * 0.0275 for k in dt_data_REF]
                     num_data_REF[:,1] = dt_time_REF
 
-                    dist = similaritymeasures.frechet_dist(exp_data, num_data)
-                    dist_REF = similaritymeasures.frechet_dist(exp_data, num_data_REF)
+                    dist = similaritymeasures.frechet_dist(exp_data, num_data[2:])
+                    dist_REF = similaritymeasures.frechet_dist(exp_data, num_data_REF[2:])
                     print("Distance de Fréchet entre la courbe des capteurs et la courbe de HAACHAMA: ", dist)
                     print("Distance de Fréchet entre la courbe des capteurs et la courbe du DT parfait: ", dist_REF)
 

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import re
 
 DTW = []
 DTW1 = []
@@ -11,7 +12,8 @@ Frechet = []
 index = 0
 
 path = "E:/crop_nadia/matchingData"
-for file in os.listdir(path):
+folder = sorted(os.listdir(path), key=lambda x: int(re.search(r'\d+', x).group()) if re.search(r'\d+', x) else float('inf'))
+for file in folder:
     if file.endswith(".csv"):
         file_name = os.path.join(path, file)
         data = pd.read_csv(file_name)
@@ -21,7 +23,7 @@ for file in os.listdir(path):
         channel = data["Channel"]
 
         for i in range(len(validity)):
-            if validity[i] and file_name[-6:-4] != "26": # 26 gives unrealistic values, probably due to the tail eating combined with the important size of the fish
+            if validity[i] :#and file_name[-6:-4] != "31" and file_name[-6:-4] != "26": # 26 gives unrealistic values, probably due to the tail eating combined with the important size of the fish
                 DTW.append(dtw_score[i])
                 Frechet.append(frechet_dist[i])
                 if channel[i] == "S1":
@@ -71,3 +73,7 @@ print("Mean DTW distance for sensor 2:", np.mean(DTW2))
 print("Mean DTW distance for sensor 4:", np.mean(DTW4))
 print("Mean Frechet distance:", np.mean(Frechet))
 print("Number of samples:", len(DTW))
+
+# plt.figure()
+# plt.plot(DTW2)
+# plt.show()

@@ -26,10 +26,15 @@ def bandpass_filter(data, lowcut=0.3, highcut=35, fs=500, order=2):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
     return filtfilt(b, a, data)
 
+def normalisation(data):
+    abs_max_data = np.max(np.abs(data))
+    normalized_data = data / abs_max_data
+    return normalized_data
+
 
 channels = ["S1", "S2", "S4"]
 show = True
-file_number = 1 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
+file_number = 17 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
 passage_time = pd.read_csv("E:/crop_nadia/passage_time/"+str(file_number)+".csv")
 tdms_file = TdmsFile.read("E:/crop_nadia/TDMS/"+str(file_number)+".tdms")
 digital_twin_time = pd.read_csv("E:/crop_nadia/timestamps/timestamps"+str(file_number)+".csv")
@@ -85,6 +90,8 @@ for groupe in tdms_file.groups()[1:]:
             for time, speed, sample, starting_time, starting_frame, ending_time, ending_frame, validity in zip(times, speeds, lilypad_sample_indexes, start_times, start_frame, end_times, end_frame, validitys):
                 if validity:
 
+                    speed = speed * 0.5145 / 0.4 * 4 # conversion from speed in px/s@25fps to m/s
+
                     comparison_window_start = 2
                     comparison_window_end = 2
 
@@ -120,6 +127,7 @@ for groupe in tdms_file.groups()[1:]:
                         if canal.name == channel:
                             pressure_data = bandpass_filter(canal.data, highcut=9)
                             pressure_data = pressure_data[time_sensor - int(comparison_window_start*500): time_sensor + 1 + int(comparison_window_end*500)] # 2s before and 2s after the fish passing in front of the sensor
+                            pressure_data = normalisation(pressure_data)
                             print("Pressure data for channel", channel, ":", pressure_data)
 
                             X = np.linspace(-comparison_window_start,comparison_window_end,len(pressure_data))
@@ -132,6 +140,7 @@ for groupe in tdms_file.groups()[1:]:
                                 # dt_pressure_data_interp = f(X)
                                 
                                 dt_pressure_data = bandpass_filter(dt_pressure_data, highcut=9, fs=100)
+                                dt_pressure_data = normalisation(dt_pressure_data)
                                 dtw_score = dtw(pressure_data, dt_pressure_data, keep_internals=True)
                                 DTW_score.append(dtw_score.distance)
                                 pressure_curve = np.column_stack((X, pressure_data))
@@ -153,13 +162,14 @@ for groupe in tdms_file.groups()[1:]:
                                     #     .plot(type="twoway",offset=-2)
                                     plt.show()
                             elif channel == "S2":
-                                dt_pressure_data = [1025 * 0.0275 * 0.0275 * digital_twin_pressure[i][(146)*126+37+43] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
+                                dt_pressure_data = [1025 * speed * speed * digital_twin_pressure[i][(146)*126+37+43] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
                                 X_dt = np.linspace(-comparison_window_start,comparison_window_end,len(dt_pressure_data))
                                 
                                 # f = interp1d(X_dt, dt_pressure_data)
                                 # dt_pressure_data_interp = f(X)
 
                                 dt_pressure_data = bandpass_filter(dt_pressure_data, highcut=9, fs=100)
+                                dt_pressure_data = normalisation(dt_pressure_data)
                                 dtw_score = dtw(pressure_data, dt_pressure_data, keep_internals=True)
                                 DTW_score.append(dtw_score.distance)
                                 pressure_curve = np.column_stack((X, pressure_data))
@@ -181,13 +191,14 @@ for groupe in tdms_file.groups()[1:]:
                                     #     .plot(type="twoway",offset=-2)
                                     plt.show()
                             elif channel == "S4":
-                                dt_pressure_data = [1025 * 0.0275 * 0.0275 * digital_twin_pressure[i][(200)*128+39] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
+                                dt_pressure_data = [1025 * speed * speed * digital_twin_pressure[i][(200)*128+39] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
                                 X_dt = np.linspace(-comparison_window_start,comparison_window_end,len(dt_pressure_data))
                                 
                                 # f = interp1d(X_dt, dt_pressure_data)
                                 # dt_pressure_data_interp = f(X)
 
                                 dt_pressure_data = bandpass_filter(dt_pressure_data, highcut=9, fs=100)
+                                dt_pressure_data = normalisation(dt_pressure_data)
                                 dtw_score = dtw(pressure_data, dt_pressure_data, keep_internals=True)
                                 DTW_score.append(dtw_score.distance)
                                 pressure_curve = np.column_stack((X, pressure_data))
