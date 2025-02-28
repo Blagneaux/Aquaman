@@ -1,9 +1,12 @@
 clear;close all;
-x = importdata("pressure08092023_x271-5y56.txt");
+x = importdata("pressure08092023_x271-5y56_vx89_16.txt");
 X = readmatrix("data_08092023_x271-5y56_exp1.xlsx");
+% x = importdata("pressure08092023_x242y56_vx89_16.txt");
+% X = readmatrix("data_08092023_x242y56_exp1.xlsx");
 
 t = x(1:269,1)*4.9/67.25;
 s51 = x(1:269,2);
+s51 = s51 * 0.5 * 1000 * 0.089 * 0.089;
 
 Time = X(:,1);
 Donne = X(:,2);

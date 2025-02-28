@@ -212,7 +212,7 @@ def POD_with_shift_mode(flow_path, base_path, n_modes, period_start=None):
     # Return the modes from the POD and the shift mode, and the dynamics of these modes on the full data
     return (Ur, A)
 
-full_data_path = 'E:/simuChina/cartesianBDD_FullPressureMap/Re10000_h6.0/FullMap.csv'
+full_data_path = 'E:/simuChina/cartesianBDD_FullPressureMap/Re1000_h6.0/FullMap.csv'
 # full_data_path = "E:/crop_nadia/11/7/pressure_map.csv"
 base_flow_path = 'E:/benchmark_SINDy/FullVorticityMapRe100_h6_baseFlow.csv'
 n_modes = 69  # Number of POD modes to extract + shift mode

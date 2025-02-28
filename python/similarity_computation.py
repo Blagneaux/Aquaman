@@ -34,7 +34,7 @@ def normalisation(data):
 
 channels = ["S1", "S2", "S4"]
 show = True
-file_number = 17 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
+file_number = 11 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
 passage_time = pd.read_csv("E:/crop_nadia/passage_time/"+str(file_number)+".csv")
 tdms_file = TdmsFile.read("E:/crop_nadia/TDMS/"+str(file_number)+".tdms")
 digital_twin_time = pd.read_csv("E:/crop_nadia/timestamps/timestamps"+str(file_number)+".csv")

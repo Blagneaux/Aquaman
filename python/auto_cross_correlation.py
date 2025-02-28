@@ -79,7 +79,9 @@ for file in folder:
                                                         ref_pressure_data = normalisation(ref_pressure_data)
                                                         ref_X = np.linspace(-2, 2, 2001)
 
-                                                        corr = correlate(ref_pressure_data, pressure_data)
+                                                        # corr = correlate(ref_pressure_data, pressure_data)
+                                                        corr = correlate(ref_pressure_data - np.mean(ref_pressure_data), pressure_data - np.mean(pressure_data))
+                                                        corr /= np.sqrt(np.sum((ref_pressure_data - np.mean(ref_pressure_data))**2)*np.sum((pressure_data - np.mean(pressure_data))**2))
                                                         lags = correlation_lags(len(ref_pressure_data), len(pressure_data))
 
                                                         correlation.append(np.max(corr))
@@ -102,3 +104,4 @@ plt.grid(False)
 plt.show()
 
 print("Mean maximum cross-correlation between experiments: ", np.mean(symetric_array))
+np.save("E:/crop_nadia/test_auto_cross-correlation.npy", symetric_array)

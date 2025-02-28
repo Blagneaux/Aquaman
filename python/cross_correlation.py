@@ -125,7 +125,9 @@ for file in folder:
                                             pressure_data = normalisation(pressure_data)
                                             X_available = np.linspace(-2, 2, 2001)
 
-                                            corr = correlate(pressure_data, dt_pressure_data_interp)
+                                            # corr = correlate(pressure_data, dt_pressure_data_interp)
+                                            corr = correlate(pressure_data - np.mean(pressure_data), dt_pressure_data_interp - np.mean(dt_pressure_data_interp))
+                                            corr /= np.sqrt(np.sum((pressure_data - np.mean(pressure_data))**2)*np.sum((dt_pressure_data_interp - np.mean(dt_pressure_data_interp))**2))
                                             lags = correlation_lags(len(pressure_data), len(dt_pressure_data_interp))
                                             # corr /= max(np.max(corr), np.abs(np.min(corr)))
 
@@ -143,7 +145,7 @@ for file in folder:
                                             # fig.tight_layout()
                                             # plt.show()
                                             correlation.append(np.max(corr))
-                correlation /= np.max(correlation)
+                # correlation /= np.max(correlation)
                 Correlations.append(correlation)
                 correlation = []
 
@@ -161,3 +163,4 @@ plt.grid(False)
 plt.show()
 
 print("Mean maximum cross-correlation between simulation and experiments: ",np.mean(symetric_array))
+np.save("E:/crop_nadia/cross-correlation.npy", symetric_array)
