@@ -34,10 +34,10 @@ def normalisation(data):
 
 channels = ["S1", "S2", "S4"]
 show = True
-file_number = 11 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
-passage_time = pd.read_csv("E:/crop_nadia/passage_time/"+str(file_number)+".csv")
-tdms_file = TdmsFile.read("E:/crop_nadia/TDMS/"+str(file_number)+".tdms")
-digital_twin_time = pd.read_csv("E:/crop_nadia/timestamps/timestamps"+str(file_number)+".csv")
+file_number = 28 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
+passage_time = pd.read_csv("D:/crop_nadia/passage_time/"+str(file_number)+".csv")
+tdms_file = TdmsFile.read("D:/crop_nadia/TDMS/"+str(file_number)+".tdms")
+digital_twin_time = pd.read_csv("D:/crop_nadia/timestamps/timestamps"+str(file_number)+".csv")
 
 digital_twin_time["start_time"] = digital_twin_time["start_time"].apply(time_to_seconds)
 digital_twin_time["end_time"] = digital_twin_time["end_time"].apply(time_to_seconds)
@@ -99,7 +99,7 @@ for groupe in tdms_file.groups()[1:]:
                         ending_frame = ending_frame + starting_frame
 
                     time_sensor = int(time*500)
-                    digital_twin_pressure = pd.read_csv("E:/crop_nadia/"+str(file_number)+"/"+str(sample)+"/pressure_map.csv")
+                    digital_twin_pressure = pd.read_csv("D:/crop_nadia/"+str(file_number)+"/"+str(sample)+"/pressure_map.csv")
 
                     print("Number of frames in the simulation:", len(digital_twin_pressure.columns))
                     if ending_frame == 0:
@@ -162,7 +162,7 @@ for groupe in tdms_file.groups()[1:]:
                                     #     .plot(type="twoway",offset=-2)
                                     plt.show()
                             elif channel == "S2":
-                                dt_pressure_data = [1025 * speed * speed * digital_twin_pressure[i][(146)*126+37+43] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
+                                dt_pressure_data = [1025 * speed * speed * digital_twin_pressure[i][(146)*128+37+43] for i in digital_twin_pressure.columns[simu_crop_start:simu_crop_end+1]]
                                 X_dt = np.linspace(-comparison_window_start,comparison_window_end,len(dt_pressure_data))
                                 
                                 # f = interp1d(X_dt, dt_pressure_data)

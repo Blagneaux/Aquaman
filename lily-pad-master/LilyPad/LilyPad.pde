@@ -307,7 +307,6 @@
 // HAACHAMA pipeline for automatic generation of digital twin from csv files resulting from YOLOv8 segmentation
 // -------------------------------------------------------------------------------------------------------------
 BDIM flow;
-CSV2DigitalTwin body;
 TestLine upWall;
 TestLine bottomWall;
 BodyUnion twin;
@@ -322,12 +321,19 @@ float pas = 0.686778;
 float mu = 0.00095;
 int startIndex = 0;
 
-int haato = 1;
-int haachama = 1;
+int haato = 28;
+int haachama = 7;
 
-String xFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_x.csv";
-String yFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y.csv";
-String yDotFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y_dot.csv";
+Boolean fish = false;
+
+CSV2DigitalTwin body;
+CircleBody circle_body;
+
+String xFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_x.csv";
+String yFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y.csv";
+String yDotFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y_dot.csv";
+
+String spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
 
 //String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
 //String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
@@ -335,6 +341,7 @@ String yDotFile = "E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(h
 
 Table xTable; // Variable to store x-coordinate data
 Table yTable; // Variable to store y-coordinate data
+Table spineTable; // Variable to store xy1 xy2 xy3 ... for the spine coordinates
 
 ArrayList<float[]> pressureDataList = new ArrayList<>();
 int numTimeStep = 0;
@@ -352,26 +359,40 @@ void setup(){
   xTable = loadTable(xFile, "header");
   // Load y-coordinate data from CSV file
   yTable = loadTable(yFile, "header");
+  // Load x and y coordinates data from CSV file
+  spineTable = loadTable(spine, "header");
 
   upWall = new TestLine(0, 36.5, 256, view);                 // 37 because 39 grid is the gap between the top and the begining of the tank, but it is 2 grid thick
-  body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
+  if (fish) {
+    body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
+  } else {
+    circle_body = new CircleBody(256*spineTable.getFloat(0,69)/2000, 128*spineTable.getFloat(0,70)/1200, 3.5, view);
+  };
   //bottomWall = new TestLine(0, 127-38.5, 256, view);
   bottomWall = new TestLine(0, 37+43.5, 256, view);
   wall = new BodyUnion(upWall, bottomWall);
-  twin = new BodyUnion(body, wall);
+  if (fish) {
+    twin = new BodyUnion(body, wall);
+  } else {
+    twin = new BodyUnion(circle_body, wall);
+  };
   flow = new BDIM(n,m,pas,twin,mu,true, 0);
   //
   //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
   //
   flood = new FloodPlot(view);
-  flood.range = new Scale(-.25,.25);
+  flood.range = new Scale(-.5,.5);
   flood.setLegend("vorticity");
   flood.setColorMode(1);
 
 
-  dat = new SaveData("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/bodyPressure.txt", body.coords, 0,n,n,1);
+  //dat = new SaveData("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/bodyPressure.txt", body.coords, 0,n,n,1);
+  if (fish) {
+    dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
+  };
   //dat = new SaveData("E:/data_HAACHAMA/bodyPressure.txt", body.coords, 0, n, n, 1);
-  output = createWriter("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+  //output = createWriter("E:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+  output = createWriter("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_pressure_map.csv"); // open output file
   //output = createWriter("E:/data_HAACHAMA/pressure_map.csv");
 }
 
@@ -380,7 +401,7 @@ void draw(){
     time += flow.dt;
     // Check if the nose changes direction (U-turn)
     //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
-    if (body.isUTurn() && Uturn == 1) {
+    if (fish && body.isUTurn() && Uturn == 0) {
         println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
         //Uturn = 1;
 
@@ -409,32 +430,55 @@ void draw(){
         twin = new BodyUnion(body, wall);
         time = flow.dt;
     }
+    
+    if (fish == false && (int)(flow.t / pas) < spineTable.getRowCount()) {
+      CircleBody newBody = new CircleBody(
+        256*spineTable.getFloat((int)(flow.t / pas), 69)/2000,
+        128*spineTable.getFloat((int)(flow.t / pas), 70)/1200,
+        3.5,
+        new Window(numCols, numRows)
+       );
+       
+       circle_body = newBody;
+       twin = new BodyUnion(circle_body, wall);
+       time = flow.dt;
+    };
 
     // Regular update of the fish and fluid
-    body.update(time);
+    if (fish) {
+      body.update(time);
+    } else {
+      circle_body.translate(-1,0);
+    };
     flow.update(twin); 
     flow.update2(); // 2-step fluid update
 
     // Display vorticity and objects
     flood.display(flow.p);
-    body.display();
+    if (fish) {
+      body.display();
+    } else {
+      circle_body.display();
+    };
     upWall.display();
     bottomWall.display();    
 
     // Save the x and y values for every points of the body at each time step
     // This is used to create the labels for YOLO quick training
-    int size = body.coords.size();
-    //dat.output.print(0 + " ");
-    for(int i=0; i<size; i++){
-      dat.output.print("Point numero " + i + " : ");
-      dat.output.print("x: ");
-      dat.output.print(body.coords.get(i).x +" ");
-      dat.output.print("y: ");
-      dat.output.print(body.coords.get(i).y +" ");
-      dat.output.print("p: ");
-      dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
-    }
-    dat.output.println("");
+    if (fish) {
+      int size = body.coords.size();
+      //dat.output.print(0 + " ");
+      for(int i=0; i<size; i++){
+        dat.output.print("Point numero " + i + " : ");
+        dat.output.print("x: ");
+        dat.output.print(body.coords.get(i).x +" ");
+        dat.output.print("y: ");
+        dat.output.print(body.coords.get(i).y +" ");
+        dat.output.print("p: ");
+        dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+      }
+      dat.output.println("");
+    };
 
     // Store pressure data for every point in the window
     float[] pressureData = new float[numCols * numRows];
@@ -451,14 +495,49 @@ void draw(){
 
     saveFrame("saved/frame-####.png");
 
-  //} else if ((int)(flow.t / pas -1) < 700) {
+  //} else if ((int)(flow.t / pas -1) < 450) {
   //  time += flow.dt;
-  //  body.translate(-0.1,0);
-  //  flow.update(twin); flow.update2();         // 2-step fluid update
-  //  flood.display(flow.u.curl());              // compute and display vorticity
-  //  body.display();                            // display the body
+  //  println(time);
+  //  body.translate(0.5,0);
+    
+  //  // Regular update of the fish and fluid
+  //  flow.update(twin); 
+  //  flow.update2(); // 2-step fluid update
+    
+  //  // Display vorticity and objects
+  //  flood.display(flow.p);
+  //  body.display();
   //  upWall.display();
-  //  bottomWall.display();
+  //  bottomWall.display(); 
+    
+  //  // Save the x and y values for every points of the body at each time step
+  //  // This is used to create the labels for YOLO quick training
+  //  int size = body.coords.size();
+  //  //dat.output.print(0 + " ");
+  //  for(int i=0; i<size; i++){
+  //    dat.output.print("Point numero " + i + " : ");
+  //    dat.output.print("x: ");
+  //    dat.output.print(body.coords.get(i).x +" ");
+  //    dat.output.print("y: ");
+  //    dat.output.print(body.coords.get(i).y +" ");
+  //    dat.output.print("p: ");
+  //    dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+  //  }
+  //  dat.output.println("");
+
+  //  // Store pressure data for every point in the window
+  //  float[] pressureData = new float[numCols * numRows];
+  //  int index = 0;
+  //  for (int i = 0; i < numCols; i++) {
+  //    for (int j = 0; j < numRows; j++) {
+  //      pressureData[index] = flow.p.extract(i, j);
+  //      index++;
+  //    }
+  //  }
+  //  // Add the pressure data array to the list for this time step
+  //  pressureDataList.add(pressureData);
+  //  numTimeStep++;
+
   //  saveFrame("saved/frame-####.png");
   } else {
     //dat.finish();
