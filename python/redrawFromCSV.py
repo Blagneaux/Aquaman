@@ -67,7 +67,7 @@ if recreateVideo:
     df1.clip(0, 255)
 
     # Create the video
-    size = 2**6, 2**6
+    size = 2**7, 2**8
     duration = num_columns
     fps = 25
     out = cv2.VideoWriter('dataMap.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]), False)

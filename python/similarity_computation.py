@@ -34,7 +34,7 @@ def normalisation(data):
 
 channels = ["S1", "S2", "S4"]
 show = True
-file_number = 28 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
+file_number = 40 # 28-2 with a DTW of 60.3 and a Frechet of 0.20 show a good second order fit, 14-1 with DTW of 21.3 and Frechet of 0.18 is nice to show a good first order fit and 17-4 with DTW of 156.8 and Frechet of 0.90 is nice for about the mean
 passage_time = pd.read_csv("D:/crop_nadia/passage_time/"+str(file_number)+".csv")
 tdms_file = TdmsFile.read("D:/crop_nadia/TDMS/"+str(file_number)+".tdms")
 digital_twin_time = pd.read_csv("D:/crop_nadia/timestamps/timestamps"+str(file_number)+".csv")
@@ -151,7 +151,7 @@ for groupe in tdms_file.groups()[1:]:
                                     plt.figure()
                                     print("DTW score:", dtw_score.distance)
                                     print("Frechet distance:", frechet_distance)
-                                    plt.plot(X, pressure_data, label="Real pressure")
+                                    plt.plot(X, pressure_data, label="Experimental pressure")
                                     plt.plot(X_dt, dt_pressure_data, label="Simulated pressure ")
                                     plt.xlabel("Time (in s) centered on the passage of the fish in front of the sensor")
                                     plt.ylabel("Pressure (in Pa)")
@@ -180,7 +180,7 @@ for groupe in tdms_file.groups()[1:]:
                                     plt.figure()
                                     print("DTW score:", dtw_score.distance)
                                     print("Frechet distance:", frechet_distance)
-                                    plt.plot(X, pressure_data, label="Real pressure")
+                                    plt.plot(X, pressure_data, label="Experimental pressure")
                                     plt.plot(X_dt, dt_pressure_data, label="Simulated pressure ")
                                     plt.xlabel("Time (in s) centered on the passage of the fish in front of the sensor")
                                     plt.ylabel("Pressure (in Pa)")
@@ -209,7 +209,7 @@ for groupe in tdms_file.groups()[1:]:
                                     plt.figure()
                                     print("DTW score:", dtw_score.distance)
                                     print("Frechet distance:", frechet_distance)
-                                    plt.plot(X, pressure_data, label="Real pressure")
+                                    plt.plot(X, pressure_data, label="Experimental pressure")
                                     plt.plot(X_dt, dt_pressure_data, label="Simulated pressure ")
                                     plt.xlabel("Time (in s) centered on the passage of the fish in front of the sensor")
                                     plt.ylabel("Pressure (in Pa)")

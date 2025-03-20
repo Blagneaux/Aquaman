@@ -5,9 +5,9 @@ import os
 import re
 
 
-path_mid = "E:/crop_nadia/matchingData"
-path_left = "E:/crop_nadia/matchingData_minus3grid"
-path_right = "E:/crop_nadia/matchingData_plus3grid"
+path_mid = "D:/crop_nadia/matchingData"
+path_left = "D:/crop_nadia/matchingData_minus3grid"
+path_right = "D:/crop_nadia/matchingData_plus3grid"
 paths = [path_mid, path_left, path_right]
 for path in paths:
     DTW = []
@@ -59,7 +59,7 @@ for path in paths:
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))  # You can adjust the figure size as needed
 
     # First subplot for DTW
-    axs[0].plot(DTW, label="DTW distance for a given sample")
+    axs[0].plot(DTW, 'o', label="DTW distance for a given sample")
     axs[0].plot(DTW_gliding_mean, label="Gliding mean DTW distance")
     axs[0].set_xlabel("Matching samples between the simulation and the sensors", fontsize=14)
     axs[0].set_ylabel("DTW distance", fontsize=14)
@@ -67,7 +67,7 @@ for path in paths:
     axs[0].set_title("DTW distance for each sample and its gliding mean on a\n window  starting from the first sample to each sample", fontsize=16)
 
     # Second subplot for Fréchet
-    axs[1].plot(Frechet, label="Fréchet distance for a given sample")
+    axs[1].plot(Frechet, 'o', label="Fréchet distance for a given sample")
     axs[1].plot(Frechet_gliding_mean, label="Gliding mean Fréchet distance")
     axs[1].set_xlabel("Matching samples between the simulation and the sensors", fontsize=14)
     axs[1].set_ylabel("Fréchet distance (in Pa)", fontsize=14)
