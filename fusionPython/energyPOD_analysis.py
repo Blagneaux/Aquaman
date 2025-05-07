@@ -157,7 +157,7 @@ x_start = int(2*n/7)
 middle_y = None
 crop = False
 
-full_path = "E:/simuChina/cartesianBDD_FullVorticityMapFixed/Re100_h64.0/FullMap.csv"
+full_path = "D:/simuChina/cartesianBDD_FullVorticityMapFixed/Re100_h64.0/FullMap.csv"
 ### Data Matrix
 X = load_data(full_path)
 
@@ -311,7 +311,7 @@ ref_error = reconstruction_error(X,Phi[:, :index99],a[:index99, :], window_width
 # Analysis of sensibility of POD for SUBARU
 # ----------------------------------------------------------------------------------------
 
-folder = "E:/simuChina/cartesianBDD_FullVorticityMap_Fixed_HiRes"
+folder = "D:/simuChina/cartesianBDD_FullVorticityMap_Fixed_HiRes"
 # folder = "E:/simuChina/cartesianBDD_FullVorticityMap"
 subfolders = os.listdir(folder)
 file_name = "/FullMap.csv"
@@ -401,6 +401,7 @@ print(index99_mean)
 print(index95_mean)
 print(nrj_first_mode_mean)
 print(erro_mean)
+print(error_reconstruction_list)
 
 # _____________________________________________________________________________________________
 # Don't forget to recalculate the gap for the higher resolution

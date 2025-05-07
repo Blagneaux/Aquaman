@@ -16,7 +16,7 @@ class DigitalTwin extends BodyUnion{
 
         // walls
         add(new TestLine(0,(2+100/len)*chord-2,16*chord,window));
-        // add(new Sensor(0,(2-100/len+0/len)*chord,16*chord,window));
+        add(new Sensor(0,(2-100/len+0/len)*chord,16*chord,window));
         add(new TestLine(0,(2-100/len)*chord,16*chord,window));
         add(new VWall(16*chord-51*chord/len,(2+100/len)*chord,3*chord,window));
         add(new VWall((16-605/len)*chord,(2-100/len)*chord,3*chord,window));

@@ -15,11 +15,15 @@ cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
 # Setup paths and load sensor data
 path = "D:/crop_nadia/matchingData"
+isCircle = True
 files = glob.glob(path+"/*.csv")
 relative_paths = np.int8([file.split('\\')[-1][:-4] for file in files])
 relative_paths.sort()
 pressure_path = "D:/crop_nadia"
-pressure_file = "/pressure_map.csv"
+if not isCircle:
+    pressure_file = "/pressure_map.csv"
+else:
+    pressure_file = "/circle_pressure_map.csv"
 for video_number in relative_paths:
     info = pd.read_csv(path + f"/{video_number}.csv")
 
@@ -43,7 +47,10 @@ for video_number in relative_paths:
             new_height, new_width = 540, 960
             fps = 100
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            video = cv2.VideoWriter(f"D:/crop_nadia/videos/{video_number}_{sample}_{sensor}.mp4", fourcc, fps, (new_width, new_height))
+            if not isCircle:
+                video = cv2.VideoWriter(f"D:/crop_nadia/videos/{video_number}_{sample}_{sensor}.mp4", fourcc, fps, (new_width, new_height))
+            else:
+                video = cv2.VideoWriter(f"D:/crop_nadia/videos_circle/{video_number}_{sample}_{sensor}.mp4", fourcc, fps, (new_width, new_height))
 
             # Coordinate scaling
             if sensor == "S1":

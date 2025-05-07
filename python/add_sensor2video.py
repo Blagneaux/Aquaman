@@ -7,11 +7,17 @@ from nptdms import TdmsFile
 from scipy.signal import butter, filtfilt
 
 # Initialize the video reader and writer
-file_number = 28
-sample = 7
-sensor = "S1"
+file_number = 9
+sample = 12
+sensor = "S2"
+circleOn = False
+isCircle = True
 offset = 0
-input_video_path = f'C:/Users/blagn771/Desktop/{file_number}_{sample}_0.5.mp4'
+# input_video_path = f'C:/Users/blagn771/Desktop/{file_number}_{sample}_0.5.mp4'
+if not isCircle:
+    input_video_path = f'D:/crop_nadia/videos/{file_number}_{sample}_{sensor}.mp4'
+else:
+    input_video_path = f'D:/crop_nadia/videos_circle/{file_number}_{sample}_{sensor}.mp4'
 # input_video_path = f'C:/Users/blagn771/Desktop/circle_{file_number}_{sample}.mp4'
 output_video_path = 'C:/Users/blagn771/Desktop/output_video.mp4'
 
@@ -94,8 +100,12 @@ end_time = digital_twin_time["end_time"][sample-1]
 end_time_cyl = end_time - 0.43
 print(end_time)
 
-digital_twin_pressure = pd.read_csv("D:/crop_nadia/"+str(file_number)+"/"+str(sample)+"/pressure_map.csv")
-circle_pressure = pd.read_csv("D:/crop_nadia/test_vortex/circle_"+str(file_number)+"_"+str(sample)+"_pressure_map.csv")
+if not isCircle:
+    digital_twin_pressure = pd.read_csv("D:/crop_nadia/"+str(file_number)+"/"+str(sample)+"/pressure_map.csv")
+else:
+    digital_twin_pressure = pd.read_csv("D:/crop_nadia/"+str(file_number)+"/"+str(sample)+"/circle_pressure_map.csv")
+if circleOn:
+    circle_pressure = pd.read_csv("D:/crop_nadia/test_vortex/circle_"+str(file_number)+"_"+str(sample)+"_pressure_map.csv")
 posX = None
 if sensor == "S1":
     posX = (198 + offset)*128 + 37+43
@@ -105,26 +115,32 @@ elif sensor == "S4":
     posX = (200 + offset)*128 + 39
 
 dt_pressure_data = [digital_twin_pressure[i][posX] for i in digital_twin_pressure.columns]
-circle_data = [circle_pressure[i][posX] for i in circle_pressure.columns]
+if circleOn:
+    circle_data = [circle_pressure[i][posX] for i in circle_pressure.columns]
 X_dt = np.linspace(start_time, end_time, len(dt_pressure_data))
-X_dt_cyl = np.linspace(start_time, end_time_cyl, len(circle_data))
+if circleOn:
+    X_dt_cyl = np.linspace(start_time, end_time_cyl, len(circle_data))
 
-dt_pressure_data = bandpass_filter(dt_pressure_data, highcut=9, fs=100)
+dt_pressure_data = bandpass_filter(dt_pressure_data, highcut=1, fs=100)
 dt_pressure_data = normalisation(dt_pressure_data)
-circle_data = bandpass_filter(circle_data, highcut=9, fs=100)
-circle_data = normalisation(circle_data)
+if circleOn:
+    circle_data = bandpass_filter(circle_data, highcut=9, fs=100)
+    circle_data = normalisation(circle_data)
 X_exp = np.linspace(start_time, end_time, int(end_time*500)-int(start_time*500))
 
 for groupe in tdms_file.groups()[1:]:
     for canal in groupe.channels():
         if canal.name == sensor:
-            pressure_data = bandpass_filter(canal.data, highcut=9)
+            pressure_data = bandpass_filter(canal.data, highcut=1)
             pressure_data = pressure_data[int(start_time*500): int(end_time*500)]
             pressure_data = normalisation(pressure_data)
 
 # Set up the video paths and capture
 input_video_path = 'C:/Users/blagn771/Desktop/output_video.mp4'
-output_video_path = 'C:/Users/blagn771/Desktop/output_video_plot.mp4'
+if not isCircle:
+    output_video_path = f'D:/crop_nadia/videos/{file_number}_{sample}_{sensor}_comparison.mp4'
+else:
+    output_video_path = f'D:/crop_nadia/videos_circle/{file_number}_{sample}_{sensor}_comparison.mp4'
 cap = cv2.VideoCapture(input_video_path)
 
 # Get video properties
@@ -140,15 +156,20 @@ out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height
 # Function to get the plot as an image
 def get_plot_as_image(frame_idx, frame_idx_exp, frame_idx_cyl):
     # Create a figure for plotting
-    fig, ax = plt.subplots(figsize=(frame_width/100, frame_height/400), dpi=100)
+    fig, ax = plt.subplots(figsize=(frame_width/100, frame_height/200), dpi=100)
     canvas = FigureCanvas(fig)
     ax.plot(X_dt[:frame_idx], dt_pressure_data[:frame_idx], label=f"Simulated Pressure (offset: {offset})")
-    ax.plot(X_dt_cyl[:frame_idx_cyl], circle_data[:frame_idx_cyl], label=f"Simulated Circle Pressure (offset: {offset})")
+    if circleOn:
+        ax.plot(X_dt_cyl[:frame_idx_cyl], circle_data[:frame_idx_cyl], label=f"Simulated Circle Pressure (offset: {offset})")
     ax.plot(X_exp[:frame_idx_exp], pressure_data[:frame_idx_exp], label = "Experimental Pressure")
+    ax.plot(X_exp, [0 for elmt in X_exp], "black")
+    sec = X_exp[0::500]
+    ax.plot(sec, [0 for elmt in sec], "black", marker=2)
     plt.legend()
+    plt.title(f"Experiment {file_number} sample {sample} sensor {sensor}")
     ax.set_xlim(np.min(X_dt), np.max(X_dt))
     ax.set_ylim(-1, 1)
-    ax.axis('off')  # Turn off axes
+    ax.axis("off")  # Turn off axes
 
     # Convert plot to image
     canvas.draw()
@@ -165,15 +186,19 @@ for i in range(frame_count):
 
     # Calculate index of the signal to display up to the current frame
     signal_idx = int((len(dt_pressure_data) * i) / frame_count)
-    signal_idx_cyl = int((len(circle_data) * i) / frame_count)
+    if circleOn:
+        signal_idx_cyl = int((len(circle_data) * i) / frame_count)
+    else:
+        signal_idx_cyl = None
     signal_idx_exp = int((len(pressure_data) * i) / frame_count)
 
     # Get the plot image and resize it
     plot_image = get_plot_as_image(signal_idx, signal_idx_exp, signal_idx_cyl)
-    plot_image_resized = cv2.resize(plot_image, (frame_width, frame_height//4))
+    plot_image_resized = cv2.resize(plot_image, (frame_width, frame_height//2))
 
     # Overlay the plot on the bottom quarter of the video frame
-    frame[(3*frame_height//4):, :, :] = plot_image_resized
+    frame[:(frame_height//2), :, :] = frame[(frame_height//4):(3*frame_height//4), :, :]
+    frame[(frame_height//2):, :, :] = plot_image_resized
 
     # Write the updated frame to the output video
     out.write(frame)
