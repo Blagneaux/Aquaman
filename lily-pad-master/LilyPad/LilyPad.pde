@@ -522,7 +522,9 @@ void draw(){
     pressureDataList.add(pressureData);
     numTimeStep++;
 
-    saveFrame("saved/frame-####.png");
+    if (automated == false) {
+      saveFrame("saved/frame-####.png");
+    }
 
   //  saveFrame("saved/frame-####.png");
   } else {

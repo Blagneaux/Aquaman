@@ -49,7 +49,7 @@ def flow_reconstruction(signals):
 
 Correlations = []
 
-path = 'E:/simuChina/cartesianBDD_FullPressureMap'
+path = 'D:/simuChina/cartesianBDD_FullPressureMap'
 file = "FullMap.csv"
 folder = sorted(os.listdir(path), key=lambda x: int(re.search(r'\d+', x).group()) if re.search(r'\d+', x) else float('inf'))
 plot_reconstruction = False
@@ -100,4 +100,6 @@ plt.grid(False)
 plt.show()
 
 print("Mean maximum cross-correlation between cylinder simulations: ", np.mean(correlation_array))
+print("RMS maximum cross-correlation between simulation and experiments: ",np.sqrt(np.mean(correlation_array-np.mean(correlation_array))))
+
 np.save("E:/crop_nadia/auto_cross-correlation_cylinder.npy", correlation_array)

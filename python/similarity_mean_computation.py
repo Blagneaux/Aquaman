@@ -5,10 +5,10 @@ import os
 import re
 
 
-path_mid = "D:/crop_nadia/matchingData"
+path_mid = "D:/crop_nadia/matchingData_2s_window"
 path_left = "D:/crop_nadia/matchingData_minus3grid"
 path_right = "D:/crop_nadia/matchingData_plus3grid"
-path_circle = "D:/crop_nadia/matchingData_circle"
+path_circle = "D:/crop_nadia/matchingData_circle_2s_window"
 paths = [path_mid, path_circle]#, path_left, path_right]
 forbiden = [[1,7], [1,11], [2,3], [6,10], [9,5], [9,6], [9,16], [11,3], [17,15], [17,16], [18,7], [18,17], [18,20], [25,0], [25,2], [31,1], [31,3], [31,5]]
 # forbiden = []

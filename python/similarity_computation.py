@@ -36,7 +36,7 @@ channels = ["S1", "S2", "S4"]
 show = True
 isCirle = False
 # file_numbers = [1,2,3,6,7,8,9,10,11,14,15,16,17,18,22,23,24,25,26,27,28,29,30,31,32,33,35,40]
-file_numbers = [28]
+file_numbers = [40]
 for file_number in file_numbers:
     print("______________________________________________________________________________")
     print(file_number)
@@ -100,7 +100,7 @@ for file_number in file_numbers:
 
                         speed = speed * 0.5145 / 0.4 * 4 # conversion from speed in px/s@25fps to m/s
 
-                        comparison_window_start = 0.1
+                        comparison_window_start = 1
                         comparison_window_end = 1
 
                         if starting_frame != 0 and ending_frame != 0:
@@ -320,8 +320,8 @@ for file_number in file_numbers:
     print("Clean data:", clean_data_df)
     if clean_data_df is not None:
         if not isCirle:
-            clean_data_df.to_csv("D:/crop_nadia/matchingData/"+str(file_number)+".csv")
+            clean_data_df.to_csv("D:/crop_nadia/matchingData_0.5s_window/"+str(file_number)+".csv")
         else:
-            clean_data_df.to_csv("D:/crop_nadia/matchingData_circle/circle_"+str(file_number)+".csv")
+            clean_data_df.to_csv("D:/crop_nadia/matchingData_circle_0.5s_window/circle_"+str(file_number)+".csv")
     else:
         print("No matching data")

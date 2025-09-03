@@ -6,6 +6,37 @@ import pandas as pd
 import matplotlib.animation as animation
 from PIL import Image
 import io
+from scipy.signal import butter, filtfilt
+from nptdms import TdmsFile
+from matplotlib.widgets import Button, RadioButtons, CheckButtons
+import os
+import itertools
+import random
+
+
+# Fonction pour créer un filtre passe-bande de second ordre
+def butter_bandpass(lowcut, highcut, fs, order=2):
+    nyquist = 0.5 * fs
+    low = lowcut / nyquist
+    high = highcut / nyquist
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+# Appliquer le filtre passe-bande aux données
+def bandpass_filter(data, lowcut=0.3, highcut=9, fs=500, order=2):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    return filtfilt(b, a, data)
+
+# Applique une normalisation pour comparer les deux signaux avec un meme ordre de grandeur
+def normalisation(data):
+    abs_max_data = np.max(np.abs(data))
+    normalized_data = data / abs_max_data
+    return normalized_data
+
+# Function to convert hh:mm:ss to seconds
+def time_to_seconds(time_str):
+    h, m, s = map(int, time_str.split(':'))
+    return (h * 3600 + m * 60 + s) / 4  # Time video converted to time camera
 
 
 def detect_vortices_filtered(matrix, grid_shape, time_step_index,
@@ -257,61 +288,228 @@ def plot_theorical_pressure(tracks, sensor_pos, matrix, grid_shape):
     - a single sensor location coordinates
     - the pressure map
     """
-    time0 = [snapshot[0] for snapshot in tracks[0]] 
-    full_time = np.linspace(time0[0], time0[-1], time0[-1]-time0[0]+1,dtype=np.int16)
+    pressure_allures = []
+    times = []
+    vorticities = []
+    for track in tracks:
+        time = [start_time + snapshot[0]/100 for snapshot in track] 
+        distance = [np.sqrt((snapshot[1] - sensor_pos[0])**2 + (snapshot[2] - sensor_pos[1])**2) for snapshot in track]
+        vorticity = [snapshot[-1] for snapshot in track]
+        pressure_allure = [-(np.pi*1.5*1.5)*w/(r**2) for w,r in zip(vorticity, distance)]
+        pressure_allures.append(pressure_allure)
+        times.append(time)
+        vorticities.append(vorticity)
+
+    full_pressure = [matrix[i][146*128 + 80] for i in matrix.columns]
+
+    plt.figure()
+    for time, allure in zip(times, pressure_allures):
+        plt.plot(time, allure, 'o', markersize=1)
+    pressure_data = bandpass_filter(full_pressure, highcut=9, fs=100)
+    pressure_data = normalisation(pressure_data)
+    full_time = np.linspace(start_time, end_time, len(full_pressure))
+    plt.plot(full_time, pressure_data, "--", color="0")
+    full_time_exp = np.linspace(start_time, end_time, int(end_time*500)-int(start_time*500))
+    plt.plot(full_time_exp, pressure_exp, color="0")
+    plt.show()
+
+
+def launch_labeling_ui(pressure_exp, haato, haachama, sensor_pos, tracks, fish):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    plt.subplots_adjust(left=0.35, bottom=0.05)
+
+    if sensor_pos[0] == 146:
+        sensor_name = "S2"
+    elif sensor_pos[0] == 198:
+        sensor_name = "S1"
+    elif sensor_pos[0] == 200:
+        sensor_name = "S4"
 
     pressure_allures = []
     times = []
     vorticities = []
     for track in tracks:
-        time = [snapshot[0] for snapshot in track] 
+        time = [start_time + snapshot[0]/100 for snapshot in track] 
         distance = [np.sqrt((snapshot[1] - sensor_pos[0])**2 + (snapshot[2] - sensor_pos[1])**2) for snapshot in track]
-        pressure_allure = [-1/(r**2) for r in distance]
         vorticity = [snapshot[-1] for snapshot in track]
+        pressure_allure = [-(np.pi*1.5*1.5)*w/(r**2) for w,r in zip(vorticity, distance)]
         pressure_allures.append(pressure_allure)
         times.append(time)
         vorticities.append(vorticity)
 
-    full_pressure = []
-    for t in full_time:
-        flat = matrix[:, t]
-        field = flat.reshape(grid_shape)
-        full_pressure.append(field[sensor_pos[0], sensor_pos[1]])
+    n_vortices = len(pressure_allures)
+    lines = []
+    for i, (time, allure) in enumerate(zip(times, pressure_allures)):
+        line, = ax.plot(time, allure, 'o', markersize=1)
+        lines.append(line)
+    full_time_exp = np.linspace(start_time, end_time, int(end_time*500)-int(start_time*500))
+    exp_line, = ax.plot(full_time_exp, pressure_exp, 'k-', label='Experimental')
+    ax.legend(loc='upper right')
+    ax.set_title("During the period where the vortex pressure (color signals) is not null, \n is its general allure also fund in the experimental pressure (black signal) at approximately the same time? \n Label each vortex: Match / No Match / Not Relevant")
 
-    plt.figure()
-    for time, allure in zip(times, pressure_allures):
-        plt.plot(time, allure, 'o', markersize=1)
-    plt.plot(full_time, full_pressure)
+    # CheckButtons for visibility toggles
+    check_ax = plt.axes([0.02, 0.01, 0.10, 0.05 * (n_vortices+1)])
+    labels = [f'Vortex {i}' for i in range(n_vortices)]
+    visibility = [True] * n_vortices
+    check = CheckButtons(check_ax, labels, visibility)
 
-    plt.figure()
-    for time, vorticity in zip(times, vorticities):
-        plt.plot(time, vorticity, 'o', markersize=1)
+    def toggle_visibility(label):
+        index = labels.index(label)
+        lines[index].set_visible(not lines[index].get_visible())
+        plt.draw()
+
+    check.on_clicked(toggle_visibility)
+
+    # RadioButtons for each vortex
+    radio_axes = []
+    radio_buttons = []
+    label_options = ["match", "no match", "not relevant", "semi match"]
+    selected_labels = ["not relevant"] * n_vortices
+
+    for i in range(n_vortices):
+        ax_radio = plt.axes([0.15, 0.01 + i*0.055, 0.15, 0.05])
+        rb = RadioButtons(ax_radio, label_options, active=2)
+        radio_axes.append(ax_radio)
+        radio_buttons.append(rb)
+
+        def make_handler(index):
+            def handler(label):
+                selected_labels[index] = label
+            return handler
+
+        rb.on_clicked(make_handler(i))
+
+    # Confirm button
+    confirm_ax = plt.axes([0.7, 0.01, 0.15, 0.05])
+    confirm_button = Button(confirm_ax, 'Validate Selection')
+
+    def on_confirm(event):
+        output_file = "vortex_labels_test.csv"
+        rows = []
+        for i, label in enumerate(selected_labels):
+            vortex_track = tracks[i]
+            distances = [np.sqrt((snapshot[1] - sensor_pos[0])**2 + (snapshot[2] - sensor_pos[1])**2) for snapshot in vortex_track]
+            vorticities = [abs(snapshot[3]) for snapshot in vortex_track]
+            min_distance = np.min(distances)
+            max_vorticity = np.max(vorticities)
+            row = {
+                "haato": haato,
+                "haachama": haachama,
+                "sensor": sensor_name,
+                "fish": fish,
+                "vortex_id": i,
+                "min_distance": min_distance,
+                "max_vorticity": max_vorticity,
+                "label": label
+            }
+            rows.append(row)
+        df = pd.DataFrame(rows)
+        if os.path.exists(output_file):
+            df.to_csv(output_file, mode='a', header=False, index=False)
+        else:
+            df.to_csv(output_file, mode='w', header=True, index=False)
+        print(f"✅ Logged {len(rows)} vortex labels to {output_file}")
+        plt.close()
+
+    confirm_button.on_clicked(on_confirm)
+
     plt.show()
 
+
+
 n, m = 256, 128
-vorticity_matrix = pd.read_csv("D:/crop_nadia/14/9/vorticity_map.csv", header=None)
-X = pd.read_csv("D:/crop_nadia/14/9/rawYolo9_x.csv", header=None)
-Y = pd.read_csv("D:/crop_nadia/14/9/rawYolo9_y.csv", header=None)
-pressure_matrix = pd.read_csv("D:/crop_nadia/14/9/pressure_map.csv", header=None)
-vorticity_matrix = np.array(vorticity_matrix)
-X = np.array(X)
-Y = np.array(Y)
-pressure_matrix = np.array(pressure_matrix)
 
-# Define sensor positions (x, y) and x-threshold for vertical plane check
-sensors = [(146, 80), (198, 80), (200, 39)]
-x_plane_threshold = 5.0  # in pixels, adjust as needed
+# Parameter selection to pick the experiment to analyze
+# haato = 14
+# haachama = 9
+# sensor = "S2"
+# fish = True
 
-# Track all vortices
-tracks_all = track_vortices_over_time_with_fish(
-    vorticity_matrix, (n, m), Y[:, 20:], X[:, 20:], distance_threshold=2
-)
+sample_possibility = pd.read_csv("D:/crop_nadia/list_for_automation.csv")
+sample_possibility = list(sample_possibility.iloc[:,0:2].itertuples(index=False, name=None))
+sensor_possibility = ["S1", "S2", "S4"]
+fish_possibility = [True, False]
 
-# Filter by passing through sensor's x-plane
-tracks = filter_tracks_near_sensors_closest(tracks_all, sensors, x_threshold=x_plane_threshold)
+all_combinations = list(itertools.product(sample_possibility, sensor_possibility, fish_possibility))
 
-# Animate filtered tracks
-# animate_vortex_tracking_with_fish_mask(vorticity_matrix, (n, m), tracks, tracks_all, X[:, 20:], Y[:, 20:])
+# Load the already labeled combinations
+output_labels = "vortex_labels_test.csv"
 
-# Theorically compute the pressure generated by the vortex on the sensor
-plot_theorical_pressure(tracks[:6], sensors[0], pressure_matrix, (n,m))
+while True:
+    if os.path.exists(output_labels) and os.path.getsize(output_labels) > 0:
+        labeled_df = pd.read_csv(output_labels)
+        used_combinations = set(
+            (row['haato'], row['haachama'], row['sensor'], row['fish']) 
+            for _, row in labeled_df.iterrows()
+        )
+    else:
+        used_combinations = set()
+
+    # Find an unused combination
+    unused_combinations = [((haato, haachama), sensor, fish) 
+                        for ((haato, haachama), sensor, fish) in all_combinations
+                        if (haato, haachama, sensor, fish) not in used_combinations
+                        ]
+    
+    if not unused_combinations:
+        print("✅ All combinations have been labeled.")
+        break
+    
+    selected = random.choice(unused_combinations)
+    (haato, haachama), sensor, fish = selected
+    print(unused_combinations)
+    print("🎯 Remaining labels: ", len(unused_combinations), "/", len(all_combinations))
+
+
+    # Load the corresponding data
+    if fish:
+        vorticity_matrix = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/vorticity_map.csv", header=None)
+        pressure_matrix = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/pressure_map.csv", header=None)
+    else:
+        vorticity_matrix = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/circle_vorticity_map.csv", header=None)
+        # pressure_matrix = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/circle_pressure_map.csv", header=None)
+    X = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/rawYolo{haachama}_x.csv", header=None)
+    Y = pd.read_csv(f"D:/crop_nadia/{haato}/{haachama}/rawYolo{haachama}_y.csv", header=None)
+    vorticity_matrix = np.array(vorticity_matrix)
+    X = np.array(X)
+    Y = np.array(Y)
+
+    tdms_file = TdmsFile.read(f"D:/crop_nadia/TDMS/{haato}.tdms")
+    digital_twin_time = pd.read_csv(f"D:/crop_nadia/timestamps/timestamps{haato}.csv")
+    digital_twin_time["start_time"] = digital_twin_time["start_time"].apply(time_to_seconds)
+    digital_twin_time["end_time"] = digital_twin_time["end_time"].apply(time_to_seconds)
+    start_time = digital_twin_time["start_time"][haachama-1]
+    end_time = digital_twin_time["end_time"][haachama-1]
+    startIndex = digital_twin_time["start_frame"][haachama-1]
+
+    # Extracte the experimental pressure corresponding to the chosen sensor
+    for groupe in tdms_file.groups()[1:]:
+        for canal in groupe.channels():
+            if canal.name == sensor:
+                pressure_exp = bandpass_filter(canal.data, highcut=3)
+                pressure_exp = pressure_exp[int(start_time*500): int(end_time*500)]
+                pressure_exp = normalisation(pressure_exp)
+
+    # Define sensor positions (x, y) and x-threshold for vertical plane check
+    sensors = [(146, 80), (198, 80), (200, 39)]
+    x_plane_threshold = 5.0  # in pixels, adjust as needed
+
+    # Track all vortices
+    tracks_all = track_vortices_over_time_with_fish(
+        vorticity_matrix, (n, m), Y[:, startIndex:], X[:, startIndex:], distance_threshold=2
+    )
+
+    # Filter by passing through sensor's x-plane
+    tracks = filter_tracks_near_sensors_closest(tracks_all, sensors, x_threshold=x_plane_threshold)
+
+    # Animate filtered tracks
+    # animate_vortex_tracking_with_fish_mask(vorticity_matrix, (n, m), tracks, tracks_all, X[:, 20:], Y[:, 20:])
+
+    # Theorically compute the pressure generated by the vortex on the sensor
+    # plot_theorical_pressure(tracks, sensors[0], pressure_matrix, (n,m))
+    if sensor == "S1":
+        launch_labeling_ui(pressure_exp, haato, haachama, sensors[1], tracks, fish)
+    elif sensor == "S2":
+        launch_labeling_ui(pressure_exp, haato, haachama, sensors[0], tracks, fish)
+    elif sensor == "S4":
+        launch_labeling_ui(pressure_exp, haato, haachama, sensors[2], tracks, fish)

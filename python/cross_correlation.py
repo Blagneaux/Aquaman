@@ -28,8 +28,8 @@ def normalisation(data):
 
 Correlations = []
 
-path = "E:/crop_nadia/matchingData"
-path_data = "E:/crop_nadia/"
+path = "D:/crop_nadia/matchingData_2s_window"
+path_data = "D:/crop_nadia/"
 folder = sorted(os.listdir(path), key=lambda x: int(re.search(r'\d+', x).group()) if re.search(r'\d+', x) else float('inf'))
 for file in folder:
     if file.endswith(".csv"):
@@ -152,7 +152,8 @@ for file in folder:
 fig = plt.figure()
 correlation_array = np.array(Correlations)
 upper_triangle = np.triu(correlation_array)
-symetric_array = upper_triangle + upper_triangle.T - np.diag(np.diag(upper_triangle))
+# symetric_array = upper_triangle + upper_triangle.T - np.diag(np.diag(upper_triangle))
+symetric_array = correlation_array
 plt.imshow(symetric_array, cmap='viridis')
 plt.colorbar()
 plt.title("Cross-correlation Matrix between all the experiments and the simulations")
@@ -163,4 +164,5 @@ plt.grid(False)
 plt.show()
 
 print("Mean maximum cross-correlation between simulation and experiments: ",np.mean(symetric_array))
-np.save("E:/crop_nadia/cross-correlation.npy", symetric_array)
+print("RMS maximum cross-correlation between simulation and experiments: ",np.sqrt(np.mean(symetric_array-np.mean(symetric_array))))
+np.save("D:/crop_nadia/cross-correlation.npy", symetric_array)
