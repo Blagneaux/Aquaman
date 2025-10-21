@@ -34,8 +34,8 @@ fish_list = fish_list + fish2_list
 # List of inputs to try
 sketch_path = "C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad"  # Replace with actual path
 
-# Use a pool of 3 threads
-with ThreadPoolExecutor(max_workers=3) as executor:
+# Use a pool of 9 threads
+with ThreadPoolExecutor(max_workers=9) as executor:
     for uTurn, startIndex, haato, haachama, fish in zip(uTurn_list, startIndex_list, haato_list, haachama_list, fish_list):
         executor.submit(run_processing, uTurn, startIndex, haato, haachama, fish, sketch_path)
 

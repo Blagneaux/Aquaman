@@ -8,6 +8,6 @@ from ultralytics import YOLO
 
 # model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/train640_32_500_manuel/weights/best.pt")
 model = YOLO("C:/Users/blagn771/Documents/Aquaman/Aquaman/runs/segment/bestProjet1a.pt")
-path = "E:/crop_nadia/9/1/1.mp4"
+path = "C:/Users/blagn771/Downloads/000000 (2) - Trim.mp4"
 
-model(path, show=True)
+model.predict(path, show=True, save=True)

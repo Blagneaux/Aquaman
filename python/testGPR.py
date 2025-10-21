@@ -4,6 +4,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel, Exponentiation, ExpSineSquared
 
+# -------------------------------------------------------------
+
+# Builds a toy multisource system to demonstrate the process of the 
+# Automatic Scenarization of Multifidelity Representation (ASMR)
+
+# -------------------------------------------------------------
+
+
 # Build toy data in 3D space
 x1 = np.linspace(start=1000, stop=10000, num=40)
 x2 = np.linspace(start=6, stop=60, num=550)

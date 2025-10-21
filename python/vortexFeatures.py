@@ -2,6 +2,21 @@ import pandas as pd
 import os
 import numpy as np
 
+# ----------------------------------------------------------------
+
+# Builds a csv file of features for each meaningful vortex of each sample of each video
+# The features are:
+#     min_distance,
+#     max_vorticity,
+#     duration,
+#     displacement,
+#     avg_speed,
+#     max_speed,
+#     mean_vorticity,
+#     std_vorticity
+
+# ----------------------------------------------------------------
+
 # Load existing labels
 output_labels = "vortex_labels.csv"
 if os.path.exists(output_labels):

@@ -1,6 +1,12 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# ---------------------------------------------
+
+# DEPRECATED
+
+# ---------------------------------------------
+
 # Load the data
 df = pd.read_csv("vortex_labels.csv")
 

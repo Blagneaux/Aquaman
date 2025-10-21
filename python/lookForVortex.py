@@ -6,6 +6,19 @@ import glob
 
 from matplotlib.colors import LinearSegmentedColormap
 
+# ----------------------------------------------------------------------------
+
+
+
+
+# DEPRECATED
+
+
+
+
+
+# ----------------------------------------------------------------------------
+
 colors = ["blue", "white", "red"]  # Blue at the lowest, white in the middle, red at the highest
 n_bins = 25  # More bins will make the transition smoother
 cmap_name = 'custom'
@@ -14,8 +27,8 @@ cmap_name = 'custom'
 cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
 # Setup paths and load sensor data
-path = "D:/crop_nadia/matchingData"
-isCircle = True
+path = "D:/crop_nadia/matchingData_2s_window"
+isCircle = False
 files = glob.glob(path+"/*.csv")
 relative_paths = np.int8([file.split('\\')[-1][:-4] for file in files])
 relative_paths.sort()
@@ -24,6 +37,7 @@ if not isCircle:
     pressure_file = "/pressure_map.csv"
 else:
     pressure_file = "/circle_pressure_map.csv"
+print(relative_paths)
 for video_number in relative_paths:
     info = pd.read_csv(path + f"/{video_number}.csv")
 

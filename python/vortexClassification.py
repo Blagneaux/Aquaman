@@ -7,6 +7,15 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 import shap
 
+# -------------------------------------------------------------/
+
+# Uncomment/comment code snippets to:
+#     train different classifiers
+#     run an hyperparameter optimization
+#     run training analysis with SHAP
+
+# -------------------------------------------------------------/
+
 # Load your labeled vortex features
 df = pd.read_csv("vortex_features.csv")
 

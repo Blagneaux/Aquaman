@@ -2,8 +2,12 @@ import os
 import random
 import shutil
 
+# --------------------------------------------------------------
+
 # Put all the images in all/images and all the labels in all/labels
 # This code will split them on a 80/20 ratio between train and test folder
+
+# --------------------------------------------------------------
 
 # Paths
 folder_all_images = "C:/Users/blagn771/Desktop/test/all/images"

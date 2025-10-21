@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 import os
 import re
 
+# ------------------------------------------------
+
+# Based on the similarity distance metrics computed in similarity_computation.py,
+# this code computes the mean value for each metric and the cumulative mean
+
+# ------------------------------------------------
+
 
 path_mid = "D:/crop_nadia/matchingData_2s_window"
 path_left = "D:/crop_nadia/matchingData_minus3grid"

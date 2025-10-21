@@ -7,6 +7,25 @@ from dtw import *
 import similaritymeasures
 from scipy.interpolate import interp1d
 
+# -----------------------------------------------------------
+
+# Compute Dynamic Time Warping, Frechet Distance and Correlation between experimental
+# pressure and either the HAACHAMA or cylinder fish model, and save these information
+# in a csv file. The code runs for each sample of each video, and the output are:
+#     Time
+#     Speed
+#     Sample
+#     Starting_time
+#     Starting_offset
+#     Ending_time
+#     Ending_offset
+#     Validity
+#     DTW_score
+#     Frechet_dist
+#     Correlation
+
+# -----------------------------------------------------------
+
 
 # Function to convert hh:mm:ss to seconds
 def time_to_seconds(time_str):

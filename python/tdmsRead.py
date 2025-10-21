@@ -8,6 +8,12 @@ from scipy.signal import butter, filtfilt
 from scipy.interpolate import splev, splrep
 import pandas as pd
 import similaritymeasures
+
+# --------------------------------------------------------
+
+# From Corentin Porcon
+
+# --------------------------------------------------------
  
 # Initialiser Tkinter et cacher la fenêtre principale
 root = tk.Tk()
