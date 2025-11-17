@@ -46,28 +46,42 @@ def FindMatches(BaseImage, SecImage):
     for (x, y) in sec_pts:
         cv2.circle(keypointSecImage, (int(x), int(y)), radius=3, color=(0, 255, 0), thickness=2)
 
-    # Plot with matplotlib (convert BGR -> RGB for correct colors)
-    plt.figure(figsize=(12, 6))
-    plt.subplot(1, 2, 1)
-    plt.title("Base image keypoints")
-    plt.imshow(cv2.cvtColor(keypointBaseImage, cv2.COLOR_BGR2RGB))
-    plt.axis("off")
+    # # Plot with matplotlib (convert BGR -> RGB for correct colors)
+    # plt.figure(figsize=(12, 6))
+    # plt.subplot(1, 2, 1)
+    # plt.title("Base image keypoints")
+    # plt.imshow(cv2.cvtColor(keypointBaseImage, cv2.COLOR_BGR2RGB))
+    # plt.axis("off")
 
-    plt.subplot(1, 2, 2)
-    plt.title("Secondary image keypoints")
-    plt.imshow(cv2.cvtColor(keypointSecImage, cv2.COLOR_BGR2RGB))
-    plt.axis("off")
+    # plt.subplot(1, 2, 2)
+    # plt.title("Secondary image keypoints")
+    # plt.imshow(cv2.cvtColor(keypointSecImage, cv2.COLOR_BGR2RGB))
+    # plt.axis("off")
 
-    plt.show()
+    # plt.show()
 
     return GoodMatches, BaseImage_kp, SecImage_kp
 
 
 
-def FindHomography(Matches, BaseImage_kp, SecImage_kp):
+def FindHomography(Matches, BaseImage_kp, SecImage_kp, output_path):
     # If less than 4 matches found, exit the code.
     if len(Matches) < 4:
-        print("\nNot enough matches found between the images.\n")
+        print("\nNot enough matches found between the images. Using another experiment for the homography.\n")
+        # if output_path.split('.')[-1] == 'webm':
+        #     TopVideo = "E:/XP-CAMBRIDGE/VIDEO_1/t1_20251013_090102.224902806/000000.webm"
+        #     BotVideo = "E:/XP-CAMBRIDGE/VIDEO_2/t1_20251013_090102.224902807/000000.webm"
+        # else:
+        #     TopVideo = "E:/XP-CAMBRIDGE/VIDEO_1/t1_20251013_090102.224902806/000000.mp4"
+        #     BotVideo = "E:/XP-CAMBRIDGE/VIDEO_2/t1_20251013_090102.224902807/000000.mp4"
+        # BaseImage, fps_top = read_first_frame(TopVideo)
+        # SecImage, fps_bot = read_first_frame(BotVideo)
+        # newMatches, newBaseImage_kp, newSecImage_kp = FindMatches(BaseImage, SecImage)
+        # newHomographyMatrix, newStatus = FindHomography(newMatches, newBaseImage_kp, newSecImage_kp, output_path)
+
+        # print("homography", newHomographyMatrix)
+
+        # return newHomographyMatrix, newStatus
         exit(0)
 
     # Storing coordinates of points corresponding to the matches found in both the images
@@ -153,22 +167,31 @@ def StitchImages(TopVideo, BotVideo, output_path, auto):
 
     # Your fixed correspondence points:
     # (TOP image points first)
-    top_pts = np.float32([
+    top_pts_mp4 = np.float32([
         (304, 942), (1704, 938), (308, 1142), (1704, 1139)
+    ])
+    top_pts_webm = np.float32([
+        (76, 235), (426, 235), (76, 285), (426, 285)
     ])
 
     # (BOTTOM image points second)
-    bottom_pts = np.float32([
-        (308, 130), (1692, 117), (310, 325), (1694, 314)
+    bottom_pts_mp4 = np.float32([
+        (310, 130), (1694, 117), (312, 325), (1696, 314)
+    ])
+    bottom_pts_webm = np.float32([
+        (77, 32), (423, 31), (77, 81), (423, 80)
     ])
     
     # Finding homography matrix.
     if auto:
         # Finding matches between the 2 images and their keypoints AUTOMATICALLY
         Matches, BaseImage_kp, SecImage_kp = FindMatches(BaseImage, SecImage)
-        HomographyMatrix, Status = FindHomography(Matches, BaseImage_kp, SecImage_kp)
+        HomographyMatrix, Status = FindHomography(Matches, BaseImage_kp, SecImage_kp, output_path)
     else:
-        HomographyMatrix, Status = cv2.findHomography(bottom_pts, top_pts, cv2.RANSAC, 4.0)
+        if output_path.split('.')[-1] == 'webm':
+            HomographyMatrix, Status = cv2.findHomography(bottom_pts_webm, top_pts_webm, cv2.RANSAC, 4.0) 
+        else:
+            HomographyMatrix, Status = cv2.findHomography(bottom_pts_mp4, top_pts_mp4, cv2.RANSAC, 4.0) 
     
     # Finding size of new frame of stitched images and updating the homography matrix 
     NewFrameSize, Correction, HomographyMatrix = GetNewFrameSizeAndMatrix(HomographyMatrix, SecImage.shape[:2], BaseImage.shape[:2])
@@ -178,14 +201,20 @@ def StitchImages(TopVideo, BotVideo, output_path, auto):
     capB = cv2.VideoCapture(BotVideo)
 
     # Output writer
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    if output_path.split('.')[-1] == 'webm':
+        fourcc = cv2.VideoWriter_fourcc(*"VP80")
+    else:
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(output_path, fourcc, fps, (NewFrameSize[1], NewFrameSize[0]))
 
     print("Stitching, please wait...")
 
-    while True:
+    frame_max = 0
+
+    while True and frame_max < 10:
         okA, frameA = capA.read()
-        okB, frameB = capB.read()
+        okB, frameB = capB.read() 
+        frame_max += 1
         if not (okA and okB):
             break
 
@@ -203,7 +232,7 @@ def StitchImages(TopVideo, BotVideo, output_path, auto):
 
 
 if __name__ == "__main__":
-    auto = True # Auto detection seems to give better results...
+    auto = False # Auto detection seems to give better results for mp4 when it does work... but when it doesn't...
     full_dataset = True
 
     if not full_dataset:
@@ -224,11 +253,22 @@ if __name__ == "__main__":
         
         for exp in exp_list:
             print(exp)
+            print("mp4")
             top_video_path = os.path.join(main_folder, video1_folder, exp) + ".224902806/000000.mp4"
             bottom_video_path = os.path.join(main_folder, video2_folder, exp) + ".224902807/000000.mp4"
             output_path = os.path.join(main_folder, "stitched_mp4", exp) + ".mp4"
 
             # Calling function for stitching images.
             StitchedImage = StitchImages(top_video_path, bottom_video_path, output_path, auto)
+
+        for exp in exp_list:
+            print(exp)
+            print("webm")
+            top_video_path = os.path.join(main_folder, video1_folder, exp) + ".224902806/000000.webm"
+            bottom_video_path = os.path.join(main_folder, video2_folder, exp) + ".224902807/000000.webm"
+            output_path = os.path.join(main_folder, "stitched_webm", exp) + ".webm"
+
+            # Calling function for stitching images.
+            StitchedImage = StitchImages(top_video_path, bottom_video_path, output_path, False)
 
     
