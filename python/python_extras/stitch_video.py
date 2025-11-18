@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import os
+from multiprocessing import Pool, cpu_count
 
 # original code: https://kediarahul.medium.com/panorama-stitching-stitching-two-images-using-opencv-python-c-3702e4993d8
 
@@ -218,6 +219,14 @@ def StitchImages(TopVideo, BotVideo, output_path, auto):
 
     print(f"\n✅ Done! Output saved to:\n{output_path}")
 
+def run_job(args):
+    top_video_path, bottom_video_path, output_path, auto = args
+    try:
+        print(f"Processing:\n  {top_video_path}\n  {bottom_video_path}\n  -> {output_path}")
+        StitchImages(top_video_path, bottom_video_path, output_path, auto)
+    except Exception as e:
+        print(f"❌ Error processing {output_path}: {e}")
+
 
 if __name__ == "__main__":
     auto = False # Auto detection seems to give better results for mp4 when it does work... but when it doesn't...
@@ -239,24 +248,26 @@ if __name__ == "__main__":
         exp_list = os.listdir(os.path.join(main_folder, video1_folder))
         exp_list = [s.split('.')[0] for s in exp_list]
         
+        jobs = []
+
+        # MP4 jobs
         for exp in exp_list:
-            print(exp)
-            print("mp4")
+            print("Queueing mp4:", exp)
             top_video_path = os.path.join(main_folder, video1_folder, exp) + ".224902806/000000.mp4"
             bottom_video_path = os.path.join(main_folder, video2_folder, exp) + ".224902807/000000.mp4"
             output_path = os.path.join(main_folder, "stitched_mp4", exp) + ".mp4"
+            jobs.append((top_video_path, bottom_video_path, output_path, auto))
 
-            # Calling function for stitching images.
-            StitchedImage = StitchImages(top_video_path, bottom_video_path, output_path, auto)
-
+        # WEBM jobs
         for exp in exp_list:
-            print(exp)
-            print("webm")
+            print("Queueing webm:", exp)
             top_video_path = os.path.join(main_folder, video1_folder, exp) + ".224902806/000000.webm"
             bottom_video_path = os.path.join(main_folder, video2_folder, exp) + ".224902807/000000.webm"
             output_path = os.path.join(main_folder, "stitched_webm", exp) + ".webm"
+            jobs.append((top_video_path, bottom_video_path, output_path, False))
 
-            # Calling function for stitching images.
-            StitchedImage = StitchImages(top_video_path, bottom_video_path, output_path, False)
+        # Choose how many processes you want (often 2–4 is plenty for video IO)
+        n_procs = min(cpu_count(), 4)
 
-    
+        with Pool(processes=n_procs) as pool:
+            pool.map(run_job, jobs)
