@@ -3,6 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
+# original code: https://kediarahul.medium.com/panorama-stitching-stitching-two-images-using-opencv-python-c-3702e4993d8
+
 # Read first frames (to determine sizes and fps)
 def read_first_frame(path):
     cap = cv2.VideoCapture(path)
@@ -68,20 +70,6 @@ def FindHomography(Matches, BaseImage_kp, SecImage_kp, output_path):
     # If less than 4 matches found, exit the code.
     if len(Matches) < 4:
         print("\nNot enough matches found between the images. Using another experiment for the homography.\n")
-        # if output_path.split('.')[-1] == 'webm':
-        #     TopVideo = "E:/XP-CAMBRIDGE/VIDEO_1/t1_20251013_090102.224902806/000000.webm"
-        #     BotVideo = "E:/XP-CAMBRIDGE/VIDEO_2/t1_20251013_090102.224902807/000000.webm"
-        # else:
-        #     TopVideo = "E:/XP-CAMBRIDGE/VIDEO_1/t1_20251013_090102.224902806/000000.mp4"
-        #     BotVideo = "E:/XP-CAMBRIDGE/VIDEO_2/t1_20251013_090102.224902807/000000.mp4"
-        # BaseImage, fps_top = read_first_frame(TopVideo)
-        # SecImage, fps_bot = read_first_frame(BotVideo)
-        # newMatches, newBaseImage_kp, newSecImage_kp = FindMatches(BaseImage, SecImage)
-        # newHomographyMatrix, newStatus = FindHomography(newMatches, newBaseImage_kp, newSecImage_kp, output_path)
-
-        # print("homography", newHomographyMatrix)
-
-        # return newHomographyMatrix, newStatus
         exit(0)
 
     # Storing coordinates of points corresponding to the matches found in both the images
