@@ -365,8 +365,8 @@ def predict(model=model, cap=cap):
 def debug():
 
     fig, ax = plt.subplots()
-    X_data = pd.read_csv("x.csv", header=None)
-    Y_data = pd.read_csv("y.csv", header=None)
+    X_data = pd.read_csv("C:/Users/blagn771/Downloads/Poisson_1_x.csv", header=None)
+    Y_data = pd.read_csv("C:/Users/blagn771/Downloads/Poisson_1_y.csv", header=None)
 
     for i in range(len(X_data.columns)):
         ax.clear()
@@ -376,7 +376,7 @@ def debug():
         ax.plot(x,y,"-o")
         ax.plot(x[0],y[0], "ro")
         ax.plot(x[50],y[50], "go")
-        plt.pause(1)
+        plt.pause(0.1)
 
 def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
     # h, dt and nu are the non-dimensioning parameters from Lylipad
@@ -453,6 +453,6 @@ def fish_scan(h = 0.004, dt = 0.69, nu = 0.00095, f_ac = 100):
 
 
 if __name__ == "__main__":
-    predict(model, cap)
-    # debug()
+    # predictmodel, cap)
+    debug()
     # fish_scan()

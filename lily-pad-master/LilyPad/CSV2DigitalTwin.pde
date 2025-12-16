@@ -27,17 +27,6 @@ class CSV2DigitalTwin extends NACA {
         super(x0+0.25*(int)pow(2,6)/3, y0, (int)pow(2,6)/3, 0.2, m / 2, window);
         orig = new NACA(x0+0.25*(int)pow(2,6)/3,y0,(int)pow(2,6)/3,0.2,m/2,window);
 
-        // For test purpose only ----------------------------------------------------------------------------------
-        // xc = x_init - 0.25*c;
-        // k = TWO_PI/c;
-        // omega = 1.2*k;
-        // T = TWO_PI/omega;
-        // float s = 0;
-        // for(float ai: a) s+=ai;
-        // if(s==0) {s=1; a[0]=1;}
-        // for(int i=0; i<a.length; i++) a[i] *= 0.25*T/s;
-        // --------------------------------------------------------------------------------------------------------
-
         // Load the coordinates
         xTable = loadTable(xFilePath);
         yTable = loadTable(yFilePath);
@@ -109,7 +98,9 @@ class CSV2DigitalTwin extends NACA {
             coords.get(k).x = positionsList.get(0)[k].x;
             coords.get(k).y = positionsList.get(0)[k].y;
         }
+        
         end(true, true);
+
         PVector mn = positionsList.get(0)[0].copy(), mx = positionsList.get(0)[0].copy();
         for (int k=0; k<numColumns; k++) {
             for (int i=0; i<numRows; i++) {
@@ -119,22 +110,6 @@ class CSV2DigitalTwin extends NACA {
                 mx.y = max(mx.y, positionsList.get(k)[i].y);
             }
         }
-        // // box.coords.get(0).x = x0_dep + mn.x;
-        // box.coords.get(0).y = y0_dep + mn.y;
-        // // box.coords.get(1).x = x0_dep + mn.x;
-        // box.coords.get(1).y = y0_dep + mx.y;
-        // box.coords.get(2).x = x0_dep + mx.x;
-        // box.coords.get(2).y = y0_dep + mx.y;
-        // box.coords.get(3).x = x0_dep + mx.x;
-        // box.coords.get(3).y = y0_dep + mn.y;
-        // box.coords.get(0).x = 1;
-        // box.coords.get(0).y = 39;
-        // box.coords.get(1).x = 510;
-        // box.coords.get(1).y = 39;
-        // box.coords.get(2).x = 510;
-        // box.coords.get(2).y = 127-39;
-        // box.coords.get(3).x = 1;
-        // box.coords.get(3).y = 127-39;
     }
 
     CSV2DigitalTwin(float x0, float y0, int m, String xFilePath, String yFilePath, String yFilteredFilePath, Window window) {
@@ -178,6 +153,34 @@ class CSV2DigitalTwin extends NACA {
         return isUTurn;
     }
 
+    void updateBoxFromCoordsXY(float padX, float padY) {
+        if (box == null || box.coords.size() < 4) return;
+
+        float mnx =  1e10, mxx = -1e10;
+        float mny =  1e10, mxy = -1e10;
+
+        for (PVector p : coords) {
+            mnx = min(mnx, p.x);
+            mxx = max(mxx, p.x);
+            mny = min(mny, p.y);
+            mxy = max(mxy, p.y);
+        }
+
+        float x0 = mnx - padX;
+        float x1 = mxx + padX;
+        float y0 = mny - padY;
+        float y1 = mxy + padY;
+
+        // Rectangle CCW
+        box.coords.get(0).set(x0, y0);
+        box.coords.get(1).set(x0, y1-3);
+        box.coords.get(2).set(x1-3, y1-3);
+        box.coords.get(3).set(x1-3, y0);
+
+        box.getOrth();
+        box.convex = true;
+        }
+
 
     // float distance(float x, float y) {
     //     return orig.distance(x, y-h(x));
@@ -187,7 +190,7 @@ class CSV2DigitalTwin extends NACA {
     float dis;
     if (n>4) { // distance to bounding box
       dis = box.distance(x, y);
-      if (dis>3) return dis;
+      if (dis>=3) return dis;
     }
     
     if(convex){ // distance to convex body
@@ -226,28 +229,26 @@ class CSV2DigitalTwin extends NACA {
 
     void rotate(float dphi) {} // no rotation
 
-    void update( float time) { // update 'time' and coords
-
-        // Calculate the index based on currentTime
+    void update(float time) {
         int index = (int)(time / 0.686778 - 1);
+        index = max(0, min(index, numColumns - 1));
         this.index = index;
         this.time = time;
 
-        if (index < numColumns) {
-            for (int i=0; i<numRows; i++) coords.set(i,orig.coords.get(i).copy());
-            box.translate(-positionsList.get(index)[0].x + positionsList.get(index+1)[0].x, 0);            
-            for (int k=0; k<numRows; k++) {
-                coords.get(k).x = x0_dep + positionsList.get(index)[k].x;
-                coords.get(k).y = y0_dep + positionsList.get(index)[k].y;
-            }
-            // Update currentTime
-            currentTime += 1;
-            if (currentTime > endTime) {
-                currentTime = startTime;
-            }
+        // Restore base geometry then overwrite with CSV pose
+        for (int i = 0; i < numRows; i++) coords.set(i, orig.coords.get(i).copy());
+
+        for (int k = 0; k < numRows; k++) {
+            coords.get(k).x = x0_dep + positionsList.get(index)[k].x;
+            coords.get(k).y = y0_dep + positionsList.get(index)[k].y;
         }
+
+        // Adaptive bbox in BOTH X and Y (tune pads)
+        updateBoxFromCoordsXY(0, 1);
+
         getOrth();
-    }
+        }
+
 
     boolean unsteady() {return true;}
 

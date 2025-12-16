@@ -319,15 +319,15 @@ float[] a={0,.2,-.1};
 float pas = 0.686778;
 float mu = 0.00095;
 
-int startIndex;
+int startIndex=0;
 int Uturn;
-int haato;
-int haachama;
+int haato=1;
+int haachama=2;
 
-Boolean fish;
+Boolean fish=true;
 
 Boolean pressure = false;
-Boolean automated = true;
+Boolean automated = false;
 
 CSV2DigitalTwin body;
 CSV2CircleTwin circle_body;
@@ -378,9 +378,9 @@ void setup(){
     }
   }
   
-  xFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_x.csv";
-  yFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y.csv";
-  yDotFile = "D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/rawYolo"+str(haachama)+"_y_dot.csv";
+  xFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/x.csv";
+  yFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/y.csv";
+  yDotFile = "C:/Users/blagn771/Downloads/y_dot_lowpass_30Hz_fs100.csv";
   
   spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
 
@@ -420,22 +420,22 @@ void setup(){
 
 
   if (fish) {
-    dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
+    //dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
   };
   if (fish) {
     if (pressure) {
-      output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
     }
     else {
-      output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
     }
   }
   else {
     if (pressure) {
-      output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
     }
     else {
-      output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
     }
   }
 }
@@ -445,28 +445,28 @@ void draw(){
     time += flow.dt;
     // Check if the nose changes direction (U-turn)
     //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
-    if (fish && body.isUTurn() && Uturn == 0) {
-        println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
+    //if (fish && body.isUTurn() && Uturn == 0) {
+    //    println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
 
-        // Replace fish with a new instance
-        CSV2DigitalTwin newBody = new CSV2DigitalTwin(
-            body.coords.get(0).x, 
-            body.coords.get(0).y, 
-            body.coords.size(), 
-            xFile, 
-            yFile, 
-            yDotFile, 
-            new Window(numCols,numRows),
-            (int)(flow.t / pas -1) + startIndex
-        );
+    //    // Replace fish with a new instance
+    //    CSV2DigitalTwin newBody = new CSV2DigitalTwin(
+    //        body.coords.get(0).x, 
+    //        body.coords.get(0).y, 
+    //        body.coords.size(), 
+    //        xFile, 
+    //        yFile, 
+    //        yDotFile, 
+    //        new Window(numCols,numRows),
+    //        (int)(flow.t / pas -1) + startIndex
+    //    );
 
-        // Replace the old fish instance
-        body = newBody;
+    //    // Replace the old fish instance
+    //    body = newBody;
         
-        // Rebuild the BodyUnion with the new fish
-        twin = new BodyUnion(body, wall);
-        time = flow.dt;
-    }
+    //    // Rebuild the BodyUnion with the new fish
+    //    twin = new BodyUnion(body, wall);
+    //    time = flow.dt;
+    //}
 
     // Regular update of the fish and fluid
     if (fish) {
@@ -489,20 +489,20 @@ void draw(){
 
     // Save the x and y values for every points of the body at each time step
     // This is used to create the labels for YOLO quick training
-    if (fish) {
-      int size = body.coords.size();
-      //dat.output.print(0 + " ");
-      for(int i=0; i<size; i++){
-        dat.output.print("Point numero " + i + " : ");
-        dat.output.print("x: ");
-        dat.output.print(body.coords.get(i).x +" ");
-        dat.output.print("y: ");
-        dat.output.print(body.coords.get(i).y +" ");
-        dat.output.print("p: ");
-        dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
-      }
-      dat.output.println("");
-    };
+    //if (fish) {
+    //  int size = body.coords.size();
+    //  //dat.output.print(0 + " ");
+    //  for(int i=0; i<size; i++){
+    //    dat.output.print("Point numero " + i + " : ");
+    //    dat.output.print("x: ");
+    //    dat.output.print(body.coords.get(i).x +" ");
+    //    dat.output.print("y: ");
+    //    dat.output.print(body.coords.get(i).y +" ");
+    //    dat.output.print("p: ");
+    //    dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+    //  }
+    //  dat.output.println("");
+    //};
 
     // Store pressure data for every point in the window
     float[] pressureData = new float[numCols * numRows];

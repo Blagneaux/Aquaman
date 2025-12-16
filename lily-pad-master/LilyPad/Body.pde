@@ -158,7 +158,7 @@ class Body extends AbstractBody{
     display(C, window);
   }
   void display( color C, Window window ) { // note: can display while adding
-      //  if(n>4) box.display(#FFCC00);
+       if(n>4) box.display(#FFCC00);
     fill(C);
     //noStroke();
     stroke(bodyOutline);
@@ -171,7 +171,7 @@ class Body extends AbstractBody{
     displayVector(vectorColor, window, V, "Force", true);
   }
   void displayVector(color C, Window window, PVector V, String title, boolean legendOn) { // note: can display while adding
-    //    if(n>4) box.display(#FFCC00);
+       if(n>4) box.display(#FFCC00);
     float Vscale=10;
     float circradius=6; //pix
     
