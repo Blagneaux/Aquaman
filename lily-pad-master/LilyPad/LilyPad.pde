@@ -328,12 +328,6 @@ Boolean fish=true;
 
 Boolean pressure = false;
 Boolean automated = false;
-Boolean velocityDriven = true;                   // Use precomputed velocity maps instead of a moving body
-Boolean demoBodyForcing = false;                 // If true, also include the CSV body forcing while injecting velocities
-
-String vxFile = "../../velocity_x_map.csv";
-String vyFile = "../../velocity_y_map.csv";
-String velocityPressureOut = "../../pressure_from_velocity_map.csv";
 
 CSV2DigitalTwin body;
 CSV2CircleTwin circle_body;
@@ -344,19 +338,18 @@ String yDotFile;
 
 String spine;
 
+//String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
+//String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
+//String yDotFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv";
+
 Table xTable; // Variable to store x-coordinate data
 Table yTable; // Variable to store y-coordinate data
 Table spineTable; // Variable to store xy1 xy2 xy3 ... for the spine coordinates
-Table vxTable;
-Table vyTable;
 
 ArrayList<float[]> pressureDataList = new ArrayList<>();
 int numTimeStep = 0;
 int numRows = (int)pow(2,7);                                   // Number of rows
 int numCols = (int)pow(2,8);                                 // Number of columns
-int numVelocityFrames = 0;
-int velocityCellCount = 0;
-int velocityFrameIndex = 0;
 
 
 void setup(){
@@ -384,122 +377,71 @@ void setup(){
       println("Error parsing command-line arguments: " + e.getMessage());
     }
   }
-
-  if (velocityDriven) {
-    pressure = true;  // we only care about pressure when injecting a velocity map
-  }
   
-  if (!velocityDriven || demoBodyForcing) {
-    //String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
-    //String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
-    //String yDotFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv";
-
-    // xFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/x.csv";
-    // yFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/y.csv";
-    // yDotFile = "C:/Users/blagn771/Downloads/y_dot_lowpass_30Hz_fs100.csv";
-    // spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
-    if (demoBodyForcing && velocityDriven) {
-      xFile = "../../x.csv";
-      yFile = "../../y.csv";
-      yDotFile = "../../y_dot.csv";
-    }
-  }
+  xFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/x.csv";
+  yFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/y.csv";
+  yDotFile = "C:/Users/blagn771/Downloads/y_dot_lowpass_30Hz_fs100.csv";
+  
+  spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
 
   int n=(int)pow(2,8);
   int m=(int)pow(2,7);
   size(1000,600);
   Window view = new Window(n,m);
 
-  if (!velocityDriven || demoBodyForcing) {
-    // Load x-coordinate data from CSV file
-    xTable = loadTable(xFile, "header");
-    // Load y-coordinate data from CSV file
-    yTable = loadTable(yFile, "header");
-    // Load x and y coordinates data from CSV file
-    //spineTable = loadTable(spine, "header");
-  }
-
-  if (velocityDriven) {
-    vxTable = loadTable(vxFile, "csv");
-    vyTable = loadTable(vyFile, "csv");
-    numVelocityFrames = min(vxTable.getColumnCount(), vyTable.getColumnCount());
-    velocityCellCount = vxTable.getRowCount();
-    if (vxTable.getRowCount() != vyTable.getRowCount()) {
-      println("Warning: velocity_x_map and velocity_y_map have different sizes.");
-    }
-    if (velocityCellCount != numRows * numCols) {
-      println("Warning: velocity map size (" + velocityCellCount + ") does not match grid (" + numCols * numRows + ").");
-    }
-  }
+  // Load x-coordinate data from CSV file
+  xTable = loadTable(xFile, "header");
+  // Load y-coordinate data from CSV file
+  yTable = loadTable(yFile, "header");
+  // Load x and y coordinates data from CSV file
+  spineTable = loadTable(spine, "header");
 
   upWall = new TestLine(0, 36.5, 256, view);                 // 37 because 39 grid is the gap between the top and the begining of the tank, but it is 2 grid thick
-  if (!velocityDriven && fish) {
+  if (fish) {
     body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
-  } else if (!velocityDriven) {
+  } else {
     circle_body = new CSV2CircleTwin(3.5, spineTable, view, startIndex);
   };
-  if (velocityDriven && demoBodyForcing) {
-    body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
-  }
   bottomWall = new TestLine(0, 37+43.5, 256, view);
   wall = new BodyUnion(upWall, bottomWall);
-  if (velocityDriven) {
-    if (demoBodyForcing) {
-      twin = new BodyUnion(body, wall);
-    } else {
-      twin = wall;
-    }
-  } else if (fish) {
+  if (fish) {
     twin = new BodyUnion(body, wall);
   } else {
     twin = new BodyUnion(circle_body, wall);
-  }
+  };
   flow = new BDIM(n,m,pas,twin,mu,true, 0);
   //
   //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
   //
   flood = new FloodPlot(view);
   flood.range = new Scale(-.5,.5);
-  flood.setLegend(pressure ? "pressure" : "vorticity");
+  flood.setLegend("vorticity");
   flood.setColorMode(1);
 
 
-  if (velocityDriven) {
-    output = createWriter(velocityPressureOut);
-  } else if (fish) {
-      dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
-      if (pressure) output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
-      else output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
-  } else {
-      if (pressure) output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
-      else output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
+  if (fish) {
+    //dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
+  };
+  if (fish) {
+    if (pressure) {
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+    }
+    else {
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
+    }
+  }
+  else {
+    if (pressure) {
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
+    }
+    else {
+      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
+    }
   }
 }
 
 void draw(){
-  if (velocityDriven) {
-    if (velocityFrameIndex < numVelocityFrames) {
-      injectVelocityFrame(velocityFrameIndex);
-      velocityFrameIndex++;
-      time += flow.dt;
-      if (demoBodyForcing && body != null) {
-        body.update(time);
-      }
-      flood.display(pressure ? flow.p : flow.u.curl());
-      upWall.display();
-      bottomWall.display();
-      storeCurrentField();
-      if (automated == false) {
-        // saveFrame("saved/frame-####.png");
-      }
-    } else {
-      dataAdd();
-      exit();
-    }
-    return;
-  }
-
-  if ((int)(flow.t / pas -1) < xTable.getColumnCount() - 2 - startIndex){
+  if ((int)(flow.t / pas -1) < loadTable(xFile, "header").getColumnCount() - 2 - startIndex){
     time += flow.dt;
     // Check if the nose changes direction (U-turn)
     //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
@@ -545,10 +487,43 @@ void draw(){
     upWall.display();
     bottomWall.display();    
 
-    storeCurrentField();
+    // Save the x and y values for every points of the body at each time step
+    // This is used to create the labels for YOLO quick training
+    //if (fish) {
+    //  int size = body.coords.size();
+    //  //dat.output.print(0 + " ");
+    //  for(int i=0; i<size; i++){
+    //    dat.output.print("Point numero " + i + " : ");
+    //    dat.output.print("x: ");
+    //    dat.output.print(body.coords.get(i).x +" ");
+    //    dat.output.print("y: ");
+    //    dat.output.print(body.coords.get(i).y +" ");
+    //    dat.output.print("p: ");
+    //    dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+    //  }
+    //  dat.output.println("");
+    //};
+
+    // Store pressure data for every point in the window
+    float[] pressureData = new float[numCols * numRows];
+    int index = 0;
+    for (int i = 0; i < numCols; i++) {
+      for (int j = 0; j < numRows; j++) {
+        if (pressure) {
+          pressureData[index] = flow.p.extract(i, j);
+        }
+        else {
+          pressureData[index] = flow.u.curl().extract(i,j);
+        }
+        index++;
+      }
+    }
+    // Add the pressure data array to the list for this time step
+    pressureDataList.add(pressureData);
+    numTimeStep++;
 
     if (automated == false) {
-      //saveFrame("saved/frame-####.png");
+      saveFrame("saved/frame-####.png");
     }
 
   //  saveFrame("saved/frame-####.png");
@@ -559,42 +534,7 @@ void draw(){
   }
 }
 
-void injectVelocityFrame(int frameIndex) {
-  int column = constrain(frameIndex, 0, numVelocityFrames-1);
-  int expected = min(velocityCellCount, numRows * numCols);
-  for (int idx = 0; idx < expected; idx++) {
-    int i = idx / numRows;
-    int j = idx % numRows;
-    flow.u.x.a[i+1][j+1] = vxTable.getFloat(idx, column);
-    flow.u.y.a[i+1][j+1] = vyTable.getFloat(idx, column);
-  }
-  flow.u.setBC();
-  // Use the same timestep cadence as the input series
-  flow.dt = pas;
-  // Run the usual BDIM step starting from the injected velocity snapshot
-  flow.update(twin);
-  flow.update2(twin);
-}
-
-void storeCurrentField() {
-  Field snapshot = pressure ? flow.p : flow.u.curl();
-  float[] frameData = new float[numCols * numRows];
-  int index = 0;
-  for (int i = 0; i < numCols; i++) {
-    for (int j = 0; j < numRows; j++) {
-      frameData[index] = snapshot.extract(i, j);
-      index++;
-    }
-  }
-  pressureDataList.add(frameData);
-  numTimeStep++;
-}
-
 void dataAdd() {
-  if (output == null) {
-    println("No output writer defined; skipping dataAdd().");
-    return;
-  }
   // Write the pressure data to the CSV file as a single column
   for (int i = 0; i < numRows * numCols; i++) {
     for (int tStep = 0; tStep < numTimeStep; tStep++) {

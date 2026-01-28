@@ -155,6 +155,17 @@ class BDIM{
     }
     t += dt;
   }
+
+  // Projection-only step for injected velocity fields.
+  // Uses current u as the input state, skips advection/diffusion, and solves for pressure.
+  void projectInjected( AbstractBody body ){
+    if(body.unsteady()){get_coeffs(body);}else{ub.eq(0.);}
+    c.eq(del.times(rhoi.times(dt)));
+    u.setBC();
+    VectorField R = new VectorField(u);
+    updateUP( R, c );
+    t += dt;
+  }
   
   void updateUP( VectorField R, VectorField coeff, VectorField du ){
 /*  Seperate out the pressure from the forcing

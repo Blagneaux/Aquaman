@@ -44,3 +44,114 @@ Tips and gotchas
 - Grid sizes: `numCols = 2^8`, `numRows = 2^7` in the current pipeline; update these if you resize the domain.
 - Absolute paths: replace `D:/...` and `C:/Users/...` with your own before running, otherwise the sketch will fail to load CSVs.
 - Steady state solver: `BDIM.solveSteadyState()` exists for sandboxed baseflow runs (see commented blocks at the top of `LilyPad.pde`).
+
+Pressure-map pipelines (boxed steps)
+------------------------------------
+```
+NORMAL MODE (velocityDriven = false, pressure must be true)
++--------------------------------------------------------------+
+| Setup: load x/y(/y_dot) CSVs via loadTable()                  |
+| (LilyPad.pde)                                                 |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| Build bodies & walls: CSV2DigitalTwin/CSV2CircleTwin +        |
+| TestLine + BodyUnion                                           |
+| (CSV2DigitalTwin.pde, CustomCircle.pde, TestLine.pde,         |
+|  BodyUnion.pde)                                               |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| Create solver: flow = new BDIM(...)                           |
+| (BDIM.pde)                                                    |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| Frame loop: body.update(time) (fish or circle)                |
+| (CSV2DigitalTwin.pde or CustomCircle.pde)                     |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| flow.update(twin)  ->  BDIM projection step                   |
+| (BDIM.pde)                                                    |
+|  - get_coeffs (if unsteady)                                   |
+|    -> get_del -> Body.del -> Body.distance -> OrthoNormal      |
+|    -> get_ub  -> BodyUnion.velocity -> Body.velocity           |
+|    -> get_wn  -> Body.WallNormal / CSV2DigitalTwin.WallNormal  |
+|  - F.AdvDif(u0,dt,nu)                                          |
+|  - updateUP(F,c) -> u.project(...) -> MGsolver -> PoissonMatrix|
+| (VectorField.pde, Field.pde, MG.pde, PoissonMatrix.pde,        |
+|  Body.pde, BodyUnion.pde, OrthoNormal.pde, CSV2DigitalTwin.pde)|
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| flow.update2()  ->  BDIM correction step                        |
+| (BDIM.pde)                                                    |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| storeCurrentField(): snapshot = flow.p                         |
+| Field.extract(i,j) into frameData                              |
+| (LilyPad.pde, Field.pde)                                      |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| dataAdd(): write CSV (cell-major rows, time-major columns)     |
+| (LilyPad.pde)                                                  |
++--------------------------------------------------------------+
+```
+
+```
+INJECTION MODE (velocityDriven = true, pressure forced true)
++--------------------------------------------------------------+
+| Setup: load vx/vy CSVs via loadTable()                         |
+| (LilyPad.pde)                                                  |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| Build walls (+ optional body if demoBodyForcing)               |
+| (TestLine.pde, CSV2DigitalTwin.pde, BodyUnion.pde)             |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| Create solver: flow = new BDIM(...)                            |
+| (BDIM.pde)                                                     |
++--------------------------------------------------------------+
+                         |
+                         v
++------------------------------ DIFF ---------------------------+
+| injectVelocityFrame(frameIndex)                               |
+| - write flow.u.x/y arrays from vxTable/vyTable                |
+| - flow.u.setBC(); flow.dt = pas                               |
+| - flow.update(twin); flow.update2(twin)                       |
+| (LilyPad.pde, Field.pde, BDIM.pde)                            |
++--------------------------------------------------------------+
+                         |
+                         v
++------------------------------ DIFF ---------------------------+
+| Optional body.update(time) if demoBodyForcing                  |
+| (CSV2DigitalTwin.pde)                                          |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| storeCurrentField(): snapshot = flow.p                         |
+| Field.extract(i,j) into frameData                              |
+| (LilyPad.pde, Field.pde)                                      |
++--------------------------------------------------------------+
+                         |
+                         v
++--------------------------------------------------------------+
+| dataAdd(): write CSV                                           |
+| (LilyPad.pde)                                                  |
++--------------------------------------------------------------+
+```
