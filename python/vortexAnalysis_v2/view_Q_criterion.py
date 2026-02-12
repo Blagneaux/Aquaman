@@ -9,8 +9,8 @@ NUM_ROWS = 128  # y-direction
 Q_REFERENCE_PATH = "Q-criterion.csv"
 Q_RECOMPUTED_PATH = "Q_criterion_test_map.csv"
 
-Q_THRESHOLD_REFERENCE = 0.005
-Q_THRESHOLD_RECOMPUTED = 0.005
+Q_THRESHOLD_REFERENCE = 0.002
+Q_THRESHOLD_RECOMPUTED = 0.002
 FRAME_OFFSET_RECOMPUTED = 0  # use recomputed frame (t + offset) against reference frame t
 PAUSE_SECONDS = 0.05
 Q_VMIN = -0.01
