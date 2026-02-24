@@ -1,0 +1,2 @@
+hidden_size,lr,weight_decay,epochs,batch_size,train_acc,val_acc,test_acc,best_val_loss,best_epoch
+4,0.0006673438249659347,0.0004397834489211582,100,16,0.7269230769230769,0.7027027027027027,0.6,0.1831568330526352,30

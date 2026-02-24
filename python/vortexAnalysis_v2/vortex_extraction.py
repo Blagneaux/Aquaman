@@ -1,6 +1,8 @@
 import argparse
 import csv
 import os
+import sys
+from datetime import datetime
 from dataclasses import dataclass
 from math import hypot, pi, sqrt
 from pathlib import Path
@@ -516,7 +518,16 @@ def extract_vortices_from_q(
         print(f"⚠️  Q-criterion map not found, skipping: {q_path}")
         return False
 
-    q_matrix = np.loadtxt(q_path, delimiter=",")
+    q_matrix = np.genfromtxt(q_path, delimiter=",")
+    if q_matrix.size == 0:
+        print(f"⚠️  Q-criterion map is empty, skipping: {q_path}")
+        return False
+    if q_matrix.ndim == 1:
+        q_matrix = q_matrix[:, None]
+    if np.isnan(q_matrix).any():
+        nan_count = int(np.isnan(q_matrix).sum())
+        print(f"⚠️  Q-criterion map contains {nan_count} NaN/empty values; filling with 0.0: {q_path}")
+        q_matrix = np.nan_to_num(q_matrix, nan=0.0)
     n_cells, n_frames = q_matrix.shape
     expected_cells = args.num_cols * args.num_rows
     if n_cells != expected_cells:
@@ -718,6 +729,7 @@ def animate_tracking(
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description="Detect and track vortices from Q-criterion maps.")
+    parser.add_argument("--log-path", type=Path, default=Path("D:/vortex_extraction_circle.log"), help="Log file path")
     parser.add_argument("--batch", action="store_true", help="Process all experiments and snapshots")
     parser.add_argument("--q-path", type=Path, default=repo_root / "Q-criterion.csv", help="Q-criterion CSV path")
     parser.add_argument("--num-cols", type=int, default=256, help="Grid columns (x-direction)")
@@ -757,13 +769,13 @@ def main() -> None:
 
     parser.add_argument("--out-dir", type=Path, default=repo_root / "python/vortexAnalysis_v2/vortex_outputs", help="Output directory")
     parser.add_argument("--out-csv", type=Path, default=None, help="CSV path for time series (optional)")
-    parser.add_argument("--out-name", type=str, default="vortex_tracks.csv", help="Output filename for batch mode")
+    parser.add_argument("--out-name", type=str, default="circle_vortex_tracks.csv", help="Output filename for batch mode")
 
     parser.add_argument("--path-nadia", type=Path, default=Path("D:/crop_nadia"), help="Root path for Nadia dataset")
     parser.add_argument("--path-thomas", type=Path, default=Path("D:/thomas_files"), help="Root path for Thomas dataset")
     parser.add_argument("--path-boai", type=Path, default=Path("D:/boai_files"), help="Root path for Boai dataset")
     parser.add_argument("--path-full", type=Path, default=Path("D:/full_files"), help="Root path for Full dataset")
-    parser.add_argument("--q-filename", type=str, default="Q_criterion_map.csv", help="Q-criterion filename inside snapshot folder")
+    parser.add_argument("--q-filename", type=str, default="circle_Q_criterion_map.csv", help="Q-criterion filename inside snapshot folder")
     parser.add_argument(
         "--experiments",
         type=str,
@@ -778,8 +790,35 @@ def main() -> None:
     parser.add_argument("--anim-dpi", type=int, default=120, help="Animation DPI")
     args = parser.parse_args()
 
+    class TeeStream:
+        def __init__(self, *streams):
+            self.streams = streams
+
+        def write(self, data: str) -> int:
+            for stream in self.streams:
+                stream.write(data)
+                stream.flush()
+            return len(data)
+
+        def flush(self) -> None:
+            for stream in self.streams:
+                stream.flush()
+
+    log_path = args.log_path
+    if log_path.is_dir():
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_path = log_path / f"vortex_extraction_{timestamp}.log"
+    else:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    log_file = log_path.open("w", encoding="utf-8")
+    sys.stdout = TeeStream(sys.__stdout__, log_file)
+    sys.stderr = TeeStream(sys.__stderr__, log_file)
+    print(f"📝 Logging to {log_path}")
+
     if args.batch:
         default_experiments = [1, 2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 40]
+        # default_experiments = [28, 29, 30, 31, 32, 33, 35, 40]
         experiments = parse_experiments(args.experiments, default_experiments)
 
         dataset_roots = [
