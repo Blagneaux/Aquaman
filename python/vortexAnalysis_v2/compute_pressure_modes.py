@@ -1,5 +1,6 @@
 import argparse
 import csv
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -10,6 +11,49 @@ import numpy as np
 class SnapshotSeries:
     values: np.ndarray
     length: int
+
+
+def format_energy_tag(energy: float) -> int:
+    if energy > 1.0:
+        energy_pct = energy
+    else:
+        energy_pct = energy * 100.0
+    energy_pct = max(0.0, min(energy_pct, 100.0))
+    return int(round(energy_pct))
+
+
+def build_modes_filename(dataset: str, energy: float) -> str:
+    return f"pressure_modes_{dataset}_{format_energy_tag(energy)}.npz"
+
+
+def parse_energy_from_name(name: str, dataset: str) -> int | None:
+    match = re.search(rf"pressure_modes_{re.escape(dataset)}_(\\d+)\\.npz", name)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def find_modes_file(modes_dir: Path, dataset: str, energy_target: float | None = None) -> Path | None:
+    if energy_target is not None:
+        tag = format_energy_tag(energy_target)
+        target = modes_dir / f"pressure_modes_{dataset}_{tag}.npz"
+        if target.exists():
+            return target
+
+    candidates = list(modes_dir.glob(f"pressure_modes_{dataset}_*.npz"))
+    tagged: list[tuple[int, Path]] = []
+    for path in candidates:
+        tag = parse_energy_from_name(path.name, dataset)
+        if tag is not None:
+            tagged.append((tag, path))
+    if tagged:
+        tagged.sort()
+        return tagged[-1][1]
+
+    legacy = modes_dir / f"pressure_modes_{dataset}.npz"
+    if legacy.exists():
+        return legacy
+    return None
 
 
 def load_matrix(path: Path) -> np.ndarray:
@@ -561,7 +605,8 @@ def main() -> None:
         if args.plot_energy:
             plot_energy_curve(cumulative_energy, args.energy, k, dataset)
 
-        out_path = out_dir / f"pressure_modes_{dataset}.npz"
+        actual_energy = float(cumulative_energy[k - 1]) if cumulative_energy.size >= k else 0.0
+        out_path = out_dir / build_modes_filename(dataset, args.energy)
         np.savez(
             out_path,
             modes=modes,
@@ -578,7 +623,7 @@ def main() -> None:
 
         print(
             f"✅ {dataset}: {resampled_matrix.shape[1]} snapshots -> "
-            f"{k} modes ({args.energy:.2f} energy) saved to {out_path}"
+            f"{k} modes ({actual_energy:.3f} energy) saved to {out_path}"
         )
 
 

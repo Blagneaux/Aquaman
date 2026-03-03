@@ -21,6 +21,8 @@ from compute_pressure_modes import (
     balance_series,
     extract_series,
     filter_tail_spikes,
+    find_modes_file,
+    format_energy_tag,
     fill_internal_nans_1d,
     load_lengths,
     load_matrix,
@@ -431,6 +433,12 @@ def main() -> None:
         help="Directory containing computed mode npz files",
     )
     parser.add_argument(
+        "--modes-energy",
+        type=float,
+        default=None,
+        help="Energy tag for modes/weights (e.g. 0.99 or 99).",
+    )
+    parser.add_argument(
         "--datasets",
         type=str,
         default="nadia,thomas,boai,full",
@@ -595,14 +603,15 @@ def main() -> None:
         raise RuntimeError("PyTorch is required. Install torch before running this script.")
 
     datasets = [d.strip() for d in args.datasets.split(",") if d.strip()]
+    suffix = f"_{format_energy_tag(args.modes_energy)}" if args.modes_energy is not None else ""
     hidden_sizes = parse_int_list(args.hidden_sizes, [4, 8, 16, 32])
     batch_sizes = parse_int_list(args.batch_sizes, [16, 32, 64])
     epochs_list = parse_int_list(args.epochs_list, [50, 100, 200])
 
     for dataset in datasets:
-        modes_path = args.modes_dir / f"pressure_modes_{dataset}.npz"
-        if not modes_path.exists():
-            print(f"⚠️  Missing modes for {dataset}: {modes_path}")
+        modes_path = find_modes_file(args.modes_dir, dataset, args.modes_energy)
+        if modes_path is None or not modes_path.exists():
+            print(f"⚠️  Missing modes for {dataset} in {args.modes_dir}")
             continue
 
         data = np.load(modes_path)
@@ -758,61 +767,61 @@ def main() -> None:
 
         if args.skip_optuna:
             results = [best_outcome.result]
-        out_path = args.modes_dir / f"classifier_results_{dataset}.csv"
+        out_path = args.modes_dir / f"classifier_results_{dataset}{suffix}.csv"
         if results:
             save_results(out_path, results)
-        summary_path = args.modes_dir / "classifier_results_summary.csv"
+        summary_path = args.modes_dir / f"classifier_results_summary{suffix}.csv"
         append_summary(summary_path, dataset, best_outcome.result)
 
-        if args.plot_best_metrics and best_outcome.history is not None:
-            best_state = best_outcome.best_state
-            if best_state is not None:
-                model = nn.Sequential(
-                    nn.Linear(X_train.shape[1], best_outcome.result.hidden_size),
-                    nn.Linear(best_outcome.result.hidden_size, 1),
-                )
-                model.load_state_dict(best_state)
-                model.eval()
-                with torch.no_grad():
-                    raw_train = model(torch.from_numpy(X_train).float()).squeeze(1)
-                    raw_test = model(torch.from_numpy(X_test).float()).squeeze(1)
-                    if args.loss == "mse":
-                        train_scores = raw_train.numpy()
-                        test_scores = raw_test.numpy()
-                    else:
-                        train_scores = torch.sigmoid(raw_train).numpy()
-                        test_scores = torch.sigmoid(raw_test).numpy()
-                train_pred = (train_scores >= 0.5).astype(np.int64)
-                test_pred = (test_scores >= 0.5).astype(np.int64)
-                f1_train = compute_f1(y_train, train_pred)
-                f1_test = compute_f1(y_test, test_pred)
-                cm = confusion_matrix_binary(y_test, test_pred)
-                plot_learning_and_confusion(
-                    best_outcome.history,
-                    cm,
-                    f1_train,
-                    f1_test,
-                    dataset,
-                    best_outcome.result,
-                    best_outcome.best_epoch,
-                )
+        best_state = best_outcome.best_state
+        if best_state is not None:
+            weights_path = args.modes_dir / f"classifier_best_weights_{dataset}{suffix}.pt"
+            torch.save(
+                {
+                    "state_dict": best_state,
+                    "best_epoch": best_outcome.best_epoch,
+                    "hidden_size": best_outcome.result.hidden_size,
+                    "lr": best_outcome.result.lr,
+                    "weight_decay": best_outcome.result.weight_decay,
+                    "train_acc": best_outcome.result.train_acc,
+                    "val_acc": best_outcome.result.val_acc,
+                    "test_acc": best_outcome.result.test_acc,
+                    "seed": args.seed,
+                },
+                weights_path,
+            )
+            print(f"✅ Saved best weights to {weights_path}")
 
-                weights_path = args.modes_dir / f"classifier_best_weights_{dataset}.pt"
-                torch.save(
-                    {
-                        "state_dict": best_state,
-                        "best_epoch": best_outcome.best_epoch,
-                        "hidden_size": best_outcome.result.hidden_size,
-                        "lr": best_outcome.result.lr,
-                        "weight_decay": best_outcome.result.weight_decay,
-                        "train_acc": best_outcome.result.train_acc,
-                        "val_acc": best_outcome.result.val_acc,
-                        "test_acc": best_outcome.result.test_acc,
-                        "seed": args.seed,
-                    },
-                    weights_path,
-                )
-                print(f"✅ Saved best weights to {weights_path}")
+        if args.plot_best_metrics and best_outcome.history is not None and best_state is not None:
+            model = nn.Sequential(
+                nn.Linear(X_train.shape[1], best_outcome.result.hidden_size),
+                nn.Linear(best_outcome.result.hidden_size, 1),
+            )
+            model.load_state_dict(best_state)
+            model.eval()
+            with torch.no_grad():
+                raw_train = model(torch.from_numpy(X_train).float()).squeeze(1)
+                raw_test = model(torch.from_numpy(X_test).float()).squeeze(1)
+                if args.loss == "mse":
+                    train_scores = raw_train.numpy()
+                    test_scores = raw_test.numpy()
+                else:
+                    train_scores = torch.sigmoid(raw_train).numpy()
+                    test_scores = torch.sigmoid(raw_test).numpy()
+            train_pred = (train_scores >= 0.5).astype(np.int64)
+            test_pred = (test_scores >= 0.5).astype(np.int64)
+            f1_train = compute_f1(y_train, train_pred)
+            f1_test = compute_f1(y_test, test_pred)
+            cm = confusion_matrix_binary(y_test, test_pred)
+            plot_learning_and_confusion(
+                best_outcome.history,
+                cm,
+                f1_train,
+                f1_test,
+                dataset,
+                best_outcome.result,
+                best_outcome.best_epoch,
+            )
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@ from compute_pressure_modes import (
     balance_series,
     extract_series,
     filter_tail_spikes,
+    find_modes_file,
     fill_internal_nans_1d,
     load_lengths,
     load_matrix,
@@ -631,9 +632,9 @@ def main() -> None:
     epochs_list = parse_int_list(args.epochs_list, [50, 100, 200])
 
     for dataset in datasets:
-        modes_path = args.modes_dir / f"pressure_modes_{dataset}.npz"
-        if not modes_path.exists():
-            print(f"⚠️  Missing modes for {dataset}: {modes_path}")
+        modes_path = find_modes_file(args.modes_dir, dataset, args.energy if hasattr(args, "energy") else None)
+        if modes_path is None or not modes_path.exists():
+            print(f"⚠️  Missing modes for {dataset} in {args.modes_dir}")
             continue
 
         data = np.load(modes_path)

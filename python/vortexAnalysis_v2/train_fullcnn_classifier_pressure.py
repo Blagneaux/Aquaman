@@ -21,6 +21,8 @@ from compute_pressure_modes import (
     balance_series,
     extract_series,
     filter_tail_spikes,
+    find_modes_file,
+    format_energy_tag,
     fill_internal_nans_1d,
     load_lengths,
     load_matrix,
@@ -432,6 +434,12 @@ def main() -> None:
         help="Directory containing computed mode npz files (used for target length)",
     )
     parser.add_argument(
+        "--modes-energy",
+        type=float,
+        default=None,
+        help="Energy tag for modes/weights (e.g. 0.99 or 99).",
+    )
+    parser.add_argument(
         "--datasets",
         type=str,
         default="nadia,thomas,boai,full",
@@ -602,15 +610,16 @@ def main() -> None:
         raise RuntimeError("PyTorch is required. Install torch before running this script.")
 
     datasets = [d.strip() for d in args.datasets.split(",") if d.strip()]
+    suffix = f"_{format_energy_tag(args.modes_energy)}" if args.modes_energy is not None else ""
     conv_channels_list = parse_int_list(args.conv_channels, [1, 2, 4])
     kernel_sizes = parse_int_list(args.kernel_sizes, [1, 3, 5])
     batch_sizes = parse_int_list(args.batch_sizes, [16, 32, 64])
     epochs_list = parse_int_list(args.epochs_list, [50, 100, 200])
 
     for dataset in datasets:
-        modes_path = args.modes_dir / f"pressure_modes_{dataset}.npz"
-        if not modes_path.exists():
-            print(f"⚠️  Missing modes for {dataset}: {modes_path}")
+        modes_path = find_modes_file(args.modes_dir, dataset, args.modes_energy)
+        if modes_path is None or not modes_path.exists():
+            print(f"⚠️  Missing modes for {dataset} in {args.modes_dir}")
             continue
 
         data = np.load(modes_path)
@@ -777,10 +786,10 @@ def main() -> None:
             f"best_epoch={best_outcome.result.best_epoch}"
         )
 
-        out_path = args.modes_dir / f"classifier_fullcnn_results_{dataset}.csv"
+        out_path = args.modes_dir / f"classifier_fullcnn_results_{dataset}{suffix}.csv"
         if results:
             save_results(out_path, results)
-        summary_path = args.modes_dir / "classifier_fullcnn_results_summary.csv"
+        summary_path = args.modes_dir / f"classifier_fullcnn_results_summary{suffix}.csv"
         append_summary(summary_path, dataset, best_outcome.result)
 
         if args.plot_best_metrics and best_outcome.history is not None:
@@ -813,7 +822,7 @@ def main() -> None:
                     best_outcome.best_epoch,
                 )
 
-                weights_path = args.modes_dir / f"classifier_fullcnn_best_weights_{dataset}.pt"
+                weights_path = args.modes_dir / f"classifier_fullcnn_best_weights_{dataset}{suffix}.pt"
                 torch.save(
                     {
                         "state_dict": best_state,

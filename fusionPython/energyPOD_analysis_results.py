@@ -3,6 +3,40 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+CAMBRIDGE_RC = {
+    "font.size": 10,                 # readable at journal size
+    "axes.titlesize": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "legend.fontsize": 9,
+
+    # IMPORTANT: keep text editable in vector outputs
+    "text.usetex": False,
+    "svg.fonttype": "none",
+    "pdf.fonttype": 42,              # TrueType (editable if you also save PDF)
+    "ps.fonttype": 42,               # TrueType in EPS/PS
+
+    # Ensure lines meet the minimum 0.5 pt requirement
+    "lines.linewidth": 0.8,          # >= 0.5 pt (safe margin)
+    "lines.markersize": 3.5,
+    "lines.markeredgewidth": 0.6,    # >= 0.5 pt
+    "axes.linewidth": 0.8,           # axes thickness
+    "xtick.major.width": 0.8,
+    "ytick.major.width": 0.8,
+}
+
+
+def apply_cambridge_style():
+    plt.rcParams.update(CAMBRIDGE_RC)
+
+
+def save_figure(fig, out_base, save_tiff=True):
+    fig.savefig(f"{out_base}.eps", format="eps", bbox_inches="tight")
+    fig.savefig(f"{out_base}.pdf", format="pdf", bbox_inches="tight")
+    if save_tiff:
+        fig.savefig(f"{out_base}.tiff", format="tiff", dpi=1200, bbox_inches="tight")
+
 gap_list = [0.44, 0.85, 1.27, 1.68, 2.11, 2.52, 2.94, 3.35, 3.77, 4.19, 8.87, 9.50]
 Re_list = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 ref_error = 17.83062946122619
@@ -167,28 +201,7 @@ def plot_rmse_vs_gap(
     second_alpha=0.9
 ):
     # --- Cambridge-friendly settings: editable text + min line widths ---
-    plt.rcParams.update({
-        "font.size": 10,                 # readable at journal size
-        "axes.titlesize": 10,
-        "axes.labelsize": 10,
-        "xtick.labelsize": 9,
-        "ytick.labelsize": 9,
-        "legend.fontsize": 9,
-
-        # IMPORTANT: keep text editable in vector outputs
-        "text.usetex": False,
-        "svg.fonttype": "none",
-        "pdf.fonttype": 42,              # TrueType (editable if you also save PDF
-        "ps.fonttype": 42,               # TrueType in EPS/PS
-
-        # Ensure lines meet the minimum 0.5 pt requirement
-        "lines.linewidth": 0.8,          # >= 0.5 pt (safe margin)
-        "lines.markersize": 3.5,
-        "lines.markeredgewidth": 0.6,    # >= 0.5 pt
-        "axes.linewidth": 0.8,           # axes thickness
-        "xtick.major.width": 0.8,
-        "ytick.major.width": 0.8,
-    })
+    apply_cambridge_style()
 
     if Re:
         x = Re_list
@@ -285,14 +298,7 @@ def plot_rmse_vs_gap(
 
         if save:
             # --- Production outputs ---
-            # Vector EPS (preferred)
-            fig.savefig(f"{out_base}.eps", format="eps", bbox_inches="tight")
-
-            # High-res TIFF fallback (line art => 1200 dpi)
-            fig.savefig(f"{out_base}.tiff", format="tiff", dpi=1200, bbox_inches="tight")
-
-            # Optional: PDF for easy checking (also editable text)
-            fig.savefig(f"{out_base}.pdf", format="pdf", bbox_inches="tight")
+            save_figure(fig, out_base, save_tiff=True)
 
         if show:
             plt.show()
@@ -305,6 +311,7 @@ if (
     "error_reconstruction_list_low_rez_h_translation" in globals()
     and "error_reconstruction_list_low_rez_h_translation_crop" in globals()
 ):
+    apply_cambridge_style()
     fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.2), sharey=True)
     plot_rmse_vs_gap(
         error_reconstruction_list=error_reconstruction_list_low_rez_h_translation,
@@ -330,9 +337,7 @@ if (
         legend_outside=False,
     )
     fig.tight_layout()
-    fig.savefig("translation_side_by_side.eps", format="eps", bbox_inches="tight")
-    fig.savefig("translation_side_by_side.tiff", format="tiff", dpi=1200, bbox_inches="tight")
-    fig.savefig("translation_side_by_side.pdf", format="pdf", bbox_inches="tight")
+    save_figure(fig, "translation_side_by_side", save_tiff=True)
     plt.show()
 else:
     print(
