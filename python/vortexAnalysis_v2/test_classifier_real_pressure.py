@@ -346,50 +346,6 @@ class LinearClassifier(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x).squeeze(1)
 
-
-class SimpleMLP(nn.Module):
-    def __init__(self, input_dim: int, hidden_size: int, hidden2_size: int, activation: str) -> None:
-        super().__init__()
-        if activation == "tanh":
-            act = nn.Tanh()
-        elif activation == "leaky_relu":
-            act = nn.LeakyReLU(0.1)
-        else:
-            act = nn.ReLU()
-        if hidden2_size > 0:
-            self.net = nn.Sequential(
-                nn.Linear(input_dim, hidden_size),
-                act,
-                nn.Linear(hidden_size, hidden2_size),
-                act,
-                nn.Linear(hidden2_size, 1),
-            )
-        else:
-            self.net = nn.Sequential(
-                nn.Linear(input_dim, hidden_size),
-                act,
-                nn.Linear(hidden_size, 1),
-            )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x).squeeze(1)
-
-
-class SimpleConvClassifier(nn.Module):
-    def __init__(self, input_len: int, conv_channels: int, kernel_size: int) -> None:
-        super().__init__()
-        kernel_size = min(kernel_size, input_len)
-        self.kernel_size = kernel_size
-        self.conv = nn.Conv1d(1, conv_channels, kernel_size=kernel_size)
-        out_len = input_len - kernel_size + 1
-        self.fc = nn.Linear(conv_channels * out_len, 1)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.conv(x)
-        x = x.flatten(1)
-        return self.fc(x).squeeze(1)
-
-
 def run_model(
     model: nn.Module,
     X: np.ndarray,
