@@ -466,7 +466,7 @@ def main() -> None:
     parser.add_argument(
         "--val-frac",
         type=float,
-        default=0.1,
+        default=0.15,
         help="Validation split fraction",
     )
     parser.add_argument(

@@ -1,0 +1,9 @@
+dataset,model,simulations,snapshots_total,snapshots_min_length,snapshots_tail_filtered,snapshots_balanced,mode_length,num_modes
+nadia,fish,163,956,238,238,233,682,5
+nadia,cylinder,162,797,236,233,233,682,5
+thomas,fish,159,796,186,171,171,564,5
+thomas,cylinder,161,723,205,202,171,564,5
+boai,fish,161,1009,200,189,189,580,23
+boai,cylinder,162,798,236,233,189,580,23
+full,fish,162,702,192,186,186,573,6
+full,cylinder,161,723,205,202,186,573,6

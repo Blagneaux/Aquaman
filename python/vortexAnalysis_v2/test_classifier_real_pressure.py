@@ -750,6 +750,7 @@ def plot_threshold_curves(
     datasets: list[str],
     thresholds: list[float],
     save_path: Path | None,
+    energy_tag: str | None,
 ) -> None:
     import matplotlib.pyplot as plt
 
@@ -777,10 +778,19 @@ def plot_threshold_curves(
                     values,
                     linestyle=ls,
                     color=class_colors[label],
-                    label=f"{arch} {label}" if arch_idx == 0 else None,
+                    label=f" {label}" if arch_idx == 0 else None,
                 )
 
-        ax.set_title(dataset)
+        title_map = {
+            "nadia": "raw model",
+            "thomas": "constrained model",
+            "boai": "x deformation model",
+            "full": "full model",
+        }
+        title = title_map.get(dataset, dataset)
+        if energy_tag:
+            title = f"{title} ({energy_tag}%)"
+        ax.set_title(title)
         ax.set_xlabel("confidence threshold")
         ax.set_ylabel("fraction of samples")
         ax.set_ylim(0.0, 1.0)
@@ -797,6 +807,7 @@ def plot_threshold_curves(
     else:
         plt.show()
         plt.close(fig)
+
 
 
 def main() -> None:
@@ -1011,7 +1022,8 @@ def main() -> None:
                         "cylinder": cyl_vals,
                     }
 
-            plot_threshold_curves(curve_series, datasets, thresholds, args.plot_save)
+            energy_tag = format_energy_tag(args.modes_energy) if args.modes_energy is not None else None
+            plot_threshold_curves(curve_series, datasets, thresholds, args.plot_save, energy_tag)
             return
 
         for dataset in datasets:
