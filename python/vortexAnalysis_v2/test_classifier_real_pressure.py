@@ -65,14 +65,14 @@ def apply_cambridge_style() -> None:
     plt.rcParams.update(CAMBRIDGE_RC)
 
 
-def save_figure_multi(fig, save_path: Path) -> None:
+def save_figure_multi(fig, save_path: Path, transparent: bool = False) -> None:
     base = save_path
     if base.suffix:
         base = base.with_suffix("")
-    fig.savefig(f"{base}.eps", format="eps", bbox_inches="tight")
-    fig.savefig(f"{base}.pdf", format="pdf", bbox_inches="tight")
+    fig.savefig(f"{base}.eps", format="eps", bbox_inches="tight", transparent=transparent)
+    fig.savefig(f"{base}.pdf", format="pdf", bbox_inches="tight", transparent=transparent)
     if save_path.suffix:
-        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        fig.savefig(save_path, dpi=150, bbox_inches="tight", transparent=transparent)
 
 
 @dataclass
@@ -756,11 +756,14 @@ def plot_threshold_curves(
 
     apply_cambridge_style()
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    class_colors = {"fish": "#4C78A8", "none": "#BAB0AC", "cylinder": "#F58518"}
+    fig.patch.set_facecolor("none")
+    fig.patch.set_alpha(0.0)
+    class_colors = {"fish": "#00B7FF", "none": "#B0B0B0", "cylinder": "#E53935"}
     linestyles = ["-", "--", ":"]
 
     for idx, dataset in enumerate(datasets[:4]):
         ax = axes[idx // 2, idx % 2]
+        ax.set_facecolor("none")
         dataset_series = series.get(dataset, {})
         if not dataset_series:
             ax.set_title(f"{dataset} (no data)")
@@ -802,7 +805,7 @@ def plot_threshold_curves(
     fig.tight_layout(rect=[0.0, 0.0, 1.0, 0.92])
     if save_path is not None:
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        save_figure_multi(fig, save_path)
+        save_figure_multi(fig, save_path, transparent=True)
         plt.close(fig)
     else:
         plt.show()

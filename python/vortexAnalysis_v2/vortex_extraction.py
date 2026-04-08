@@ -770,6 +770,12 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, default=repo_root / "python/vortexAnalysis_v2/vortex_outputs", help="Output directory")
     parser.add_argument("--out-csv", type=Path, default=None, help="CSV path for time series (optional)")
     parser.add_argument("--out-name", type=str, default="circle_vortex_tracks.csv", help="Output filename for batch mode")
+    parser.add_argument(
+        "--track-tag",
+        type=str,
+        default=None,
+        help="Optional tag appended to vortex track filenames (before extension).",
+    )
 
     parser.add_argument("--path-nadia", type=Path, default=Path("D:/crop_nadia"), help="Root path for Nadia dataset")
     parser.add_argument("--path-thomas", type=Path, default=Path("D:/thomas_files"), help="Root path for Thomas dataset")
@@ -816,6 +822,15 @@ def main() -> None:
     sys.stderr = TeeStream(sys.__stderr__, log_file)
     print(f"📝 Logging to {log_path}")
 
+    def apply_tag(name: str, tag: str | None) -> str:
+        if not tag:
+            return name
+        stem = Path(name).stem
+        suffix = Path(name).suffix or ""
+        if stem.endswith(f"_{tag}"):
+            return name
+        return f"{stem}_{tag}{suffix}"
+
     if args.batch:
         default_experiments = [1, 2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 40]
         # default_experiments = [28, 29, 30, 31, 32, 33, 35, 40]
@@ -837,7 +852,8 @@ def main() -> None:
                 for dataset_name, root in dataset_roots:
                     snapshot_path = root / str(experiment) / snapshot
                     q_path = snapshot_path / args.q_filename
-                    out_csv = snapshot_path / args.out_name
+                    out_name = apply_tag(args.out_name, args.track_tag)
+                    out_csv = snapshot_path / out_name
 
                     if dataset_name in ("nadia", "boai"):
                         body_root = args.path_nadia
@@ -866,7 +882,11 @@ def main() -> None:
     else:
         out_dir = args.out_dir
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_csv = args.out_csv or (out_dir / "vortex_tracks.csv")
+        if args.out_csv is not None:
+            out_csv = args.out_csv
+        else:
+            out_name = apply_tag("vortex_tracks.csv", args.track_tag)
+            out_csv = out_dir / out_name
         extract_vortices_from_q(
             q_path=args.q_path,
             out_csv=out_csv,

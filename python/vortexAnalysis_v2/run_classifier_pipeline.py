@@ -98,6 +98,18 @@ def main() -> None:
         help="Plot threshold curves (single figure per energy).",
     )
     parser.add_argument(
+        "--snapshot-dir",
+        type=Path,
+        default=repo_root / "python/vortexAnalysis_v2/vortex_outputs/pressure_snapshots",
+        help="Directory with pressure snapshot matrices and meta CSVs",
+    )
+    parser.add_argument(
+        "--modes-dir",
+        type=Path,
+        default=repo_root / "python/vortexAnalysis_v2/vortex_outputs/pressure_modes",
+        help="Directory to read/write pressure modes and classifier outputs",
+    )
+    parser.add_argument(
         "--dataset-roots",
         type=str,
         default=None,
@@ -140,6 +152,10 @@ def main() -> None:
                 str(energy),
                 "--datasets",
                 datasets,
+                "--snapshot-dir",
+                str(args.snapshot_dir),
+                "--out-dir",
+                str(args.modes_dir),
             ]
             run_command(compute_cmd, args.dry_run)
 
@@ -150,6 +166,10 @@ def main() -> None:
                 datasets,
                 "--modes-energy",
                 str(energy),
+                "--snapshot-dir",
+                str(args.snapshot_dir),
+                "--modes-dir",
+                str(args.modes_dir),
                 "--device",
                 args.device,
                 "--loss",
@@ -182,6 +202,10 @@ def main() -> None:
                 args.timestamps_dataset,
                 "--tdms-dataset",
                 args.tdms_dataset,
+                "--snapshot-dir",
+                str(args.snapshot_dir),
+                "--modes-dir",
+                str(args.modes_dir),
                 "--plot-from-files",
                 "--plot-threshold-curves",
                 "--confidence-thresholds",
@@ -214,6 +238,10 @@ def main() -> None:
                     args.timestamps_dataset,
                     "--tdms-dataset",
                     args.tdms_dataset,
+                    "--snapshot-dir",
+                    str(args.snapshot_dir),
+                    "--modes-dir",
+                    str(args.modes_dir),
                 ]
                 if args.dataset_roots:
                     test_cmd += ["--dataset-roots", args.dataset_roots]
