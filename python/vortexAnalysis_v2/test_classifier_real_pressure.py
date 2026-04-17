@@ -758,7 +758,7 @@ def plot_threshold_curves(
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
     fig.patch.set_facecolor("none")
     fig.patch.set_alpha(0.0)
-    class_colors = {"fish": "#00B7FF", "none": "#B0B0B0", "cylinder": "#E53935"}
+    class_colors = {"fish": "#1F4E79", "none": "#B0B0B0", "cylinder": "#B58900"}
     linestyles = ["-", "--", ":"]
 
     for idx, dataset in enumerate(datasets[:4]):

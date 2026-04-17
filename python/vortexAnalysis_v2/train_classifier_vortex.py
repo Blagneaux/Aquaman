@@ -78,6 +78,10 @@ def compute_shap_values_linear(
     return shap_values
 
 
+def display_dataset_name(dataset: str) -> str:
+    return {"boai": "x-deformation"}.get(dataset, dataset)
+
+
 def plot_shap_summary(
     shap_values: np.ndarray,
     features: np.ndarray,
@@ -95,7 +99,8 @@ def plot_shap_summary(
 
     plt.sca(ax)
     shap.summary_plot(shap_values, features, feature_names=feature_names, show=False)
-    ax.set_title(f"{dataset} SHAP summary")
+    dataset_label = display_dataset_name(dataset)
+    ax.set_title(f"{dataset_label} SHAP summary")
     ax.set_xlabel("SHAP value (negative \u2190 fish | cylinder \u2192 positive)")
     ax.axvline(0.0, color="black", linestyle=":", linewidth=0.8, alpha=0.6)
 
