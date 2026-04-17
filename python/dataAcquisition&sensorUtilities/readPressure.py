@@ -8,12 +8,13 @@ import pandas as pd
 from openpyxl.styles import NamedStyle
 
 class SerialReader:
-    def __init__(self):
+    def __init__(self, num_sensors=8, output_folder="E:/sensorExpChina/wall"):
         self.serial_port = None
         self.is_reading = False
         self.data_filename = None
         self.data_buffer = []
-        self.output_folder = "E:/sensorExpChina/wall"
+        self.output_folder = output_folder
+        self.num_sensors = num_sensors
 
     def start_reading(self, duration=6, Re=1000, h=6):
         print("Start reading wall pressure data")
@@ -54,9 +55,9 @@ class SerialReader:
 
     def extract_data(self, data):
         parts = data.split()
-        if len(parts) == 9:
+        if len(parts) == self.num_sensors:
             try:
-                pressure_data = [float(part) for part in parts[:8]]
+                pressure_data = [float(part) for part in parts[: self.num_sensors]]
                 timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 return pressure_data, timestamp
             except ValueError:
