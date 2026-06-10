@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{cmap}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{hyperref}
+
+\graphicspath{{figures/}{supplementary_media/}}
+
+\captionsetup{labelfont=bf,font=small}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+
+\begin{document}
+\begin{center}
+
+{\Large\bfseries Supplementary material for: Fine-scale locomotor actuation reveals ecologically meaningful hydrodynamic cues in fish wakes\par}
+
+\end{center}
+
+\section*{S1. Assessment of fish-identity dependence among retained pressure samples}
+
+Because several retained pressure segments originate from the same experimental recording, we evaluated whether measured wall-pressure samples showed strong dependence on fish identity before interpreting segment-level classifications. A fish is only present in one experimental run and thus only appears in a single video. The diagnostic was restricted to videos with at least five retained measured-pressure segments.
+
+For this diagnostic, measured pressure segments were transformed with the same preprocessing later used for pressure classification and described in the main article: segments were resampled to a common length, mean-centred and amplitude-normalised. A SVD basis was then computed from the retained measured-pressure matrix alone, and samples were represented by the coefficients of the modes explaining 99\% of measured-signal variance. We quantified video-level dependence in two complementary ways. First, we used the one-way intraclass correlation coefficient, ICC(1), separately for each retained measured-pressure SVD coefficient. For SVD mode \(k\), the coefficient of segment \(j\) from video \(i\) was modelled as
+\begin{equation}
+c_{ij,k} = \mu_k + v_{i,k} + \epsilon_{ij,k},
+\end{equation}
+where \(c_{ij,k}\) is the SVD coefficient for segment \(j\) from video \(i\) on mode \(k\), \(\mu_k\) is the mean coefficient for mode \(k\) computed over all segments, \(v_{i,k}\) is the video-level random effect and \(\epsilon_{ij,k}\) is the residual segment-level variation. The corresponding per-mode intraclass correlation was
+\begin{equation}
+ICC_k = \frac{\sigma^2_{\mathrm{video},k}}{\sigma^2_{\mathrm{video},k} + \sigma^2_{\mathrm{extract},k}},
+\end{equation}
+where \(\sigma^2_{\mathrm{video},k}\) is the variance component attributable to video identity and \(\sigma^2_{\mathrm{extract},k}\) is the residual variance among retained pressure extracts within videos. Values close to zero indicate little video-level clustering, whereas larger values indicate stronger dependence among samples from the same video. Because the pressure representation was multivariate, per-mode ICC values were summarised using the variance-weighted mean
+\begin{equation}
+\overline{ICC} = \frac{\sum_k \lambda_k ICC_k}{\sum_k \lambda_k},
+\end{equation}
+where \(\lambda_k\) is the measured-pressure variance explained by SVD mode \(k\). 
+
+Second, pairwise Euclidean distances in standardised measured-SVD coefficient space were compared between same-video and different-video sample pairs.
+
+The measured-pressure video-identity analysis retained 426 segments from 23 videos and projected them onto 37 measured-pressure SVD modes explaining 99.1\% of variance. The variance-weighted ICC(1) was 0.058, and the median per-mode ICC(1) was 0.019 (range [0; 0.136] with interquartile range [0.005; 0.032]).
+
+In standardised measured-SVD space, the median same-video distance was 7.006 and the median different-video distance was 7.443. The distance ratio was 0.941.
+
+\section*{S2. Dataset composition and dimensionality reduction}
+
+The following table reports the number of retained pressure segments and the size of the reduced bases used for the pressure-signal classifier. Segments were removed if they were too short or numerically divergent. An equal number of fish and cylinder pressure segments was retained to balance classes.
+
+
+\begin{table}[htbp]
+\centering
+\caption*{Table S1. Dataset composition and dimensionality reduction for the four simulation configurations. Raw configuration corresponds to the baseline pipeline. Constrained corresponds to the size-constrained model, where the length of the contour of the digital twin is fixed for the whole simulation. X-deformation corresponds to the model using both the streamwise and transverse deformation of the contour of the digital twin instead of only the transverse deformation. Full corresponds to the model implementing both the size-constrained contour and using the streamwise deformation of the contour.}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+ & Raw & Constrained & X-deformation & Full \\
+\midrule
+Samples (fish/cylinder) & 163/162 & 159/161 & 161/162 & 162/161 \\
+Pressure segments extracted & 956/797 & 796/723 & 1009/798 & 702/723 \\
+After minimum-length filter & 238/236 & 186/205 & 200/236 & 192/205 \\
+After divergence filter & 238/233 & 171/202 & 189/233 & 186/202 \\
+Balanced segments & 233/233 & 171/171 & 189/189 & 186/186 \\
+Resampled signal length & 682 & 564 & 580 & 573 \\
+Modes for 75\% variance & 5 & 5 & 23 & 6 \\
+Modes for 95\% variance & 34 & 32 & 92 & 51 \\
+Modes for 99\% variance & 103 & 94 & 153 & 114 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section*{S3. Pressure-signal classifier settings}
+
+The pressure-signal classifier was trained after normalisation of the amplitude, mean-centring, resampling to a common number of points defined by the longest segment in the relevant subset and projection of pressure segments onto SVD modes retaining 75\%, 95\% or 99\% of the simulated variance. The data were split into training, validation and test subsets in a 70/15/15 ratio. Hyperparameters for a linear classifier with a single layer and a Mean Square Error loss were selected independently for each model and retained-variance level.
+
+Although optimisation was performed using neural-network tooling, no hidden nonlinearity was introduced, so that the model remained strictly linear. This choice was motivated by the need to maximise interpretability and to limit overfitting given the relatively small dataset. The use of neural-network frameworks was nevertheless retained for implementation, as it provides access to efficient optimisation routines and allows straightforward extension to more complex architectures should larger datasets become available in future.
+
+\begin{table}[htbp]
+\centering
+\caption*{Table S2. Hyperparameters selected independently for each model and retained-variance level.}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllll}
+\toprule
+Model & Hidden size & Learning rate & Weight decay & Epochs & Batch size \\
+\midrule
+Raw 75 & 32 & 0.0002 & 0.0002 & 200 & 64 \\
+Constrained 75 & 16 & 0.0006 & 0.0005 & 50 & 16 \\
+X-deformation 75 & 32 & 0.0002 & 0.0010 & 200 & 64 \\
+Full 75 & 32 & 0.0010 & 0.0006 & 200 & 64 \\
+Raw 95 & 4 & 0.0003 & 0.0009 & 200 & 64 \\
+Constrained 95 & 8 & 0.0009 & 0.0008 & 200 & 64 \\
+X-deformation 95 & 4 & 0.0010 & $3.8626 \times 10^{-5}$ & 100 & 64 \\
+Full 95 & 16 & 0.0006 & 0.0002 & 50 & 16 \\
+Raw 99 & 4 & 0.0010 & 0.0002 & 200 & 64 \\
+Constrained 99 & 16 & 0.0010 & 0.0009 & 100 & 16 \\
+X-deformation 99 & 32 & 0.0010 & 0.0008 & 200 & 64 \\
+Full 99 & 4 & 0.0006 & 0.0006 & 200 & 64 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section*{S4. Pressure-signal classifier performance}
+
+The following accuracies describe how well the classifier separated fish-generated and cylinder-generated simulated pressure signals. These values were used to assess whether the two simulated model classes were distinguishable before measured pressure signals were projected into the same feature spaces.
+
+These values remained moderate rather than near perfect, but this was not unexpected. The fish and cylinder models can generate partially overlapping pressure signatures in some kinematic situations, particularly when the body turns sharply and presents a locally bluff geometry to the sensor. Perfect separability should therefore not be expected from sparse wall-pressure measurements alone.
+
+\begin{table}[htbp]
+\centering
+\caption*{Table S3. Classification accuracies for the first-stage pressure-signal classifier.}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+ & Raw & Constrained & X-deformation & Full \\
+\midrule
+Training accuracy (75\%) & 0.67 & 0.68 & 0.75 & 0.67 \\
+Validation accuracy (75\%) & 0.69 & 0.65 & 0.81 & 0.82 \\
+Test accuracy (75\%) & 0.74 & 0.63 & 0.84 & 0.61 \\
+Training accuracy (95\%) & 0.70 & 0.74 & 0.74 & 0.71 \\
+Validation accuracy (95\%) & 0.70 & 0.65 & 0.77 & 0.73 \\
+Test accuracy (95\%) & 0.76 & 0.65 & 0.84 & 0.57 \\
+Training accuracy (99\%) & 0.78 & 0.75 & 0.80 & 0.75 \\
+Validation accuracy (99\%) & 0.64 & 0.65 & 0.84 & 0.66 \\
+Test accuracy (99\%) & 0.67 & 0.60 & 0.79 & 0.55 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section*{S5. Details of contour-size consistency}
+
+The contour extracted from each video frame was treated independently in the original pipeline. To reduce frame-to-frame segmentation variability, a contour-length consistency constraint was introduced. The fish centreline, termed the spine, was first estimated from the raw contour by partitioning the body into upper and lower regions of equal area. The spine was then extrapolated at the snout and tail tips. Finally, a fish template whose length was fixed from the first video frame was placed along the spine and optimised against the raw detection by minimising the intersection-over-union mismatch.
+
+The size-constrained sequence preserved a constant contour length while leaving the subsequent stages of the pipeline unchanged. 
+
+\section*{S6. Details of streamwise deformation in the CFD twin}
+
+LilyPad describes the interaction between the moving body and the fluid through functions for the body distance, the time variation of the boundary and the spatial variation of the boundary. In the default implementation used as the starting point here, the body deformation was transverse only. The moving-boundary forcing was therefore hard-coded to act through the transverse component of motion. In the raw model, the imported fish contours still gave the correct position of each boundary point at each frame, but the default fluid-structure coupling was left unchanged. Consequently, when a contour point also moved in the streamwise direction, its position was updated correctly, but this streamwise component was not fully included in the velocity used to force the fluid. This mismatch was expected to remain limited for the raw reference model, because fish trajectories were mostly aligned with the long axis of the tank and transverse deformation dominated the prescribed motion, but it meant that the raw implementation was not a complete description of local boundary motion.
+
+In the updated implementation, the boundary velocity was computed directly from the displacement of contour points between consecutive time steps. Both streamwise and transverse coordinates were used, with local averaging over neighbouring boundary nodes. This modification allowed both components of body deformation to contribute to the moving-boundary condition. The contour input itself was not altered by this change; only the way the contour motion was communicated to the CFD solver was modified.
+
+\section*{S7. Vortex descriptors used for interpretation}
+
+The second-stage classifier used 17 physically interpretable vortex descriptors: maximum area, mean area, displacement, path length, duration in frames, duration ratio of the vortex life over the full segment duration, mean distance to the body, mean distance to the sensor, maximum speed, mean speed, maximum radius, mean radius, maximum core Q-criterion value, mean core Q-criterion value, mean absolute core Q-criterion value, mean core x-position and mean core y-position.
+
+Vortices were retained only if they were present for at least 10\% of the duration of the linked pressure segment. The two classes were balanced, each feature was normalised and mean-centred, and the same 70/15/15 data split strategy was used again.
+
+Because the streamwise deformation model with 95\% retained variance provided the clearest separation in the first-stage analysis, this subset was selected for vortex-based interpretation. At a 99\% confidence threshold, 63 fish-labelled and 63 cylinder-labelled vortices were available for the second-stage training set. The final hyperparameters were a learning rate of 0.0069, weight decay of $2 \times 10^{-6}$, 75 training epochs and a batch size of 8. On the test set, the second classifier achieved an F1 score of approximately 0.80 for both classes.
+
+\section*{S8. Results for 75\% and 99\%}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_75.pdf}
+\caption*{\textbf{Supplementary Figure 1.} Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 75\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_99.pdf}
+\caption*{\textbf{Supplementary Figure 2.} Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 99\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate.}
+\end{figure}
+
+\end{document}

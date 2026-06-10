@@ -1,0 +1,20 @@
+Revision uncertainty summary
+============================
+
+Confidence intervals are Wilson 95% intervals computed from existing CSV outputs; no training or inference was rerun.
+
+Pressure classifier test accuracy, 95% retained variance:
+- nadia: 0.757 (95% CI 0.645-0.842, n=70).
+- thomas: 0.654 (95% CI 0.518-0.768, n=52).
+- boai: 0.839 (95% CI 0.722-0.913, n=56).
+- full: 0.571 (95% CI 0.441-0.692, n=56).
+
+Real-pressure classification proportions, 95% retained variance, threshold 0.99:
+- nadia fish_like: 0.141 (95% CI 0.113-0.176, count=67/474).
+- nadia cylinder_like: 0.030 (95% CI 0.018-0.049, count=14/474).
+- thomas fish_like: 0.097 (95% CI 0.072-0.131, count=38/391).
+- thomas cylinder_like: 0.026 (95% CI 0.014-0.046, count=10/391).
+- boai fish_like: 0.303 (95% CI 0.262-0.347, count=132/436).
+- boai cylinder_like: 0.044 (95% CI 0.028-0.067, count=19/436).
+- full fish_like: 0.141 (95% CI 0.110-0.179, count=56/397).
+- full cylinder_like: 0.020 (95% CI 0.010-0.039, count=8/397).

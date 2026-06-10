@@ -1,1 +1,24 @@
-{}
+{
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.latex.recipe.default": "latexmk (WSL)",
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-wsl",
+      "command": "wsl.exe",
+      "args": [
+        "bash",
+        "-lc",
+        "cd \"$(wslpath -u '%DIR%')\" && latexmk -synctex=1 -interaction=nonstopmode -file-line-error -pdf -outdir=. -auxdir=. '%DOCFILE_EXT%'"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (WSL)",
+      "tools": [
+        "latexmk-wsl"
+      ]
+    }
+  ]
+}

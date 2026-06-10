@@ -1,0 +1,99 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\abx@aux@refcontext{none/global//global/global}
+\abx@aux@cite{0}{weihs1975}
+\abx@aux@segm{0}{0}{weihs1975}
+\abx@aux@cite{0}{drucker2000}
+\abx@aux@segm{0}{0}{drucker2000}
+\abx@aux@cite{0}{videler2002}
+\abx@aux@segm{0}{0}{videler2002}
+\abx@aux@cite{0}{coombs1988}
+\abx@aux@segm{0}{0}{coombs1988}
+\abx@aux@cite{0}{liao2003}
+\abx@aux@segm{0}{0}{liao2003}
+\abx@aux@cite{0}{lagneaux2024}
+\abx@aux@segm{0}{0}{lagneaux2024}
+\abx@aux@cite{0}{lagneaux2025}
+\abx@aux@segm{0}{0}{lagneaux2025}
+\abx@aux@cite{0}{maertens2015}
+\abx@aux@segm{0}{0}{maertens2015}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Materials and methods}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {(a)}Experimental data, wake models and sample accounting}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Overview of the HAACHAMA pipeline used to generate a deforming fish-shaped digital twin and a cylinder surrogate. Infrared video recordings provided the fish trajectory and body contour, and wall-mounted pressure sensors provided the only direct experimental access to the wake. The fish-shaped digital twin and the cylinder surrogate were driven by the same centre-of-mass trajectory.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig:haachama}{{1}{2}{Overview of the HAACHAMA pipeline used to generate a deforming fish-shaped digital twin and a cylinder surrogate. Infrared video recordings provided the fish trajectory and body contour, and wall-mounted pressure sensors provided the only direct experimental access to the wake. The fish-shaped digital twin and the cylinder surrogate were driven by the same centre-of-mass trajectory}{figure.1}{}}
+\newlabel{fig:haachama@cref}{{[figure][1][]1}{[1][2][]2}}
+\abx@aux@cite{0}{hunt1988}
+\abx@aux@segm{0}{0}{hunt1988}
+\abx@aux@cite{0}{kolar2007}
+\abx@aux@segm{0}{0}{kolar2007}
+\abx@aux@cite{0}{klema1980}
+\abx@aux@segm{0}{0}{klema1980}
+\abx@aux@cite{0}{hadsell2006}
+\abx@aux@segm{0}{0}{hadsell2006}
+\abx@aux@cite{0}{pacchiardi2021}
+\abx@aux@segm{0}{0}{pacchiardi2021}
+\abx@aux@cite{0}{tkachev2021}
+\abx@aux@segm{0}{0}{tkachev2021}
+\abx@aux@cite{0}{lagneaux2026}
+\abx@aux@segm{0}{0}{lagneaux2026}
+\abx@aux@cite{0}{lundberg2017}
+\abx@aux@segm{0}{0}{lundberg2017}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Validity breakdown of the samples of the dataset}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:sample_breakdown}{{1}{3}{Validity breakdown of the samples of the dataset}{table.1}{}}
+\newlabel{tab:sample_breakdown@cref}{{[table][1][]1}{[1][3][]3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {(b)}Using sparse pressure measurements to evaluate wake realism}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic representation of the methodology. (1) Simulation stage: fish-shaped digital twin and cylinder surrogates are generated under different model variants (raw, size-constrained, x-deformation and full). Pressure signals are extracted from vortex tracking and assembled into a data matrix. (2) Dimensionality reduction and classification training: SVD is applied to construct a reduced basis capturing most of the dataset variance. Pressure signals are projected onto this basis to form feature vectors, used to train a linear classifier into distinguishing fish-like and cylinder-like simulations, hence defining a learned similarity metric. (3) Inference: experimental pressure signals are projected onto the same feature space and evaluated with this metric.}}{4}{figure.2}\protected@file@percent }
+\newlabel{fig:classifier}{{2}{4}{Schematic representation of the methodology. (1) Simulation stage: fish-shaped digital twin and cylinder surrogates are generated under different model variants (raw, size-constrained, x-deformation and full). Pressure signals are extracted from vortex tracking and assembled into a data matrix. (2) Dimensionality reduction and classification training: SVD is applied to construct a reduced basis capturing most of the dataset variance. Pressure signals are projected onto this basis to form feature vectors, used to train a linear classifier into distinguishing fish-like and cylinder-like simulations, hence defining a learned similarity metric. (3) Inference: experimental pressure signals are projected onto the same feature space and evaluated with this metric}{figure.2}{}}
+\newlabel{fig:classifier@cref}{{[figure][2][]2}{[1][3][]4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {(c)}Interpreting which vortex features carry fish-specific information}{4}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {(a)}Classifier performance and uncertainty}{4}{subsection.3.1}\protected@file@percent }
+\abx@aux@cite{0}{wilson1927}
+\abx@aux@segm{0}{0}{wilson1927}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 95\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate.}}{5}{figure.3}\protected@file@percent }
+\newlabel{fig:result95SVD}{{3}{5}{Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 95\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate}{figure.3}{}}
+\newlabel{fig:result95SVD@cref}{{[figure][3][]3}{[1][5][]5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {(b)}Measured pressure signals were more consistent with the fish-shaped model}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {(c)}Parameters for wake realism: streamwise deformation, size constraint}{5}{subsection.3.3}\protected@file@percent }
+\abx@aux@cite{0}{li2021}
+\abx@aux@segm{0}{0}{li2021}
+\abx@aux@cite{0}{sfakiotakis1999}
+\abx@aux@segm{0}{0}{sfakiotakis1999}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {i}Streamwise deformation contributed to wake realism}{6}{subsubsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {ii}Size constraint did not improve agreement with measured signals}{6}{subsubsection.3.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {(d)}Vortex descriptors emphasized persistence and geometry}{6}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {(a)}Fine-scale body deformation implementation for biological realism of wake cues}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces SHAP summary plot for the second stage vortex-feature classifier. The most informative descriptors were related to vortex displacement, distance from the body, streamwise position, travelled path and duration, hinting that fish-specific information was expressed primarily through spatial organisation and persistence of vortical structures.}}{7}{figure.4}\protected@file@percent }
+\newlabel{fig:shap}{{4}{7}{SHAP summary plot for the second stage vortex-feature classifier. The most informative descriptors were related to vortex displacement, distance from the body, streamwise position, travelled path and duration, hinting that fish-specific information was expressed primarily through spatial organisation and persistence of vortical structures}{figure.4}{}}
+\newlabel{fig:shap@cref}{{[figure][4][]4}{[1][6][]7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Effect of the minimum body-distance filter on measured signal classification at 99\% confidence. Increasing the exclusion of near-body vortices strengthened the association between measured pressure signals and fish-shaped digital twin.}}{8}{figure.5}\protected@file@percent }
+\newlabel{fig:distance_filter}{{5}{8}{Effect of the minimum body-distance filter on measured signal classification at 99\% confidence. Increasing the exclusion of near-body vortices strengthened the association between measured pressure signals and fish-shaped digital twin}{figure.5}{}}
+\newlabel{fig:distance_filter@cref}{{[figure][5][]5}{[1][6][]8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {(b)}Limitations and future directions}{8}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{9}{section.5}\protected@file@percent }
+\newlabel{LastPage}{{10}{10}}
+\abx@aux@read@bbl@mdfivesum{8E339D5F27E29663A69CCDFC8929A2E8}
+\abx@aux@defaultrefcontext{0}{weihs1975}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{drucker2000}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{videler2002}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{coombs1988}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{liao2003}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{lagneaux2024}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{lagneaux2025}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{maertens2015}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{hunt1988}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{kolar2007}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{klema1980}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{hadsell2006}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{pacchiardi2021}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{tkachev2021}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{lagneaux2026}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{lundberg2017}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{wilson1927}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{li2021}{none/global//global/global}
+\abx@aux@defaultrefcontext{0}{sfakiotakis1999}{none/global//global/global}
+\gdef \@abspage@last{10}

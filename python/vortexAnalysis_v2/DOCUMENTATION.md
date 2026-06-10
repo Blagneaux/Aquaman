@@ -32,6 +32,9 @@ The code available here is a pipeline for vortex detection and tracking from Q-c
 | `test_classifier_real_pressure.py` | Apply trained classifiers to real pressure signals, generate prediction CSVs and plots. | TDMS pressure signals, timestamps CSVs, snapshot meta, mode files, weights. | `real_pressure_predictions_{arch}_{dataset}_{energy}.csv` and optional distribution/threshold plots. |
 | `run_classifier_pipeline.py` | Orchestrate compute-modes → train → test across energies/thresholds. | Same as above scripts. | Runs the pipeline; generates outputs from sub-scripts. |
 | `train_classifier_vortex.py` | Match vortices to confident real-pressure predictions, build vortex-feature dataset, optionally train a vortex classifier with SHAP. | Prediction CSVs, snapshot meta, vortex tracks. | `matching_vortices_*.csv`, vortex classifier weights/results, SHAP and loss plots. |
+| `analyze_fish_identity_dependence.py` | Revision analysis for video/fish-identity dependence in retained pressure segments. | Existing pressure snapshots, metadata, and 99% pressure-mode `.npz` files. | `vortex_outputs/revision_analysis/fish_identity_dependence_*`. |
+| `summarize_revision_uncertainty.py` | Compute Wilson confidence intervals from existing classifier/prediction outputs without rerunning training. | Existing classifier summaries and real-pressure prediction CSVs. | `vortex_outputs/revision_analysis/*_ci.csv` and `revision_uncertainty_summary.txt`. |
+| `validate_grouped_by_video.py` | Optional grouped-by-video validation sensitivity check triggered by the identity-dependence summary. | Existing pressure snapshots, metadata, pressure modes, and identity summary. | `vortex_outputs/revision_analysis/grouped_by_video_validation*`. |
 
 
 **Pipeline Flow (Typical)**

@@ -1,0 +1,6 @@
+Measured-pressure video-identity ICC
+====================================
+
+boai: 426 measured pressure segments from 23 videos were projected onto 37 measured-pressure POD modes explaining 0.991 variance.
+The variance-weighted ICC(1) was 0.058; the median per-mode ICC(1) was 0.019 (range 0.000-0.136, IQR 0.005-0.032).
+Median same-video and different-video distances were 7.006 and 7.443, respectively (difference 0.437, 95% bootstrap CI -0.012-0.974; permutation p=0.001; seed=20260529).

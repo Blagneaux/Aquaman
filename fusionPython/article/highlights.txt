@@ -1,0 +1,5 @@
+A 2D confined-cylinder benchmark probes POD limits for sparse fusion.
+Wall gap dominates POD reconstruction error across sampled cases.
+Eight wall-pressure sensors give limited full-field observability.
+Local POD does not improve full-field or sparse reconstruction.
+Energy retention and sensor fit are weak robustness indicators.

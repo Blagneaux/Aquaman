@@ -1,0 +1,2 @@
+dataset,n_samples,n_groups,n_modes,variance_explained,weighted_icc1,median_icc1,min_icc1,q1_icc1,q3_icc1,max_icc1,median_same_video_distance,median_different_video_distance,median_distance_difference,median_distance_ratio,bootstrap_ci_low,bootstrap_ci_high,permutation_p_value,seed
+boai,426,23,37,0.9906931409011662,0.05782245433438285,0.019227025091669653,0.0,0.004613631413204538,0.03157537108030372,0.13574506773031722,7.006008239900808,7.442955906211897,0.43694766631108894,0.9412937988862178,-0.012243232674021007,0.9738258322249996,0.000999000999000999,20260529
