@@ -24,7 +24,8 @@ This folder collects small, mostly single-purpose scripts for the Aquaman projec
 - `tdmsRead.py`: Inspect TDMS files against digital-twin pressures with filtering and Frechet distance checks.
 
 ## Simulation, correlation, and digital-twin tooling
-- `ASMR.py`: Core “Automatic Scenarization of Multi-fidelity Representation” loop—extract metrics from Lilypad outputs, read sensors, and queue next Re/h parameters (uses NIDAQmx + GPR).
+- `ASMR.py`: Original “Automatic Scenarization of Multi-fidelity Representation” loop, retained as a reference.
+- `simulationCorrelationDTtooling/ASMR_2_0.py`: Modular ASMR campaign runner with cached automatic metric discovery, headless UDP acquisition, direct serial CNC control, explicit LilyPad output tracking, and normalized GPR disagreement sampling. Each scenario records the standard tow and a duplicate at a configurable Z offset, aligns both recordings, and fits the experimental GPR to `measurement - reference`. Configure it in `simulationCorrelationDTtooling/asmr_2_0.toml`; from the repository root, start with `python python/simulationCorrelationDTtooling/ASMR_2_0.py run --dry-run`.
 - `ASMR_rassurerGurvan.py`: Toy GPR disagreement example to illustrate the ASMR sampling idea.
 - `auto_simu.py`: Launch multiple Processing/Lilypad sketches in parallel from a CSV parameter list.
 - `similarity_computation.py`: Compute DTW, Frechet distance, and correlation between TDMS sensor signals and Lilypad simulations; writes per-sample CSVs.

@@ -1,0 +1,61 @@
+{
+  "log10_Re": {
+    "expression": "4.6859938 + 0.50040873*log10_abs(dominant_frequency_min) + 0.49927188*log10_abs(dominant_frequency_q25)",
+    "intercept": 4.68599376147045,
+    "terms": [
+      {
+        "feature": "log10_abs(dominant_frequency_min)",
+        "coefficient": 0.5004087296227908
+      },
+      {
+        "feature": "log10_abs(dominant_frequency_q25)",
+        "coefficient": 0.499271881528646
+      }
+    ],
+    "in_sample_r2": 0.999997283473137,
+    "in_sample_mae": 0.00041592589948861834,
+    "cv_r2_mean": 0.9999964090430824,
+    "cv_r2_std": 1.975958482413829e-06,
+    "selected_features": [
+      "log10_abs(dominant_frequency_min)",
+      "log10_abs(dominant_frequency_q25)"
+    ]
+  },
+  "log10_h": {
+    "expression": "1.7153265 - 11.451613*signed_log10(pressure_mean_abs_median) - 17.714343*signed_log10(pressure_mean_abs_mean) + 20.504115*signed_log10(pressure_mean_abs_q25) - 2.479015*signed_log10(svd_energy_fraction_5) - 70.173585*signed_log10(spatial_gradient_median)",
+    "intercept": 1.7153264882408743,
+    "terms": [
+      {
+        "feature": "signed_log10(pressure_mean_abs_median)",
+        "coefficient": -11.451613476547864
+      },
+      {
+        "feature": "signed_log10(pressure_mean_abs_mean)",
+        "coefficient": -17.71434296204508
+      },
+      {
+        "feature": "signed_log10(pressure_mean_abs_q25)",
+        "coefficient": 20.504115184886217
+      },
+      {
+        "feature": "signed_log10(svd_energy_fraction_5)",
+        "coefficient": -2.4790150081696107
+      },
+      {
+        "feature": "signed_log10(spatial_gradient_median)",
+        "coefficient": -70.1735851556816
+      }
+    ],
+    "in_sample_r2": 0.997187355926924,
+    "in_sample_mae": 0.009529450688835261,
+    "cv_r2_mean": 0.9965343491846322,
+    "cv_r2_std": 0.0013001659829672298,
+    "selected_features": [
+      "signed_log10(pressure_mean_abs_median)",
+      "signed_log10(pressure_mean_abs_mean)",
+      "signed_log10(pressure_mean_abs_q25)",
+      "signed_log10(svd_energy_fraction_5)",
+      "signed_log10(spatial_gradient_median)"
+    ]
+  }
+}

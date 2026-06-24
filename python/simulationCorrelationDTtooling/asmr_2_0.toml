@@ -1,0 +1,135 @@
+# ASMR 2.0 default configuration.
+# Paths may be absolute Windows paths. Relative paths are resolved from the
+# directory where ASMR_2_0.py is launched.
+
+[paths]
+campaign_root = "E:/simuChina/asmr_2_0_campaign"
+parameter_csv = "E:/simuChina/metric_test_next_param.csv"
+
+[metric_discovery]
+root = "E:/simuChina/cartesianBDD_original"
+pattern = "**/pressureMotion.txt"
+metadata_csv = ""
+parameter_columns = "Re,h"
+targets = "log10_Re,log10_h"
+input_format = "lilypad-wall"
+output_dir = "asmr_metric_discovery_china"
+warmup_samples = 4
+max_sensors = 0
+min_cases = 6
+cv_folds = 5
+top_k = 15
+degree = 1
+max_base_features = 40
+max_interaction_sources = 12
+max_library_features = 80
+max_terms = 5
+max_classic_results = 40
+
+[simulation]
+enabled = true
+command = [
+  "C:/Users/blagn771/Desktop/software/processing-4.2/processing-java.exe",
+  "--sketch=C:/Users/blagn771/Documents/Aquaman/Aquaman/lily-pad-master/LilyPad",
+  "--run",
+]
+working_directory = ""
+# Available placeholders: {re}, {re_int}, {re_compact}, {h}, {h_compact},
+# {parameter_file}, and {run_dir}.
+expected_output = "E:/simuChina/Re{re_int}_h{h}/pressureMotion.txt"
+timeout_s = 300.0
+retries = 2
+output_wait_s = 10.0
+require_fresh_output = true
+
+[sensor]
+bind_ip = "0.0.0.0"
+port = 12346
+sample_period_us = 5000
+expected_devices = 1
+partial_epoch_timeout_s = 0.75
+socket_buffer_bytes = 8388608
+startup_timeout_s = 5.0
+csv_delimiter = ";"
+
+[telemetry]
+enabled = true
+bind_ip = "0.0.0.0"
+port = 12345
+source_ip = "192.168.0.112"
+history_samples = 20000
+align_delta_us = 100000
+fallback_latest = true
+
+[fluid]
+length_scale_m = 0.05
+kinematic_viscosity_m2_s = 0.000001
+
+[tank]
+length_mm = 750.0
+width_mm = 690.0
+wall_width_mm = 14.0
+y0_mm = 0.0
+h_mm_per_unit = 8.333333333333334
+x_start_mm = 0.0
+travel_margin_mm = 0.0
+accel_distance_mm = 125.0
+cruise_steps = 101
+z_mm = 0.0
+# The reference tow repeats the exact X/Y trajectory at z_mm plus this offset.
+# Verify the sign and clearance on the real machine before using --execute.
+reference_z_offset_mm = 50.0
+fourth_mm = -155.0
+axis_x = "X"
+axis_y = "Y"
+axis_z = "Z"
+axis_fourth = "C"
+
+[safety]
+x_min_mm = 0.0
+x_max_mm = 750.0
+y_min_mm = -400.0
+y_max_mm = 400.0
+z_min_mm = -100.0
+z_max_mm = 100.0
+c_min_mm = -250.0
+c_max_mm = 250.0
+max_speed_mm_s = 200.0
+max_acceleration_mm_s2 = 200.0
+
+[cnc]
+enabled = true
+port = "COM5"
+baud = 115200
+read_timeout_s = 0.2
+write_timeout_s = 2.0
+startup_wait_s = 2.0
+ack_timeout_s = 30.0
+status_timeout_s = 2.0
+status_poll_interval_s = 0.2
+motion_timeout_s = 300.0
+home_timeout_s = 180.0
+unlock_before_home = true
+
+[search]
+re_min = 1000.0
+re_max = 10000.0
+h_min = 6.0
+h_max = 60.0
+re_points = 40
+h_points = 100
+duplicate_re_tolerance = 0.000001
+duplicate_h_tolerance = 0.000001
+random_state = 42
+
+[timing]
+pre_roll_s = 1.0
+post_roll_s = 1.0
+# Settling starts after the machine has returned to X start and reached the
+# requested Z level, so pre-positioning waves are excluded from each recording.
+preposition_settling_s = 300.0
+between_pair_settling_s = 300.0
+settling_s = 300.0
+
+[campaign]
+iterations = 200
