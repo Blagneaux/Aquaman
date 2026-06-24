@@ -1,0 +1,232 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{Loiseau2017}
+J.-C. Loiseau, B.~R. Noack, S.~L. Brunton, Sparse reduced-order modeling:
+  Sensor-based dynamics to full-state estimation, Journal of Fluid Mechanics
+  844 (2018) 459--490, arXiv:1706.03531.
+\newblock \href {https://doi.org/10.1017/jfm.2018.147}
+  {\path{doi:10.1017/jfm.2018.147}}.
+
+\bibitem{Berkooz1993}
+G.~Berkooz, P.~Holmes, J.~L. Lumley, The proper orthogonal decomposition in the
+  analysis of turbulent flows, Annual Review of Fluid Mechanics 25~(1) (1993)
+  539--575.
+\newblock \href {https://doi.org/10.1146/annurev.fl.25.010193.002543}
+  {\path{doi:10.1146/annurev.fl.25.010193.002543}}.
+
+\bibitem{Chatterjee2000}
+A.~Chatterjee, \href{http://www.jstor.org/stable/24103957}{An introduction to
+  the proper orthogonal decomposition}, Current Science 78 (2000) 808--817.
+\newline\urlprefix\url{http://www.jstor.org/stable/24103957}
+
+\bibitem{Noack2003}
+B.~R. Noack, K.~Afanasiev, M.~Morzynski, G.~Tadmor, F.~Thiele, A hierarchy of
+  low-dimensional models for the transient and post-transient cylinder wake,
+  Journal of Fluid Mechanics 497 (2003) 335--363.
+\newblock \href {https://doi.org/10.1017/S0022112003006694}
+  {\path{doi:10.1017/S0022112003006694}}.
+
+\bibitem{Tadmor2010}
+G.~Tadmor, O.~Lehmann, B.~R. Noack, M.~Morzynski, Mean field representation of
+  the natural and actuated cylinder wake, Physics of Fluids 22~(3) (2010).
+\newblock \href {https://doi.org/10.1063/1.3298960}
+  {\path{doi:10.1063/1.3298960}}.
+
+\bibitem{Gkimisis2024}
+L.~Gkimisis, T.~Richter, P.~Benner, Adjacency-based, non-intrusive model
+  reduction for vortex-induced vibrations, Computers \& Fluids 275 (2024)
+  106248.
+\newblock \href {https://doi.org/10.1016/j.compfluid.2024.106248}
+  {\path{doi:10.1016/j.compfluid.2024.106248}}.
+
+\bibitem{Willcox2006}
+K.~Willcox, Unsteady flow sensing and estimation via the gappy proper
+  orthogonal decomposition, Computers \& Fluids 35~(2) (2006) 208--226.
+\newblock \href {https://doi.org/10.1016/j.compfluid.2004.11.006}
+  {\path{doi:10.1016/j.compfluid.2004.11.006}}.
+
+\bibitem{Price2002}
+S.~J. Price, D.~Sumner, J.~G. Smith, K.~Leong, M.~P. Paidoussis, Flow
+  visualization around a circular cylinder near to a plane wall, Journal of
+  Fluids and Structures 16~(2) (2002) 175--191.
+\newblock \href {https://doi.org/10.1006/jfls.2001.0413}
+  {\path{doi:10.1006/jfls.2001.0413}}.
+
+\bibitem{Chakraborty2004}
+J.~Chakraborty, N.~Verma, R.~P. Chhabra, Wall effects in flow past a circular
+  cylinder in a plane channel: a numerical study, Chemical Engineering and
+  Processing: Process Intensification 43~(12) (2004) 1529--1537.
+\newblock \href {https://doi.org/10.1016/j.cep.2004.02.004}
+  {\path{doi:10.1016/j.cep.2004.02.004}}.
+
+\bibitem{Rao2013}
+A.~Rao, M.~C. Thompson, T.~Leweke, K.~Hourigan, The flow past a circular
+  cylinder translating at different heights above a wall, Journal of Fluids and
+  Structures 41 (2013) 9--21.
+\newblock \href {https://doi.org/10.1016/j.jfluidstructs.2012.08.007}
+  {\path{doi:10.1016/j.jfluidstructs.2012.08.007}}.
+
+\bibitem{Porcon2024}
+C.~Porcon, B.~Lagneaux, G.~Jodin, F.~Razan, B.~Sun,
+  \href{https://hal.science/hal-05128226v1}{Systeme experimental de capteurs de
+  pression synchronises pour mesures}, Les journees de l'hydrodynamisme (2024).
+\newline\urlprefix\url{https://hal.science/hal-05128226v1}
+
+\bibitem{Lagneaux2025}
+B.~Lagneaux, C.~Porcon, J.~Keribin, D.~Fan, F.~Razan, G.~Jodin,
+  \href{https://hal.science/hal-05334738v1}{From realistic and automated fish
+  digital twin to data ethics: Building reproducible pipelines and dataset for
+  biological {AI}}, in: DebConf25, 2025, p.~12.
+\newline\urlprefix\url{https://hal.science/hal-05334738v1}
+
+\bibitem{Sieber2016}
+M.~Sieber, C.~O. Paschereit, K.~Oberleithner, Spectral proper orthogonal
+  decomposition, Journal of Fluid Mechanics 792 (2016) 798--828.
+\newblock \href {https://doi.org/10.1017/jfm.2016.103}
+  {\path{doi:10.1017/jfm.2016.103}}.
+
+\bibitem{Towne2018}
+A.~Towne, O.~T. Schmidt, T.~Colonius, Spectral proper orthogonal decomposition
+  and its relationship to dynamic mode decomposition and resolvent analysis,
+  Journal of Fluid Mechanics 847 (2018) 821--867.
+\newblock \href {https://doi.org/10.1017/jfm.2018.283}
+  {\path{doi:10.1017/jfm.2018.283}}.
+
+\bibitem{Mendez2019}
+M.~A. Mendez, M.~Balabane, J.-M. Buchlin, Multi-scale proper orthogonal
+  decomposition of complex fluid flows, Journal of Fluid Mechanics 870 (2019)
+  988--1036.
+\newblock \href {https://doi.org/10.1017/jfm.2019.212}
+  {\path{doi:10.1017/jfm.2019.212}}.
+
+\bibitem{Mendez2020}
+M.~A. Mendez, D.~Hess, B.~B. Watz, J.-M. Buchlin, Multiscale proper orthogonal
+  decomposition ({mPOD}) of {TR-PIV} data: A case study on stationary and
+  transient cylinder wake flows, Measurement Science and Technology 31~(9)
+  (2020) 094014, arXiv:2001.01971.
+\newblock \href {https://doi.org/10.1088/1361-6501/ab82be}
+  {\path{doi:10.1088/1361-6501/ab82be}}.
+
+\bibitem{Nekkanti2022}
+A.~Nekkanti, O.~T. Schmidt, Gappy spectral proper orthogonal decomposition,
+  {SSRN} preprint (2022).
+\newblock \href {https://doi.org/10.2139/ssrn.4159544}
+  {\path{doi:10.2139/ssrn.4159544}}.
+
+\bibitem{Manohar2018}
+K.~Manohar, B.~W. Brunton, J.~N. Kutz, S.~L. Brunton, Data-driven sparse sensor
+  placement for reconstruction: Demonstrating the benefits of exploiting known
+  patterns, {IEEE} Control Systems Magazine 38~(3) (2018) 63--86.
+\newblock \href {https://doi.org/10.1109/MCS.2018.2810460}
+  {\path{doi:10.1109/MCS.2018.2810460}}.
+
+\bibitem{Sashittal2021}
+P.~Sashittal, D.~J. Bodony, Data-driven sensor placement for fluid flows,
+  Theoretical and Computational Fluid Dynamics 35~(5) (2021) 709--729.
+\newblock \href {https://doi.org/10.1007/s00162-021-00584-w}
+  {\path{doi:10.1007/s00162-021-00584-w}}.
+
+\bibitem{Maertens2015}
+A.~P. Maertens, G.~D. Weymouth, Accurate {Cartesian}-grid simulations of
+  near-body flows at intermediate {Reynolds} numbers, Computer Methods in
+  Applied Mechanics and Engineering 283 (2015) 106--129.
+\newblock \href {https://doi.org/10.1016/j.cma.2014.09.007}
+  {\path{doi:10.1016/j.cma.2014.09.007}}.
+
+\bibitem{Sha2023}
+Y.~Sha, C.~Wang, Y.~Xu, Y.~Wei, G.~Wang, Y.~Wang, Mode decomposition and sparse
+  reconstruction of the pressure field of the cylinder entering water, Ocean
+  Engineering 276 (2023) 114188.
+\newblock \href {https://doi.org/10.1016/j.oceaneng.2023.114188}
+  {\path{doi:10.1016/j.oceaneng.2023.114188}}.
+
+\bibitem{Loiseau2021}
+J.-C. Loiseau, S.~L. Brunton, B.~R. Noack, From the {POD}-{Galerkin} method to
+  sparse manifold models, In Handbook of Model Order Reduction, Volume 3
+  (2021).
+\newblock \href {https://doi.org/10.1515/9783110499001-009}
+  {\path{doi:10.1515/9783110499001-009}}.
+
+\bibitem{Brunton2016}
+S.~L. Brunton, J.~L. Proctor, J.~N. Kutz, Discovering governing equations from
+  data by sparse identification of nonlinear dynamical systems, Proceedings of
+  the National Academy of Sciences 113~(15) (2016) 3932--3937.
+\newblock \href {https://doi.org/10.1073/pnas.1517384113}
+  {\path{doi:10.1073/pnas.1517384113}}.
+
+\bibitem{He2017}
+G.~S. He, J.~J. Wang, C.~Pan, L.~H. Feng, Q.~Gao, A.~Rinoshika, Vortex dynamics
+  for flow over a circular cylinder in proximity to a wall, Journal of Fluid
+  Mechanics 812 (2017) 698--720.
+\newblock \href {https://doi.org/10.1017/jfm.2016.812}
+  {\path{doi:10.1017/jfm.2016.812}}.
+
+\bibitem{Williamson1996}
+C.~H.~K. Williamson, Vortex dynamics in the cylinder wake, Annual Review of
+  Fluid Mechanics 28 (1996) 477--539.
+\newblock \href {https://doi.org/10.1146/annurev.fl.28.010196.002401}
+  {\path{doi:10.1146/annurev.fl.28.010196.002401}}.
+
+\bibitem{Hanke2000}
+W.~Hanke, C.~Br{\"u}cker, H.~Bleckmann, The ageing of the low-frequency water
+  disturbances caused by swimming goldfish and its possible relevance to prey
+  detection, Journal of Experimental Biology 203~(7) (2000) 1193--1200.
+\newblock \href {https://doi.org/10.1242/jeb.203.7.1193}
+  {\path{doi:10.1242/jeb.203.7.1193}}.
+
+\bibitem{Harris2020}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, R.~Gommers, P.~Virtanen,
+  D.~Cournapeau, E.~Wieser, J.~Taylor, S.~Berg, N.~J. Smith, R.~Kern, M.~Picus,
+  S.~Hoyer, M.~H. van Kerkwijk, M.~Brett, A.~Haldane, J.~F. del R{\'i}o,
+  M.~Wiebe, P.~Peterson, P.~G{\'e}rard-Marchant, K.~Sheppard, T.~Reddy,
+  W.~Weckesser, H.~Abbasi, C.~Gohlke, T.~E. Oliphant, Array programming with
+  {NumPy}, Nature 585~(7825) (2020) 357--362.
+\newblock \href {https://doi.org/10.1038/s41586-020-2649-2}
+  {\path{doi:10.1038/s41586-020-2649-2}}.
+
+\bibitem{Roberts2017}
+D.~R. Roberts, V.~Bahn, S.~Ciuti, M.~S. Boyce, J.~Elith, G.~Guillera-Arroita,
+  S.~Hauenstein, J.~J. Lahoz-Monfort, B.~Schr{\"o}der, W.~Thuiller, D.~I.
+  Warton, B.~A. Wintle, F.~Hartig, C.~F. Dormann, Cross-validation strategies
+  for data with temporal, spatial, hierarchical, or phylogenetic structure,
+  Ecography 40~(8) (2017) 913--929.
+\newblock \href {https://doi.org/10.1111/ecog.02881}
+  {\path{doi:10.1111/ecog.02881}}.
+
+\bibitem{BruntonKutz2022}
+S.~L. Brunton, J.~N. Kutz, Data-Driven Science and Engineering: Machine
+  Learning, Dynamical Systems, and Control, Cambridge University Press, 2022.
+\newblock \href {https://doi.org/10.1017/9781009089517}
+  {\path{doi:10.1017/9781009089517}}.
+
+\bibitem{Su2024}
+J.~Su, Y.~Jin, Q.~Xia, X.~Shi, B.~Sun, X.~Jin, An improved multimodal cirrhosis
+  prediction method through microbiota based on {VQVAE}, in: 2024 5th
+  International Conference on Electronic Communication and Artificial
+  Intelligence ({ICECAI}), {IEEE}, 2024, pp. 377--381.
+\newblock \href {https://doi.org/10.1109/ICECAI62591.2024.10674856}
+  {\path{doi:10.1109/ICECAI62591.2024.10674856}}.
+
+\bibitem{Price2025}
+I.~Price, A.~Sanchez-Gonzalez, F.~Alet, T.~R. Andersson, A.~El-Kadi,
+  D.~Masters, T.~Ewalds, J.~Stott, S.~Mohamed, P.~Battaglia, R.~Lam,
+  M.~Willson, Probabilistic weather forecasting with machine learning, Nature
+  637~(8044) (2025) 84--90.
+\newblock \href {https://doi.org/10.1038/s41586-024-08252-9}
+  {\path{doi:10.1038/s41586-024-08252-9}}.
+
+\bibitem{Huang2024}
+L.~Huang, L.~Gianinazzi, Y.~Yu, P.~D. Dueben, T.~Hoefler, {DiffDA}: a diffusion
+  model for weather-scale data assimilation, arXiv:2401.05932 (2024).
+
+\bibitem{Qiu2024}
+J.~Qiu, J.~Huang, X.~Zhang, Z.~Lin, M.~Pan, Z.~Liu, F.~Miao, {Pi-fusion}:
+  Physics-informed diffusion model for learning fluid dynamics,
+  arXiv:2406.03711 (2024).
+
+\end{thebibliography}

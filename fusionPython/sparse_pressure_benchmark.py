@@ -16,13 +16,14 @@ import pandas as pd
 WIDTH = 256
 HEIGHT = 128
 CYLINDER_DIAMETER_GRID = HEIGHT / 20.0
-TRAIN_FRACTION = 0.60
-VALIDATION_FRACTION = 0.20
+TRAIN_FRACTION = 0.70
+VALIDATION_FRACTION = 0.15
+SPLIT_SEED = 20260612
+POD_ENERGY_THRESHOLD = 0.99
 
 RE_LIST = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
 H_LIST = [6.0, 8.64, 11.34, 13.98, 16.68, 19.32, 22.02, 24.66, 27.36, 30.0]
 
-FULL_RANK_CANDIDATES = [2, 4, 8, 12, 16, 24, 32, 48]
 GAPPY_RANK_CANDIDATES = [1, 2, 3, 4, 5, 6, 7, 8]
 RIDGE_FACTORS = [0.0, 1e-8, 1e-6, 1e-4, 1e-2, 1.0]
 
@@ -46,10 +47,27 @@ CAMBRIDGE_RC = {
 }
 
 
-def default_pressure_root() -> Path:
+def pressure_root_candidates() -> list[Path]:
+    env_root = os.environ.get("AQUAMAN_PRESSURE_ROOT")
+    if env_root:
+        return [Path(env_root)]
     if os.name == "nt":
-        return Path("D:/simuChina/cartesianBDD_FullPressureMap")
-    return Path("/mnt/d/simuChina/cartesianBDD_FullPressureMap")
+        return [
+            Path(f"{drive}:/simuChina/cartesianBDD_FullPressureMap")
+            for drive in ("E", "D", "C")
+        ]
+    return [
+        Path(f"/mnt/{drive}/simuChina/cartesianBDD_FullPressureMap")
+        for drive in ("e", "d", "c")
+    ]
+
+
+def default_pressure_root() -> Path:
+    candidates = pressure_root_candidates()
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
 
 
 def project_root() -> Path:
@@ -166,14 +184,22 @@ def discover_cases(root: Path) -> list[Case]:
     return cases
 
 
-def split_indices(n_snapshots: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    train_end = int(TRAIN_FRACTION * n_snapshots)
-    val_end = int((TRAIN_FRACTION + VALIDATION_FRACTION) * n_snapshots)
-    return (
-        np.arange(0, train_end, dtype=int),
-        np.arange(train_end, val_end, dtype=int),
-        np.arange(val_end, n_snapshots, dtype=int),
-    )
+def case_split_seed(case: Case) -> int:
+    return SPLIT_SEED + case.re * 100_000 + int(round(case.h * 100.0))
+
+
+def split_indices(n_snapshots: int, seed: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    n_train = int(round(TRAIN_FRACTION * n_snapshots))
+    n_validation = int(round(VALIDATION_FRACTION * n_snapshots))
+    n_train = min(max(n_train, 1), n_snapshots - 2)
+    n_validation = min(max(n_validation, 1), n_snapshots - n_train - 1)
+
+    rng = np.random.default_rng(seed)
+    shuffled = rng.permutation(n_snapshots)
+    train_idx = np.sort(shuffled[:n_train])
+    val_idx = np.sort(shuffled[n_train : n_train + n_validation])
+    test_idx = np.sort(shuffled[n_train + n_validation :])
+    return train_idx.astype(int), val_idx.astype(int), test_idx.astype(int)
 
 
 def load_columns(path: Path, columns: np.ndarray | list[int] | None = None) -> np.ndarray:
@@ -199,8 +225,8 @@ def load_full_map(path: Path) -> np.ndarray:
 
 
 def wall_sensor_indices(sensor_count: int = 8, *, y_index: int = 0) -> np.ndarray:
-    # Avoid the two corner cells; physical wall sensors are not mounted at tank corners.
-    x_positions = np.rint(np.linspace(0, WIDTH - 1, sensor_count + 2)[1:-1]).astype(int)
+    # Place sensors over the central half of the wall, matching the region swept by the body.
+    x_positions = np.rint(np.linspace(WIDTH / 4.0, 3.0 * WIDTH / 4.0, sensor_count)).astype(int)
     return x_positions * HEIGHT + y_index
 
 
@@ -209,7 +235,7 @@ def collect_basis_matrix(cases: list[Case], basis_stride: int) -> np.ndarray:
     for i, case in enumerate(cases, start=1):
         if i == 1 or i % 10 == 0 or i == len(cases):
             print(f"  loading basis samples {i}/{len(cases)}", flush=True)
-        train_idx, _, _ = split_indices(case.n_snapshots)
+        train_idx = selected_split_indices(case, "train")
         sampled = train_idx[::basis_stride]
         blocks.append(load_columns(case.path, sampled))
     matrix = np.concatenate(blocks, axis=1)
@@ -226,14 +252,12 @@ def fit_pod_model(
     sensor_indices: np.ndarray,
     *,
     basis_stride: int,
-    max_rank: int,
 ) -> PODModel:
     print(f"Fitting {name} POD basis from {len(cases)} cases...", flush=True)
     matrix = collect_basis_matrix(cases, basis_stride=basis_stride)
     mean = matrix.mean(axis=1).astype(np.float32)
     centered = matrix - mean[:, np.newaxis]
     n_snapshots = centered.shape[1]
-    rank_limit = min(max_rank, n_snapshots - 1)
 
     covariance = (centered.T @ centered) / max(n_snapshots - 1, 1)
     eigvals, eigvecs = np.linalg.eigh(covariance.astype(np.float64, copy=False))
@@ -242,11 +266,13 @@ def fit_pod_model(
     eigvecs = eigvecs[:, order]
 
     positive = eigvals > 1e-12
-    rank_limit = min(rank_limit, int(positive.sum()))
-    eigvals = eigvals[:rank_limit]
+    eigvals = eigvals[positive]
+    eigvecs = eigvecs[:, positive]
+    rank_limit = retained_energy_rank(eigvals, POD_ENERGY_THRESHOLD)
+    modal_eigvals = eigvals[:rank_limit]
     eigvecs = eigvecs[:, :rank_limit]
 
-    singular_values = np.sqrt(eigvals * max(n_snapshots - 1, 1))
+    singular_values = np.sqrt(modal_eigvals * max(n_snapshots - 1, 1))
     modes = centered @ (eigvecs / singular_values[np.newaxis, :])
     norms = np.linalg.norm(modes, axis=0)
     modes = (modes / norms[np.newaxis, :]).astype(np.float32)
@@ -260,7 +286,18 @@ def fit_pod_model(
         modes=modes,
         eigenvalues=eigvals.astype(np.float64),
         sensor_indices=sensor_indices,
+        full_rank=rank_limit,
     )
+
+
+def retained_energy_rank(eigenvalues: np.ndarray, threshold: float) -> int:
+    if eigenvalues.size == 0:
+        return 1
+    total = float(np.sum(eigenvalues))
+    if total <= 0.0:
+        return 1
+    cumulative = np.cumsum(eigenvalues) / total
+    return int(np.searchsorted(cumulative, threshold, side="left") + 1)
 
 
 def ridge_value_for(A: np.ndarray, ridge_factor: float) -> float:
@@ -379,7 +416,7 @@ def evaluate_gappy_params(
 
 
 def selected_split_indices(case: Case, split: str) -> np.ndarray:
-    train_idx, val_idx, test_idx = split_indices(case.n_snapshots)
+    train_idx, val_idx, test_idx = split_indices(case.n_snapshots, case_split_seed(case))
     if split == "train":
         return train_idx
     if split == "validation":
@@ -540,83 +577,37 @@ def score_mean_data(mean: np.ndarray, data: np.ndarray, denominator: float) -> f
     return nrmse
 
 
-def select_full_rank(model: PODModel, cases: list[Case], validation_stride: int) -> int:
-    candidates = [r for r in FULL_RANK_CANDIDATES if r <= model.modes.shape[1]]
-    scores = []
-    blocks = load_split_blocks(cases, "validation", validation_stride)
-    projected = project_blocks(model, blocks)
-    try:
-        for rank in candidates:
-            nrmse, _ = score_full_projected(projected, rank)
-            scores.append((nrmse, rank))
-    finally:
-        release_projected_blocks(projected)
-        release_blocks(blocks)
-    scores.sort()
-    return scores[0][1]
-
-
-def select_gappy_params(
-    model: PODModel,
-    cases: list[Case],
-    validation_stride: int,
-) -> tuple[int, float, float, float]:
-    candidates = [r for r in GAPPY_RANK_CANDIDATES if r <= model.modes.shape[1]]
-    candidates = [r for r in candidates if r <= len(model.sensor_indices)]
-    scores = []
-    blocks = load_split_blocks(cases, "validation", validation_stride)
-    projected = project_blocks(model, blocks)
-    try:
-        for rank in candidates:
-            for ridge_factor in RIDGE_FACTORS:
-                nrmse, _, ridge_value, condition = score_gappy_projected(
-                    model,
-                    projected,
-                    rank,
-                    ridge_factor,
-                )
-                scores.append((nrmse, rank, ridge_factor, ridge_value, condition))
-    finally:
-        release_projected_blocks(projected)
-        release_blocks(blocks)
-    scores.sort(key=lambda row: row[0])
-    _, rank, ridge_factor, ridge_value, condition = scores[0]
-    return rank, ridge_factor, ridge_value, condition
-
-
 def select_model_parameters(
     model: PODModel,
     cases: list[Case],
     validation_stride: int,
 ) -> tuple[int, int, float, float, float]:
-    full_candidates = [r for r in FULL_RANK_CANDIDATES if r <= model.modes.shape[1]]
-    gappy_candidates = [r for r in GAPPY_RANK_CANDIDATES if r <= model.modes.shape[1]]
-    gappy_candidates = [r for r in gappy_candidates if r <= len(model.sensor_indices)]
+    full_rank = int(model.full_rank or model.modes.shape[1])
+    gappy_candidates = [
+        rank
+        for rank in GAPPY_RANK_CANDIDATES
+        if rank <= len(model.sensor_indices) and rank <= model.modes.shape[1]
+    ]
+    if not gappy_candidates:
+        gappy_candidates = [min(len(model.sensor_indices), model.modes.shape[1])]
     blocks = load_split_blocks(cases, "validation", validation_stride)
     projected = project_blocks(model, blocks)
     try:
-        full_scores = []
-        for rank in full_candidates:
-            nrmse, _ = score_full_projected(projected, rank)
-            full_scores.append((nrmse, rank))
-        full_scores.sort()
-
         gappy_scores = []
-        for rank in gappy_candidates:
+        for gappy_rank in gappy_candidates:
             for ridge_factor in RIDGE_FACTORS:
                 nrmse, _, ridge_value, condition = score_gappy_projected(
                     model,
                     projected,
-                    rank,
+                    gappy_rank,
                     ridge_factor,
                 )
-                gappy_scores.append((nrmse, rank, ridge_factor, ridge_value, condition))
+                gappy_scores.append((nrmse, gappy_rank, ridge_factor, ridge_value, condition))
         gappy_scores.sort(key=lambda row: row[0])
     finally:
         release_projected_blocks(projected)
         release_blocks(blocks)
 
-    _, full_rank = full_scores[0]
     _, gappy_rank, ridge_factor, ridge_value, condition = gappy_scores[0]
     return full_rank, gappy_rank, ridge_factor, ridge_value, condition
 
@@ -679,7 +670,6 @@ def configure_models(
     cases: list[Case],
     sensor_count: int,
     basis_stride: int,
-    max_rank: int,
     validation_stride: int,
 ) -> tuple[PODModel, dict[str, PODModel]]:
     sensors = wall_sensor_indices(sensor_count)
@@ -689,7 +679,6 @@ def configure_models(
         cases,
         sensors,
         basis_stride=basis_stride,
-        max_rank=max_rank,
     )
     (
         global_model.full_rank,
@@ -715,7 +704,6 @@ def configure_models(
             regime_cases,
             sensors,
             basis_stride=basis_stride,
-            max_rank=max_rank,
         )
         (
             model.full_rank,
@@ -740,14 +728,12 @@ def run_benchmark(
     *,
     sensor_count: int,
     basis_stride: int,
-    max_rank: int,
     validation_stride: int,
 ) -> pd.DataFrame:
     global_model, local_models = configure_models(
         cases,
         sensor_count=sensor_count,
         basis_stride=basis_stride,
-        max_rank=max_rank,
         validation_stride=validation_stride,
     )
     rows = []
@@ -880,7 +866,7 @@ def save_figure(
     fig: plt.Figure,
     out_base: Path,
     *,
-    save_pdf: bool = False,
+    save_pdf: bool = True,
     save_tiff: bool = False,
 ) -> None:
     fig.savefig(f"{out_base}.eps", format="eps", bbox_inches="tight")
@@ -1061,7 +1047,6 @@ def main() -> None:
     parser.add_argument("--sensor-count", type=int, default=8)
     parser.add_argument("--basis-stride", type=int, default=6)
     parser.add_argument("--validation-stride", type=int, default=4)
-    parser.add_argument("--max-rank", type=int, default=48)
     parser.add_argument("--subset", action="store_true")
     parser.add_argument("--plot-only", action="store_true")
     args = parser.parse_args()
@@ -1088,7 +1073,6 @@ def main() -> None:
             cases,
             sensor_count=args.sensor_count,
             basis_stride=args.basis_stride,
-            max_rank=args.max_rank,
             validation_stride=args.validation_stride,
         )
         results_path = out_dir / f"sparse_pressure_benchmark_results{suffix}.csv"

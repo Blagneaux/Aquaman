@@ -1,34 +1,35 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 # ----------------------------
-# Autocorrelation computation
+# Reference-frame correlation computation
 # ----------------------------
-def autocorrelation_with_reference(data):
+def reference_frame_correlation(data):
     # Take the last column as the reference state
     reference_state = data[:, -1]
 
     # Normalize reference once (saves time)
     ref = (reference_state - np.mean(reference_state)) / (np.std(reference_state) + 1e-10)
 
-    autocorrelations = []
+    correlations = []
     for i in range(data.shape[1]):
         col = data[:, i]
         col = (col - np.mean(col)) / (np.std(col) + 1e-10)
 
         # correlation at lag 0 (valid mode gives one value for equal-length arrays)
         correlation = np.correlate(col, ref, mode="valid")[0]
-        autocorrelations.append(correlation)
+        correlations.append(correlation)
 
-    return np.asarray(autocorrelations)
+    return np.asarray(correlations)
 
 
 # ----------------------------
 # Publication-quality plotting
 # ----------------------------
-def plot_autocorrelation(
-    autocorrelations,
+def plot_reference_frame_correlation(
+    correlations,
     out_base="figure2_autocorrelation",
     downsample=5,               # plot every Nth point to reduce overplotting
     fig_width_in=6.8,           # ~single-column width; adjust if needed
@@ -64,7 +65,7 @@ def plot_autocorrelation(
         "ytick.major.width": 0.8,
     })
 
-    y = np.asarray(autocorrelations)
+    y = np.asarray(correlations)
     x = np.arange(len(y))
 
     # Downsample to reduce file weight and visual clutter
@@ -85,7 +86,7 @@ def plot_autocorrelation(
 
     # Keep title shorter for journal aesthetics; move details to caption in manuscript
     ax.set_xlabel(r"Time steps ($10^3$)")
-    ax.set_ylabel(r"Autocorrelation ($10^3$)")
+    ax.set_ylabel(r"Correlation with final snapshot ($10^3$)")
 
     ax.grid(True, linewidth=0.6)     # >= 0.5 pt
     fig.tight_layout()
@@ -94,10 +95,7 @@ def plot_autocorrelation(
     # 1) EPS (preferred): vector + editable text
     fig.savefig(f"{out_base}.eps", format="eps", bbox_inches="tight")
 
-    # 2) TIFF fallback: line art should be 1200 dpi
-    fig.savefig(f"{out_base}.tiff", format="tiff", dpi=1200, bbox_inches="tight")
-
-    # Optional: also save PDF for your own checking
+    # 2) PDF for the manuscript and local checking
     fig.savefig(f"{out_base}.pdf", format="pdf", bbox_inches="tight")
 
     plt.show()
@@ -112,13 +110,23 @@ def load_data(path):
 # ----------------------------
 # Example usage
 # ----------------------------
-full_data_path = "D:/simuChina/cartesianBDD_FullVorticityMapFixed/Re10000_h6.0/FullMap.csv"
+figure_dir = Path(__file__).resolve().parent / "article" / "figures"
+data_candidates = [
+    Path("D:/simuChina/cartesianBDD_FullVorticityMapFixed/Re10000_h6.0/FullMap.csv"),
+    Path("D:/simuChina/cartesianBDD_FullVorticityMap_Fixed/Re10000_h6.0/FullMap.csv"),
+    Path("E:/simuChina/cartesianBDD_FullVorticityMapFixed/Re10000_h6.0/FullMap.csv"),
+    Path("E:/simuChina/cartesianBDD_FullVorticityMap_Fixed/Re10000_h6.0/FullMap.csv"),
+]
+full_data_path = next((path for path in data_candidates if path.exists()), None)
+if full_data_path is None:
+    raise FileNotFoundError("Could not find Re10000_h6.0/FullMap.csv in expected data folders.")
+
 data = load_data(full_data_path)
 
-autocorr_results = autocorrelation_with_reference(data)
+correlation_results = reference_frame_correlation(data)
 
-plot_autocorrelation(
-    autocorr_results,
-    out_base="figure2_autocorrelation",
+plot_reference_frame_correlation(
+    correlation_results,
+    out_base=str(figure_dir / "figure2_autocorrelation"),
     downsample=5  # increase to 10 if still too dense
 )
