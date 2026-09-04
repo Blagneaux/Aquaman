@@ -1,7 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  9 JUN 2026 13:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  28 AUG 2026 18:55
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
 **supplementary_material.tex
 (./supplementary_material.tex
@@ -465,43 +464,43 @@ Package hyperref Info: Link coloring OFF on input line 21.
 \openout3 = `supplementary_material.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 3
-2.
+5.
 
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<ot1.cmap>>
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 3
-2.
+5.
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<oml.cmap>>
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-32.
+35.
 
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<oms.cmap>>
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-32.
+35.
 
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 32.
+(Font)              <10.95> on input line 35.
 <<omx.cmap>>
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 32.
+(Font)              <8> on input line 35.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 32.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 32.
+(Font)              <6> on input line 35.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 35.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 32.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 35.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -510,26 +509,32 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/
 dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/sha
-re/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-m
-athex.enc}]
-[2] [3{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}]
-<supplementary_media/real_pressure_threshold_curves_75.pdf, id=42, 859.5312pt x
+re/texmf/fonts/enc/dvips/lm/lm-rm.enc}]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 84.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 84.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 84.
+ [2{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}]
+[3{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}] [4]
+<supplementary_media/real_pressure_threshold_curves_75.pdf, id=50, 859.5312pt x
  576.2033pt>
 File: supplementary_media/real_pressure_threshold_curves_75.pdf Graphic file (t
 ype pdf)
 <use supplementary_media/real_pressure_threshold_curves_75.pdf>
 Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_75.
-pdf  used on input line 162.
+pdf  used on input line 195.
 (pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
-<supplementary_media/real_pressure_threshold_curves_99.pdf, id=43, 859.5312pt x
+<supplementary_media/real_pressure_threshold_curves_99.pdf, id=51, 859.5312pt x
  576.2033pt>
 File: supplementary_media/real_pressure_threshold_curves_99.pdf Graphic file (t
 ype pdf)
 <use supplementary_media/real_pressure_threshold_curves_99.pdf>
 Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_99.
-pdf  used on input line 168.
+pdf  used on input line 201.
 (pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
- [4] [5 <./supplementary_media/real_pressure_threshold_curves_75.pdf>] [6 <./su
+ [5] [6 <./supplementary_media/real_pressure_threshold_curves_75.pdf>] [7 <./su
 pplementary_media/real_pressure_threshold_curves_99.pdf>] (./supplementary_mate
 rial.aux)
  ***********
@@ -541,23 +546,23 @@ Package rerunfilecheck Info: File `supplementary_material.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 11868 strings out of 476182
- 185937 string characters out of 5795596
- 1939975 words of memory out of 5000000
- 33673 multiletter control sequences out of 15000+600000
- 586366 words of font info for 59 fonts, out of 8000000 for 9000
+ 11911 strings out of 476182
+ 186476 string characters out of 5795596
+ 1940975 words of memory out of 5000000
+ 33692 multiletter control sequences out of 15000+600000
+ 601392 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,11n,79p,1137b,444s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,991b,449s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></u
 sr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/p
 ublic/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/shar
 e/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/
 lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb>
-Output written on supplementary_material.pdf (6 pages, 172132 bytes).
+Output written on supplementary_material.pdf (7 pages, 177827 bytes).
 PDF statistics:
- 119 PDF objects out of 1000 (max. 8388607)
- 88 compressed objects within 1 object stream
- 23 named destinations out of 1000 (max. 500000)
+ 128 PDF objects out of 1000 (max. 8388607)
+ 96 compressed objects within 1 object stream
+ 26 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -219,6 +219,631 @@
       \verb 10.1126/science.1088295
       \endverb
     \endentry
+    \entry{colvert2018}{article}{}
+      \name{author}{3}{}{%
+        {{hash=7315917731cdaff0cfd2e8511a2a9014}{%
+           family={Colvert},
+           familyi={C\bibinitperiod},
+           given={Brendan},
+           giveni={B\bibinitperiod}}}%
+        {{hash=1aff255a1c12e570c5fc9d40845ef2fb}{%
+           family={Alsalman},
+           familyi={A\bibinitperiod},
+           given={Mohamad},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c36ede34a495f2d897b7fdbb5bc9e3f8}{%
+           family={Kanso},
+           familyi={K\bibinitperiod},
+           given={Eva},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{28feddf0b286ce03ff6cd8302fa91e37}
+      \strng{fullhash}{311e801c0275afc2a0c92579f69acf12}
+      \strng{bibnamehash}{311e801c0275afc2a0c92579f69acf12}
+      \strng{authorbibnamehash}{311e801c0275afc2a0c92579f69acf12}
+      \strng{authornamehash}{28feddf0b286ce03ff6cd8302fa91e37}
+      \strng{authorfullhash}{311e801c0275afc2a0c92579f69acf12}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Bioinspir Biomim}
+      \field{number}{2}
+      \field{title}{Classifying vortex wakes using neural networks}
+      \field{volume}{13}
+      \field{year}{2018}
+      \field{pages}{025003}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1088/1748-3190/aaa787
+      \endverb
+    \endentry
+    \entry{lakkam2019}{article}{}
+      \name{author}{3}{}{%
+        {{hash=e61e3d7855c805cf5ef5422756e1af12}{%
+           family={Lakkam},
+           familyi={L\bibinitperiod},
+           given={Sreetej},
+           giveni={S\bibinitperiod}}}%
+        {{hash=dba24a6f204a666cc72f075f579bfb1d}{%
+           family={Balamurali},
+           familyi={B\bibinitperiod},
+           given={B.\bibnamedelimi T.},
+           giveni={B\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=0ef768a0f70c70e07476a88f403f2051}{%
+           family={Bouffanais},
+           familyi={B\bibinitperiod},
+           given={Roland},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{e7ff71940816d476fd5bc5d6a256a3ae}
+      \strng{fullhash}{ccd8c15adc18423a3f51e227d628c52a}
+      \strng{bibnamehash}{ccd8c15adc18423a3f51e227d628c52a}
+      \strng{authorbibnamehash}{ccd8c15adc18423a3f51e227d628c52a}
+      \strng{authornamehash}{e7ff71940816d476fd5bc5d6a256a3ae}
+      \strng{authorfullhash}{ccd8c15adc18423a3f51e227d628c52a}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Sci Rep}
+      \field{title}{Hydrodynamic object identification with artificial neural models}
+      \field{volume}{9}
+      \field{year}{2019}
+      \field{pages}{11242}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1038/s41598-019-47747-8
+      \endverb
+    \endentry
+    \entry{luo2024}{article}{}
+      \name{author}{3}{}{%
+        {{hash=ed9371f2fcdef259ee99a05ffc0cd7d9}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Ruilong},
+           giveni={R\bibinitperiod}}}%
+        {{hash=8b90b3020f52377e5fa221d7f24fa0ad}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Chengxiang},
+           giveni={C\bibinitperiod}}}%
+        {{hash=4731e10e61b37617d5f7c88ae3f664bf}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Fang},
+           giveni={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{f865e247796026f5708f2c14c46392fb}
+      \strng{fullhash}{cc89c4e151f2e2788ab6f3476aad22fa}
+      \strng{bibnamehash}{cc89c4e151f2e2788ab6f3476aad22fa}
+      \strng{authorbibnamehash}{cc89c4e151f2e2788ab6f3476aad22fa}
+      \strng{authornamehash}{f865e247796026f5708f2c14c46392fb}
+      \strng{authorfullhash}{cc89c4e151f2e2788ab6f3476aad22fa}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Ocean Eng}
+      \field{title}{Underwater motion target recognition using artificial lateral line system and artificial neural network method}
+      \field{volume}{303}
+      \field{year}{2024}
+      \field{pages}{117757}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.oceaneng.2024.117757
+      \endverb
+    \endentry
+    \entry{gazzola2015}{misc}{}
+      \name{author}{5}{}{%
+        {{hash=01999f474301ecf9c9f35c8f193f8a4a}{%
+           family={Gazzola},
+           familyi={G\bibinitperiod},
+           given={Mattia},
+           giveni={M\bibinitperiod}}}%
+        {{hash=bb72ffe914f73483227d57c9c10a78d5}{%
+           family={Tchieu},
+           familyi={T\bibinitperiod},
+           given={Andrew\bibnamedelima A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=5fdfec3fd35d8df9b2f462687bc7b42d}{%
+           family={Alexeev},
+           familyi={A\bibinitperiod},
+           given={Dmitry},
+           giveni={D\bibinitperiod}}}%
+        {{hash=4dc70e7ef8037e0e72d23eba8c79d368}{%
+           family={Brauer},
+           familyi={B\bibinitperiod},
+           given={Alexia},
+           giveni={A\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+        {{hash=d0a18518b57cef85c32665e92ec3dea1}{%
+           family={Koumoutsakos},
+           familyi={K\bibinitperiod},
+           given={Petros},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{3756da05c7d97f653997be8be8c430c6}
+      \strng{fullhash}{b50894640f01be209e57d115aa9b00e2}
+      \strng{bibnamehash}{b50894640f01be209e57d115aa9b00e2}
+      \strng{authorbibnamehash}{b50894640f01be209e57d115aa9b00e2}
+      \strng{authornamehash}{3756da05c7d97f653997be8be8c430c6}
+      \strng{authorfullhash}{b50894640f01be209e57d115aa9b00e2}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{physics.flu-dyn}
+      \field{eprinttype}{arXiv}
+      \field{title}{Learning to school in the presence of hydrodynamic interactions}
+      \field{year}{2015}
+      \verb{doi}
+      \verb 10.48550/arXiv.1509.04605
+      \endverb
+      \verb{eprint}
+      \verb 1509.04605
+      \endverb
+    \endentry
+    \entry{jiao2021}{article}{}
+      \name{author}{6}{}{%
+        {{hash=62a3b10547dc8ab15237aa9111d21315}{%
+           family={Jiao},
+           familyi={J\bibinitperiod},
+           given={Yusheng},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=8359d539a229d6f09fc14a43f45577db}{%
+           family={Ling},
+           familyi={L\bibinitperiod},
+           given={Feng},
+           giveni={F\bibinitperiod}}}%
+        {{hash=a931c7d936e0f1d6503048c1ea75681f}{%
+           family={Heydari},
+           familyi={H\bibinitperiod},
+           given={Sina},
+           giveni={S\bibinitperiod}}}%
+        {{hash=231312991eab5915498d6c19c2a8cd4e}{%
+           family={Heess},
+           familyi={H\bibinitperiod},
+           given={Nicolas},
+           giveni={N\bibinitperiod}}}%
+        {{hash=ac49e241f88460f90f9f1ab5f88db248}{%
+           family={Merel},
+           familyi={M\bibinitperiod},
+           given={Josh},
+           giveni={J\bibinitperiod}}}%
+        {{hash=c36ede34a495f2d897b7fdbb5bc9e3f8}{%
+           family={Kanso},
+           familyi={K\bibinitperiod},
+           given={Eva},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{869e51c5bb9f026f7cb11fe6ab70a9c0}
+      \strng{fullhash}{2692a8b8c6c54ba498f8908eae4400aa}
+      \strng{bibnamehash}{2692a8b8c6c54ba498f8908eae4400aa}
+      \strng{authorbibnamehash}{2692a8b8c6c54ba498f8908eae4400aa}
+      \strng{authornamehash}{869e51c5bb9f026f7cb11fe6ab70a9c0}
+      \strng{authorfullhash}{2692a8b8c6c54ba498f8908eae4400aa}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Phys Rev Fluids}
+      \field{title}{Learning to swim in potential flow}
+      \field{volume}{6}
+      \field{year}{2021}
+      \field{pages}{050505}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/PhysRevFluids.6.050505
+      \endverb
+    \endentry
+    \entry{verma2018}{article}{}
+      \name{author}{3}{}{%
+        {{hash=c315082c97f9371151095a10cada15b3}{%
+           family={Verma},
+           familyi={V\bibinitperiod},
+           given={Siddhartha},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7203147c56d523209c58cee03dfc24db}{%
+           family={Novati},
+           familyi={N\bibinitperiod},
+           given={Guido},
+           giveni={G\bibinitperiod}}}%
+        {{hash=d0a18518b57cef85c32665e92ec3dea1}{%
+           family={Koumoutsakos},
+           familyi={K\bibinitperiod},
+           given={Petros},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{8aedef29658fcb63ba7dec9c4db84bbc}
+      \strng{fullhash}{88d486a1c528346b2718a589c3911c92}
+      \strng{bibnamehash}{88d486a1c528346b2718a589c3911c92}
+      \strng{authorbibnamehash}{88d486a1c528346b2718a589c3911c92}
+      \strng{authornamehash}{8aedef29658fcb63ba7dec9c4db84bbc}
+      \strng{authorfullhash}{88d486a1c528346b2718a589c3911c92}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Proc Natl Acad Sci USA}
+      \field{number}{23}
+      \field{title}{Efficient collective swimming by harnessing vortices through deep reinforcement learning}
+      \field{volume}{115}
+      \field{year}{2018}
+      \field{pages}{5849\bibrangedash 5854}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1073/pnas.1800923115
+      \endverb
+    \endentry
+    \entry{feng2024}{article}{}
+      \name{author}{7}{}{%
+        {{hash=e8c336d6d34964005ea982ac4024d5fe}{%
+           family={Feng},
+           familyi={F\bibinitperiod},
+           given={Hao-dong},
+           giveni={H\bibinithyphendelim d\bibinitperiod}}}%
+        {{hash=e5c8c07c3222b6cf630c69eb437fd0b9}{%
+           family={Yuan},
+           familyi={Y\bibinitperiod},
+           given={De-han},
+           giveni={D\bibinithyphendelim h\bibinitperiod}}}%
+        {{hash=42d8d52774243af7e377a44dd60f39f2}{%
+           family={Miao},
+           familyi={M\bibinitperiod},
+           given={Jia-le},
+           giveni={J\bibinithyphendelim l\bibinitperiod}}}%
+        {{hash=8607460806a8d9319ed2c490c8cd10f7}{%
+           family={You},
+           familyi={Y\bibinitperiod},
+           given={Jie},
+           giveni={J\bibinitperiod}}}%
+        {{hash=471e61c37bc3e62dbe8655e02a002343}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Yue},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=017c8fdccfa4d7fe6b3cf42ea7acad7a}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=b83bf1b1d8228f886dd7753dbd21c9d7}{%
+           family={Fan},
+           familyi={F\bibinitperiod},
+           given={Di-xia},
+           giveni={D\bibinithyphendelim x\bibinitperiod}}}%
+      }
+      \strng{namehash}{ab4da2ba8609ea760bb0e5c308fc6ea6}
+      \strng{fullhash}{cdcb757523046f01551c8cbf6904f6b7}
+      \strng{bibnamehash}{cdcb757523046f01551c8cbf6904f6b7}
+      \strng{authorbibnamehash}{cdcb757523046f01551c8cbf6904f6b7}
+      \strng{authornamehash}{ab4da2ba8609ea760bb0e5c308fc6ea6}
+      \strng{authorfullhash}{cdcb757523046f01551c8cbf6904f6b7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{J Hydrodyn}
+      \field{title}{Efficient navigation of a robotic fish swimming across the vortical flow field}
+      \field{volume}{36}
+      \field{year}{2024}
+      \field{pages}{1118\bibrangedash 1129}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1007/s42241-025-0103-5
+      \endverb
+    \endentry
+    \entry{cui2024}{article}{}
+      \name{author}{8}{}{%
+        {{hash=14c17212d9a32fbe3ea02a10db43db4c}{%
+           family={Cui},
+           familyi={C\bibinitperiod},
+           given={Xinyu},
+           giveni={X\bibinitperiod}}}%
+        {{hash=06445f1e8565e3a6a2a705d335498451}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Boai},
+           giveni={B\bibinitperiod}}}%
+        {{hash=017c8fdccfa4d7fe6b3cf42ea7acad7a}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=d9125b7654a1ab28a3224e1f04fd09ed}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Ning},
+           giveni={N\bibinitperiod}}}%
+        {{hash=a0484cb7d05509640954429962ad4a56}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Haifeng},
+           giveni={H\bibinitperiod}}}%
+        {{hash=ffc2a142a80c36a43e6f4feaf9456d83}{%
+           family={Cui},
+           familyi={C\bibinitperiod},
+           given={Weicheng},
+           giveni={W\bibinitperiod}}}%
+        {{hash=2a6e5181a33b105a1761f868934f9740}{%
+           family={Fan},
+           familyi={F\bibinitperiod},
+           given={Dixia},
+           giveni={D\bibinitperiod}}}%
+        {{hash=2f3ea981fa5a715a69118b48e576a9f5}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Jun},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{29de979adff914949dec495c85193967}
+      \strng{fullhash}{f4445c1ced300053bf5815ea9956b712}
+      \strng{bibnamehash}{f4445c1ced300053bf5815ea9956b712}
+      \strng{authorbibnamehash}{f4445c1ced300053bf5815ea9956b712}
+      \strng{authornamehash}{29de979adff914949dec495c85193967}
+      \strng{authorfullhash}{f4445c1ced300053bf5815ea9956b712}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Phys Fluids}
+      \field{title}{Enhancing Efficiency and Propulsion in Bio-mimetic Robotic Fish through End-to-End Deep Reinforcement Learning}
+      \field{volume}{36}
+      \field{year}{2024}
+      \field{pages}{031910}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1063/5.0192993
+      \endverb
+    \endentry
+    \entry{borazjani2010}{article}{}
+      \name{author}{2}{}{%
+        {{hash=704c1fedaff3c82489a27eb1f253cedc}{%
+           family={Borazjani},
+           familyi={B\bibinitperiod},
+           given={Iman},
+           giveni={I\bibinitperiod}}}%
+        {{hash=0030bc0160556dca9463e51ba11c1b16}{%
+           family={Sotiropoulos},
+           familyi={S\bibinitperiod},
+           given={Fotis},
+           giveni={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \strng{fullhash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \strng{bibnamehash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \strng{authorbibnamehash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \strng{authornamehash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \strng{authorfullhash}{d672c8d7b535a68b02c65788b7d9b6e8}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{J Exp Biol}
+      \field{number}{1}
+      \field{title}{On the role of form and kinematics on the hydrodynamics of self-propelled body/caudal fin swimming}
+      \field{volume}{213}
+      \field{year}{2010}
+      \field{pages}{89\bibrangedash 107}
+      \range{pages}{19}
+      \verb{doi}
+      \verb 10.1242/jeb.030932
+      \endverb
+    \endentry
+    \entry{daghooghi2025}{article}{}
+      \name{author}{3}{}{%
+        {{hash=b66efe6e822c243b1fb9a5ca382f1e25}{%
+           family={Daghooghi},
+           familyi={D\bibinitperiod},
+           given={Mohsen},
+           giveni={M\bibinitperiod}}}%
+        {{hash=2b29292d0982c66866a9c10e3e431690}{%
+           family={Mallepaddi},
+           familyi={M\bibinitperiod},
+           given={Roopesh\bibnamedelima Kishan},
+           giveni={R\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=704c1fedaff3c82489a27eb1f253cedc}{%
+           family={Borazjani},
+           familyi={B\bibinitperiod},
+           given={Iman},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{f074556b1e1a74d48d3ec3b67db4a6fa}
+      \strng{fullhash}{e04e914a95826cd27208001e08cc6914}
+      \strng{bibnamehash}{e04e914a95826cd27208001e08cc6914}
+      \strng{authorbibnamehash}{e04e914a95826cd27208001e08cc6914}
+      \strng{authornamehash}{f074556b1e1a74d48d3ec3b67db4a6fa}
+      \strng{authorfullhash}{e04e914a95826cd27208001e08cc6914}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{J Fluid Mech}
+      \field{title}{Pressure and vorticity scaling in anguilliform and carangiform swimming}
+      \field{volume}{1010}
+      \field{year}{2025}
+      \field{pages}{A28}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1017/jfm.2025.251
+      \endverb
+    \endentry
+    \entry{khalid2021}{article}{}
+      \name{author}{6}{}{%
+        {{hash=76a32d805438765831d5a1b1465849b9}{%
+           family={Khalid},
+           familyi={K\bibinitperiod},
+           given={Muhammad\bibnamedelimb Saif\bibnamedelima Ullah},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod\bibinitdelim U\bibinitperiod}}}%
+        {{hash=38f75b0dc43d609744a1b7134c9f36d5}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Junshi},
+           giveni={J\bibinitperiod}}}%
+        {{hash=4e8d51270ad19b9ce639087b701d0d18}{%
+           family={Akhtar},
+           familyi={A\bibinitperiod},
+           given={Imran},
+           giveni={I\bibinitperiod}}}%
+        {{hash=dd8bd342663d71a9ea72c23311aa6cd2}{%
+           family={Hemmati},
+           familyi={H\bibinitperiod},
+           given={Arman},
+           giveni={A\bibinitperiod}}}%
+        {{hash=fabde4daa7159ba183a1950a66ec10a2}{%
+           family={Dong},
+           familyi={D\bibinitperiod},
+           given={Haibo},
+           giveni={H\bibinitperiod}}}%
+        {{hash=b42879b6799a904ce2cbf171c103d589}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Moubin},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{7b96aa700e156ca44f88a0d5f7e6dd7e}
+      \strng{fullhash}{12a027837ab05ab6be4cc2a2f344b3cc}
+      \strng{bibnamehash}{12a027837ab05ab6be4cc2a2f344b3cc}
+      \strng{authorbibnamehash}{12a027837ab05ab6be4cc2a2f344b3cc}
+      \strng{authornamehash}{7b96aa700e156ca44f88a0d5f7e6dd7e}
+      \strng{authorfullhash}{12a027837ab05ab6be4cc2a2f344b3cc}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Phys Rev Fluids}
+      \field{title}{Larger wavelengths suit the hydrodynamics of carangiform swimmers}
+      \field{volume}{6}
+      \field{year}{2021}
+      \field{pages}{073101}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/PhysRevFluids.6.073101
+      \endverb
+    \endentry
+    \entry{zhou2025}{article}{}
+      \name{author}{3}{}{%
+        {{hash=e8dad2b9d6a29318fab699eac093bc41}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Ji},
+           giveni={J\bibinitperiod}}}%
+        {{hash=0817626d83c797c6e4dab2f1290dd977}{%
+           family={Seo},
+           familyi={S\bibinitperiod},
+           given={Jung-Hee},
+           giveni={J\bibinithyphendelim H\bibinitperiod}}}%
+        {{hash=17ea8f19e2f7f049e668cb418d9ed141}{%
+           family={Mittal},
+           familyi={M\bibinitperiod},
+           given={Rajat},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{f5d5707b9142db4b185e5ac300e0daa5}
+      \strng{fullhash}{f83df9c71db1a106a5bbb9eb1dc2b9f8}
+      \strng{bibnamehash}{f83df9c71db1a106a5bbb9eb1dc2b9f8}
+      \strng{authorbibnamehash}{f83df9c71db1a106a5bbb9eb1dc2b9f8}
+      \strng{authornamehash}{f5d5707b9142db4b185e5ac300e0daa5}
+      \strng{authorfullhash}{f83df9c71db1a106a5bbb9eb1dc2b9f8}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{J Fluid Mech}
+      \field{title}{Hydrodynamically beneficial school configurations in carangiform swimmers: insights from a flow-physics informed model}
+      \field{volume}{1014}
+      \field{year}{2025}
+      \field{pages}{A32}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1017/jfm.2025.10303
+      \endverb
+    \endentry
+    \entry{maertens2016}{misc}{}
+      \name{author}{3}{}{%
+        {{hash=b9c74e5046ea1fe910a19eb6ee59c637}{%
+           family={Maertens},
+           familyi={M\bibinitperiod},
+           given={Audrey\bibnamedelima P.},
+           giveni={A\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=b0fd765c022586b6f1d0c3f14f78e042}{%
+           family={Gao},
+           familyi={G\bibinitperiod},
+           given={Amy},
+           giveni={A\bibinitperiod}}}%
+        {{hash=7520be210a73cc56c9464a93a5f03b6b}{%
+           family={Triantafyllou},
+           familyi={T\bibinitperiod},
+           given={Michael\bibnamedelima S.},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{17800dbae23fc3d3f953d1b89d4c0c34}
+      \strng{fullhash}{47429a32cdaa2e02afb61b02643c0933}
+      \strng{bibnamehash}{47429a32cdaa2e02afb61b02643c0933}
+      \strng{authorbibnamehash}{47429a32cdaa2e02afb61b02643c0933}
+      \strng{authornamehash}{17800dbae23fc3d3f953d1b89d4c0c34}
+      \strng{authorfullhash}{47429a32cdaa2e02afb61b02643c0933}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{physics.flu-dyn}
+      \field{eprinttype}{arXiv}
+      \field{title}{Optimal undulating swimming for a single fish-like body and for a pair of interacting swimmers}
+      \field{year}{2016}
+      \verb{doi}
+      \verb 10.48550/arXiv.1604.01065
+      \endverb
+      \verb{eprint}
+      \verb 1604.01065
+      \endverb
+    \endentry
+    \entry{li2021}{article}{}
+      \name{author}{4}{}{%
+        {{hash=d9acdfc178153ae66cc7cabcb735e635}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Liang},
+           giveni={L\bibinitperiod}}}%
+        {{hash=23eb4957f84e2ae9dc2b00410adfea9f}{%
+           family={Ravi},
+           familyi={R\bibinitperiod},
+           given={Sridhar},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7855369c5253114e04e610dec1eaf933}{%
+           family={Xie},
+           familyi={X\bibinitperiod},
+           given={Guangming},
+           giveni={G\bibinitperiod}}}%
+        {{hash=2f62b6aee41665c647c022eea795e862}{%
+           family={Couzin},
+           familyi={C\bibinitperiod},
+           given={Iain\bibnamedelima D.},
+           giveni={I\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+      }
+      \strng{namehash}{73821b6df8c55ccc068d804647beb72b}
+      \strng{fullhash}{9a0ae6925e4126eefd146ebb4382a33c}
+      \strng{bibnamehash}{9a0ae6925e4126eefd146ebb4382a33c}
+      \strng{authorbibnamehash}{9a0ae6925e4126eefd146ebb4382a33c}
+      \strng{authornamehash}{73821b6df8c55ccc068d804647beb72b}
+      \strng{authorfullhash}{9a0ae6925e4126eefd146ebb4382a33c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Proc R Soc A}
+      \field{number}{2249}
+      \field{title}{Using a robotic platform to study the influence of relative tailbeat phase on the energetic costs of side-by-side swimming in fish}
+      \field{volume}{477}
+      \field{year}{2021}
+      \field{pages}{20200810}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1098/rspa.2020.0810
+      \endverb
+    \endentry
     \entry{lagneaux2024}{inproceedings}{}
       \name{author}{6}{}{%
         {{hash=6d84b8d7b77f42856cb84be839d101c3}{%
@@ -262,8 +887,8 @@
       \strng{authornamehash}{3b18f915e05fadc4e334e5c2a24f2dea}
       \strng{authorfullhash}{ce8424a22c9099a0d0399b1219de21a6}
       \field{extraname}{1}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{2024 International Conference on Artificial Intelligence, Computer, Data Sciences and Applications (ACDSA)}
@@ -318,8 +943,8 @@
       \strng{authornamehash}{3b18f915e05fadc4e334e5c2a24f2dea}
       \strng{authorfullhash}{20a3bd74135ecc1ed21fa79e5d7d191e}
       \field{extraname}{2}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{DebConf25}
@@ -353,8 +978,8 @@
       \strng{authorbibnamehash}{619d8c01dfc9bf2bf99e5530dd01b66e}
       \strng{authornamehash}{619d8c01dfc9bf2bf99e5530dd01b66e}
       \strng{authorfullhash}{619d8c01dfc9bf2bf99e5530dd01b66e}
-      \field{sortinit}{5}
-      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Comput Methods Appl Mech Eng}
@@ -391,8 +1016,8 @@
       \strng{authorbibnamehash}{9fc1f83cc61290423f61895dc60be199}
       \strng{authornamehash}{c01cf8296f521d3163f4abbf1f7d5ea8}
       \strng{authorfullhash}{9fc1f83cc61290423f61895dc60be199}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{howpublished}{Proceedings of the 1988 Summer Program, Center for Turbulence Research}
@@ -413,8 +1038,8 @@
       \strng{authorbibnamehash}{e21f11f97494d2a7bd98962d5000571b}
       \strng{authornamehash}{e21f11f97494d2a7bd98962d5000571b}
       \strng{authorfullhash}{e21f11f97494d2a7bd98962d5000571b}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Int J Heat Fluid Flow}
@@ -447,8 +1072,8 @@
       \strng{authorbibnamehash}{bb97be46f2a669114ab7f2ae91901736}
       \strng{authornamehash}{bb97be46f2a669114ab7f2ae91901736}
       \strng{authorfullhash}{bb97be46f2a669114ab7f2ae91901736}
-      \field{sortinit}{7}
-      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Trans Autom Control}
@@ -489,8 +1114,8 @@
       \strng{authorbibnamehash}{c6504076359e276785dcb2f87d571080}
       \strng{authornamehash}{cf4ced61ca5f3a7d19734fe4849c7f71}
       \strng{authorfullhash}{c6504076359e276785dcb2f87d571080}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR'06)}
@@ -537,8 +1162,8 @@
       \strng{authorbibnamehash}{2c0a193df0d1d6eb715ee0684ca7e961}
       \strng{authornamehash}{e8cf8318e1023245cbc55c70d8725335}
       \strng{authorfullhash}{2c0a193df0d1d6eb715ee0684ca7e961}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Sankhya B}
@@ -576,8 +1201,8 @@
       \strng{authorbibnamehash}{70a379710fd3c0d4b756090437046678}
       \strng{authornamehash}{d1e401bc0614a6cbc26fc18f256c8ad3}
       \strng{authorfullhash}{70a379710fd3c0d4b756090437046678}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Trans Vis Comput Graph}
@@ -644,8 +1269,8 @@
       \strng{authornamehash}{c1deb37e9fc92757a65c1befdeed3e51}
       \strng{authorfullhash}{a94eebccdaacbbb58157d6f333ce556a}
       \field{extraname}{3}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{note}{Data set}
@@ -674,8 +1299,8 @@
       \strng{authorbibnamehash}{9cd6e49767b1dfa9f5df9a46216a8739}
       \strng{authornamehash}{9cd6e49767b1dfa9f5df9a46216a8739}
       \strng{authorfullhash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Advances in Neural Information Processing Systems}
@@ -700,8 +1325,8 @@
       \strng{authorbibnamehash}{97c17720b08538db4ed8190a1c7bee58}
       \strng{authornamehash}{97c17720b08538db4ed8190a1c7bee58}
       \strng{authorfullhash}{97c17720b08538db4ed8190a1c7bee58}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{J Am Stat Assoc}
@@ -713,50 +1338,6 @@
       \range{pages}{4}
       \verb{doi}
       \verb 10.1080/01621459.1927.10502953
-      \endverb
-    \endentry
-    \entry{li2021}{article}{}
-      \name{author}{4}{}{%
-        {{hash=d9acdfc178153ae66cc7cabcb735e635}{%
-           family={Li},
-           familyi={L\bibinitperiod},
-           given={Liang},
-           giveni={L\bibinitperiod}}}%
-        {{hash=23eb4957f84e2ae9dc2b00410adfea9f}{%
-           family={Ravi},
-           familyi={R\bibinitperiod},
-           given={Sridhar},
-           giveni={S\bibinitperiod}}}%
-        {{hash=7855369c5253114e04e610dec1eaf933}{%
-           family={Xie},
-           familyi={X\bibinitperiod},
-           given={Guangming},
-           giveni={G\bibinitperiod}}}%
-        {{hash=2f62b6aee41665c647c022eea795e862}{%
-           family={Couzin},
-           familyi={C\bibinitperiod},
-           given={Iain\bibnamedelima D.},
-           giveni={I\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
-      }
-      \strng{namehash}{73821b6df8c55ccc068d804647beb72b}
-      \strng{fullhash}{9a0ae6925e4126eefd146ebb4382a33c}
-      \strng{bibnamehash}{9a0ae6925e4126eefd146ebb4382a33c}
-      \strng{authorbibnamehash}{9a0ae6925e4126eefd146ebb4382a33c}
-      \strng{authornamehash}{73821b6df8c55ccc068d804647beb72b}
-      \strng{authorfullhash}{9a0ae6925e4126eefd146ebb4382a33c}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{Proc R Soc A}
-      \field{number}{2249}
-      \field{title}{Using a robotic platform to study the influence of relative tailbeat phase on the energetic costs of side-by-side swimming in fish}
-      \field{volume}{477}
-      \field{year}{2021}
-      \field{pages}{20200810}
-      \range{pages}{1}
-      \verb{doi}
-      \verb 10.1098/rspa.2020.0810
       \endverb
     \endentry
     \entry{sfakiotakis1999}{article}{}
@@ -783,8 +1364,8 @@
       \strng{authorbibnamehash}{555b4918fbdbead098623731a7b9c2ea}
       \strng{authornamehash}{f0eae80f91f748b3f01b1410fd26f1a0}
       \strng{authorfullhash}{555b4918fbdbead098623731a7b9c2ea}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE J Ocean Eng}

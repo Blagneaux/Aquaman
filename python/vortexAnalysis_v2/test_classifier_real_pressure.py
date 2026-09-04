@@ -335,19 +335,21 @@ def plot_debug_steps(
     plt.close(fig)
 
 
-class LinearClassifier(nn.Module):
+class LinearClassifier(nn.Module if nn is not None else object):
     def __init__(self, input_dim: int, hidden_size: int) -> None:
+        if nn is None:
+            raise RuntimeError("PyTorch is required to instantiate LinearClassifier.")
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_size),
             nn.Linear(hidden_size, 1),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Any) -> Any:
         return self.net(x).squeeze(1)
 
 def run_model(
-    model: nn.Module,
+    model: Any,
     X: np.ndarray,
     loss_name: str,
     device: str,
@@ -747,10 +749,15 @@ def parse_threshold_list(value: str) -> list[float]:
 
 def plot_threshold_curves(
     series: dict[str, dict[str, dict[str, list[float]]]],
+    counts: dict[str, dict[str, dict[str, list[int]]]],
+    totals: dict[str, dict[str, int]],
     datasets: list[str],
     thresholds: list[float],
     save_path: Path | None,
     energy_tag: str | None,
+    marker_only: bool = False,
+    show_markers: bool = False,
+    annotate_last_dataset: str | None = None,
 ) -> None:
     import matplotlib.pyplot as plt
 
@@ -779,10 +786,51 @@ def plot_threshold_curves(
                 ax.plot(
                     thresholds,
                     values,
-                    linestyle=ls,
+                    linestyle="None" if marker_only else ls,
+                    marker="o" if marker_only else None,
                     color=class_colors[label],
                     label=f" {label}" if arch_idx == 0 else None,
                 )
+                if show_markers and not marker_only:
+                    annotate_last = annotate_last_dataset == dataset and label in ("fish", "cylinder")
+                    circle_thresholds = thresholds[:-1] if annotate_last else thresholds
+                    circle_values = values[:-1] if annotate_last else values
+                    if circle_thresholds:
+                        ax.plot(
+                            circle_thresholds,
+                            circle_values,
+                            linestyle="None",
+                            marker="o",
+                            color=class_colors[label],
+                        )
+                    if annotate_last and thresholds:
+                        ax.plot(
+                            [thresholds[-1]],
+                            [values[-1]],
+                            linestyle="None",
+                            marker="x",
+                            markeredgewidth=1.4,
+                            markersize=5.5,
+                            color=class_colors[label],
+                        )
+                if annotate_last_dataset == dataset and label in ("fish", "cylinder") and thresholds:
+                    class_counts = counts.get(dataset, {}).get(arch, {}).get(label, [])
+                    total = totals.get(dataset, {}).get(arch, 0)
+                    if class_counts and total:
+                        last_count = class_counts[-1]
+                        last_value = values[-1]
+                        label_text = f"{last_value * 100:.1f}% ({last_count}/{total})"
+                        offset_y = -9 if label == "fish" else 10
+                        ax.annotate(
+                            label_text,
+                            xy=(thresholds[-1], last_value),
+                            xytext=(11, offset_y),
+                            textcoords="offset points",
+                            color=class_colors[label],
+                            fontsize=9,
+                            ha="right",
+                            va="center",
+                        )
 
         title_map = {
             "nadia": "raw model",
@@ -977,16 +1025,27 @@ def main() -> None:
         help="Plot fraction vs threshold curves from saved prediction CSVs.",
     )
     parser.add_argument(
+        "--threshold-curves-marker-only",
+        action="store_true",
+        help="Plot threshold-curve points as dots without connecting lines.",
+    )
+    parser.add_argument(
+        "--threshold-curves-show-markers",
+        action="store_true",
+        help="Add dots at threshold values while keeping threshold-curve connecting lines.",
+    )
+    parser.add_argument(
+        "--threshold-curves-annotate-last-dataset",
+        type=str,
+        default=None,
+        help="Annotate fish/cylinder values at the final threshold for one dataset.",
+    )
+    parser.add_argument(
         "--debug-plot-first",
         action="store_true",
         help="Plot raw pressure cropping steps for the first processed snapshot (no resample in plot).",
     )
     args = parser.parse_args()
-
-    if torch is None:
-        raise RuntimeError("PyTorch is required. Install torch.")
-    if nn is None:
-        raise RuntimeError("PyTorch is required. Install torch.")
 
     datasets = [d.strip() for d in args.datasets.split(",") if d.strip()]
     dataset_roots = parse_dataset_roots(args.dataset_roots, datasets)
@@ -1001,6 +1060,8 @@ def main() -> None:
                 raise RuntimeError("--confidence-thresholds is required for threshold curves.")
             thresholds = parse_threshold_list(args.confidence_thresholds)
             curve_series: dict[str, dict[str, dict[str, list[float]]]] = {}
+            curve_counts: dict[str, dict[str, dict[str, list[int]]]] = {}
+            curve_totals: dict[str, dict[str, int]] = {}
             for dataset in datasets:
                 for arch_name in architectures_order:
                     pred_path = args.modes_dir / f"real_pressure_predictions_{arch_name}_{dataset}{suffix}.csv"
@@ -1011,11 +1072,17 @@ def main() -> None:
                     fish_vals: list[float] = []
                     none_vals: list[float] = []
                     cyl_vals: list[float] = []
+                    fish_counts: list[int] = []
+                    none_counts: list[int] = []
+                    cyl_counts: list[int] = []
                     for thr in thresholds:
                         fish_conf = int(np.sum(probs_arr <= (1.0 - thr)))
                         cyl_conf = int(np.sum(probs_arr >= thr))
                         none_conf = int(len(probs_arr) - fish_conf - cyl_conf)
                         total = len(probs_arr)
+                        fish_counts.append(fish_conf)
+                        none_counts.append(none_conf)
+                        cyl_counts.append(cyl_conf)
                         fish_vals.append(fish_conf / total if total else 0.0)
                         none_vals.append(none_conf / total if total else 0.0)
                         cyl_vals.append(cyl_conf / total if total else 0.0)
@@ -1024,9 +1091,26 @@ def main() -> None:
                         "none": none_vals,
                         "cylinder": cyl_vals,
                     }
+                    curve_counts.setdefault(dataset, {})[arch_name] = {
+                        "fish": fish_counts,
+                        "none": none_counts,
+                        "cylinder": cyl_counts,
+                    }
+                    curve_totals.setdefault(dataset, {})[arch_name] = len(probs_arr)
 
             energy_tag = format_energy_tag(args.modes_energy) if args.modes_energy is not None else None
-            plot_threshold_curves(curve_series, datasets, thresholds, args.plot_save, energy_tag)
+            plot_threshold_curves(
+                curve_series,
+                curve_counts,
+                curve_totals,
+                datasets,
+                thresholds,
+                args.plot_save,
+                energy_tag,
+                marker_only=args.threshold_curves_marker_only,
+                show_markers=args.threshold_curves_show_markers,
+                annotate_last_dataset=args.threshold_curves_annotate_last_dataset,
+            )
             return
 
         for dataset in datasets:
@@ -1055,6 +1139,11 @@ def main() -> None:
                 args.plot_save,
             )
         return
+
+    if torch is None:
+        raise RuntimeError("PyTorch is required. Install torch.")
+    if nn is None:
+        raise RuntimeError("PyTorch is required. Install torch.")
 
     for dataset in datasets:
         fish_meta_path = args.snapshot_dir / f"pressure_snapshots_{dataset}_fish_meta.csv"
