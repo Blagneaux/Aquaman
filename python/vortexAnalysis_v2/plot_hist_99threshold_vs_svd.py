@@ -1,6 +1,9 @@
 from pathlib import Path
 
+import matplotlib
 import numpy as np
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
@@ -70,111 +73,119 @@ def build_summary() -> dict[str, dict[int, tuple[int, int, int, int]]]:
     return summary
 
 
-def plot_distribution() -> None:
-    apply_cambridge_style()
-
+def plot_dataset_distribution(ax, dataset: str, dist_summary) -> None:
     threshold = 0.99
     colors = {
         "fish": "#4C78A8",
         "none": "#BAB0AC",
         "cylinder": "#F58518",
     }
+    dist_stats = dist_summary.get(dataset, {})
 
+    x = np.arange(len(distance_scenarios))
+    x_labels = [str(d) for d in distance_scenarios]
+
+    fish_vals: list[float] = []
+    none_vals: list[float] = []
+    cyl_vals: list[float] = []
+    fish_counts: list[int] = []
+    none_counts: list[int] = []
+    cyl_counts: list[int] = []
+
+    for distance in distance_scenarios:
+        fish_count, none_count, cyl_count, total = dist_stats.get(distance, (0, 0, 0, 0))
+        fish_counts.append(fish_count)
+        none_counts.append(none_count)
+        cyl_counts.append(cyl_count)
+        if total <= 0:
+            fish_vals.append(0.0)
+            none_vals.append(0.0)
+            cyl_vals.append(0.0)
+        else:
+            fish_vals.append(fish_count / total)
+            none_vals.append(none_count / total)
+            cyl_vals.append(cyl_count / total)
+
+    bottom = np.zeros(len(distance_scenarios))
+    ax.bar(x, fish_vals, label=f"fish > {threshold*100:.0f}%", color=colors["fish"], bottom=bottom)
+    for i, frac in enumerate(fish_vals):
+        if frac > 0:
+            total = fish_counts[i] + none_counts[i] + cyl_counts[i]
+            pct = (fish_counts[i] / total * 100.0) if total else 0.0
+            ax.text(
+                x[i],
+                bottom[i] + frac / 2,
+                f"{fish_counts[i]} ({pct:.1f}%)",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="white",
+            )
+
+    bottom += np.array(fish_vals)
+    ax.bar(x, none_vals, label="none", color=colors["none"], bottom=bottom)
+    for i, frac in enumerate(none_vals):
+        if frac > 0:
+            total = fish_counts[i] + none_counts[i] + cyl_counts[i]
+            pct = (none_counts[i] / total * 100.0) if total else 0.0
+            ax.text(
+                x[i],
+                bottom[i] + frac / 2,
+                f"{none_counts[i]} ({pct:.1f}%)",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="black",
+            )
+
+    bottom += np.array(none_vals)
+    ax.bar(x, cyl_vals, label=f"cylinder > {threshold*100:.0f}%", color=colors["cylinder"], bottom=bottom)
+    for i, frac in enumerate(cyl_vals):
+        if frac > 0:
+            total = fish_counts[i] + none_counts[i] + cyl_counts[i]
+            pct = (cyl_counts[i] / total * 100.0) if total else 0.0
+            ax.text(
+                x[i],
+                bottom[i] + frac / 2,
+                f"{cyl_counts[i]} ({pct:.1f}%)",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="white",
+            )
+
+    ax.set_xticks(x, x_labels)
+    ax.set_xlabel("min distance to body grid")
+    ax.set_ylim(0.0, 1.0)
+    ax.set_ylabel("fraction of samples")
+    title = dataset_titles.get(dataset, dataset)
+    ax.set_title(f"{title} (threshold={threshold:.2f})")
+    ax.grid(axis="y", alpha=0.2)
+
+
+def plot_distribution() -> None:
+    apply_cambridge_style()
     dist_summary = build_summary()
+    repo_root = Path(__file__).resolve().parents[2]
+    output_dir = repo_root / "python/vortexAnalysis_v2/vortex_outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-
-    for idx, dataset in enumerate(datasets[:4]):
-        ax = axes[idx // 2, idx % 2]
-        dist_stats = dist_summary.get(dataset, {})
-
-        x = np.arange(len(distance_scenarios))
-        x_labels = [str(d) for d in distance_scenarios]
-
-        fish_vals: list[float] = []
-        none_vals: list[float] = []
-        cyl_vals: list[float] = []
-        fish_counts: list[int] = []
-        none_counts: list[int] = []
-        cyl_counts: list[int] = []
-
-        for distance in distance_scenarios:
-            fish_count, none_count, cyl_count, total = dist_stats.get(distance, (0, 0, 0, 0))
-            fish_counts.append(fish_count)
-            none_counts.append(none_count)
-            cyl_counts.append(cyl_count)
-            if total <= 0:
-                fish_vals.append(0.0)
-                none_vals.append(0.0)
-                cyl_vals.append(0.0)
-            else:
-                fish_vals.append(fish_count / total)
-                none_vals.append(none_count / total)
-                cyl_vals.append(cyl_count / total)
-
-        bottom = np.zeros(len(distance_scenarios))
-        ax.bar(x, fish_vals, label=f"fish > {threshold*100:.0f}%", color=colors["fish"], bottom=bottom)
-        for i, frac in enumerate(fish_vals):
-            if frac > 0:
-                total = fish_counts[i] + none_counts[i] + cyl_counts[i]
-                pct = (fish_counts[i] / total * 100.0) if total else 0.0
-                ax.text(
-                    x[i],
-                    bottom[i] + frac / 2,
-                    f"{fish_counts[i]} ({pct:.1f}%)",
-                    ha="center",
-                    va="center",
-                    fontsize=8,
-                    color="white",
-                )
-
-        bottom += np.array(fish_vals)
-        ax.bar(x, none_vals, label="none", color=colors["none"], bottom=bottom)
-        for i, frac in enumerate(none_vals):
-            if frac > 0:
-                total = fish_counts[i] + none_counts[i] + cyl_counts[i]
-                pct = (none_counts[i] / total * 100.0) if total else 0.0
-                ax.text(
-                    x[i],
-                    bottom[i] + frac / 2,
-                    f"{none_counts[i]} ({pct:.1f}%)",
-                    ha="center",
-                    va="center",
-                    fontsize=8,
-                    color="black",
-                )
-
-        bottom += np.array(none_vals)
-        ax.bar(x, cyl_vals, label=f"cylinder > {threshold*100:.0f}%", color=colors["cylinder"], bottom=bottom)
-        for i, frac in enumerate(cyl_vals):
-            if frac > 0:
-                total = fish_counts[i] + none_counts[i] + cyl_counts[i]
-                pct = (cyl_counts[i] / total * 100.0) if total else 0.0
-                ax.text(
-                    x[i],
-                    bottom[i] + frac / 2,
-                    f"{cyl_counts[i]} ({pct:.1f}%)",
-                    ha="center",
-                    va="center",
-                    fontsize=8,
-                    color="white",
-                )
-
-        ax.set_xticks(x, x_labels)
-        ax.set_xlabel("min distance to body grid")
-        ax.set_ylim(0.0, 1.0)
-        ax.set_ylabel("fraction of samples")
-        title = dataset_titles.get(dataset, dataset)
-        ax.set_title(f"{title} (threshold={threshold:.2f})")
-        ax.grid(axis="y", alpha=0.2)
+    for ax, dataset in zip(axes.flat, datasets):
+        plot_dataset_distribution(ax, dataset, dist_summary)
 
     handles, legend_labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, legend_labels, loc="upper center", ncol=3)
     fig.tight_layout(rect=[0.0, 0.0, 1.0, 0.92])
-    repo_root = Path(__file__).resolve().parents[2]
-    save_path = repo_root / "python/vortexAnalysis_v2/vortex_outputs/paper_ready_distribution_min_distance"
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    save_figure_multi(fig, save_path)
-    plt.show()
+    save_figure_multi(fig, output_dir / "paper_ready_distribution_min_distance")
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(6.2, 4.2))
+    plot_dataset_distribution(ax, "boai", dist_summary)
+    handles, legend_labels = ax.get_legend_handles_labels()
+    fig.legend(handles, legend_labels, loc="upper center", ncol=3)
+    fig.tight_layout(rect=[0.0, 0.0, 1.0, 0.90])
+    save_figure_multi(fig, output_dir / "paper_ready_distribution_min_distance_x_deformation")
     plt.close(fig)
 
 

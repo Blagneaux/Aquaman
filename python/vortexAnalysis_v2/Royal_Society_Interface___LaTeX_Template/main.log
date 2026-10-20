@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  28 AUG 2026 20:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  30 SEP 2026 14:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -870,10 +870,28 @@ nal
  []
 
 
+Underfull \hbox (badness 1264) in paragraph at lines 36--38
+\T1/ppl/m/n/9 a cylin-der fol-low-ing the same mea-sured centre-of-mass paths. 
+Mea-sured 
+ []
+
+
+Underfull \hbox (badness 1389) in paragraph at lines 36--38
+\T1/ppl/m/n/9 pres-sure seg-ments were more con-sis-tent with the de-form-ing f
+ish model 
+ []
+
+
+Underfull \hbox (badness 1127) in paragraph at lines 36--38
+\T1/ppl/m/n/9 frac-tion of their shorter pres-sure seg-ments, while fish-associ
+ated vor-tices 
+ []
+
+
 
 pdfTeX warning: pdflatex (file ./TemplateFigs/INTERFACE.pdf): PDF inclusion: fo
 und PDF version <1.7>, but at most version <1.5> allowed
-<TemplateFigs/INTERFACE.pdf, id=84, 342.5297pt x 57.21375pt>
+<TemplateFigs/INTERFACE.pdf, id=80, 342.5297pt x 57.21375pt>
 File: TemplateFigs/INTERFACE.pdf Graphic file (type pdf)
 <use TemplateFigs/INTERFACE.pdf>
 Package pdftex.def Info: TemplateFigs/INTERFACE.pdf  used on input line 44.
@@ -887,13 +905,13 @@ LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 11.47508pt on input line 44.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 15.30011pt on input line 44.
-<TemplateFigs/RSTA_OpenAccesslogo_RGB.pdf, id=85, 19.94853pt x 31.63618pt>
+<TemplateFigs/RSTA_OpenAccesslogo_RGB.pdf, id=81, 19.94853pt x 31.63618pt>
 File: TemplateFigs/RSTA_OpenAccesslogo_RGB.pdf Graphic file (type pdf)
 <use TemplateFigs/RSTA_OpenAccesslogo_RGB.pdf>
 Package pdftex.def Info: TemplateFigs/RSTA_OpenAccesslogo_RGB.pdf  used on inpu
 t line 44.
 (pdftex.def)             Requested size: 19.94847pt x 31.6361pt.
-<TemplateFigs/RS_crossmark_logo.pdf, id=87, 37.1508pt x 46.1725pt>
+<TemplateFigs/RS_crossmark_logo.pdf, id=83, 37.1508pt x 46.1725pt>
 File: TemplateFigs/RS_crossmark_logo.pdf Graphic file (type pdf)
 <use TemplateFigs/RS_crossmark_logo.pdf>
 Package pdftex.def Info: TemplateFigs/RS_crossmark_logo.pdf  used on input line
@@ -943,7 +961,7 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 []
  []
 
-<TemplateFigs/RS_Pubs_Logo_Line_CMYK.pdf, id=94, 1003.52718pt x 126.95128pt>
+<TemplateFigs/RS_Pubs_Logo_Line_CMYK.pdf, id=90, 1003.52718pt x 126.95128pt>
 File: TemplateFigs/RS_Pubs_Logo_Line_CMYK.pdf Graphic file (type pdf)
 <use TemplateFigs/RS_Pubs_Logo_Line_CMYK.pdf>
 Package pdftex.def Info: TemplateFigs/RS_Pubs_Logo_Line_CMYK.pdf  used on input
@@ -1011,7 +1029,7 @@ Overfull \vbox (21.4162pt too high) has occurred while \output is active []
 
 
 [2]
-<figures/haachama.pdf, id=164, 345.99263pt x 108.76636pt>
+<figures/haachama.pdf, id=160, 345.99263pt x 108.76636pt>
 File: figures/haachama.pdf Graphic file (type pdf)
 <use figures/haachama.pdf>
 Package pdftex.def Info: figures/haachama.pdf  used on input line 64.
@@ -1020,135 +1038,145 @@ LaTeX Font Info:    Font shape `T1/phv/b/n' will be
 (Font)              scaled to size 7.22505pt on input line 65.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 (Font)              scaled to size 7.22505pt on input line 65.
+<figures/models.pdf, id=166, 346.89601pt x 195.129pt>
+File: figures/models.pdf Graphic file (type pdf)
+<use figures/models.pdf>
+Package pdftex.def Info: figures/models.pdf  used on input line 87.
+(pdftex.def)             Requested size: 483.69684pt x 272.09492pt.
+LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 88.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <8.5> not available
+(Font)              size <8> substituted on input line 88.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.25> not available
+(Font)              size <5> substituted on input line 88.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <8.5> not available
+(Font)              size <8> substituted on input line 88.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.25> not available
+(Font)              size <5> substituted on input line 88.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <8.5> not available
+(Font)              size <8> substituted on input line 88.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.25> not available
+(Font)              size <5> substituted on input line 88.
+
 
 Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
 [3 <./figures/haachama.pdf>]
-<figures/classifier.pdf, id=199, 2055.68pt x 1541.76pt>
-File: figures/classifier.pdf Graphic file (type pdf)
-<use figures/classifier.pdf>
-Package pdftex.def Info: figures/classifier.pdf  used on input line 107.
-(pdftex.def)             Requested size: 483.69684pt x 362.76064pt.
-
 Overfull \vbox (21.4162pt too high) has occurred while \output is active []
 
 
-[4]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+[4 <./figures/models.pdf>]
+<figures/classifier.pdf, id=213, 2055.68pt x 1541.76pt>
+File: figures/classifier.pdf Graphic file (type pdf)
+<use figures/classifier.pdf>
+Package pdftex.def Info: figures/classifier.pdf  used on input line 111.
+(pdftex.def)             Requested size: 483.69684pt x 362.76064pt.
 
 Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
 [5 <./figures/classifier.pdf>]
-<figures/real_pressure_threshold_curves_95_v2.pdf, id=408, 859.5312pt x 576.203
-3pt>
-File: figures/real_pressure_threshold_curves_95_v2.pdf Graphic file (type pdf)
-<use figures/real_pressure_threshold_curves_95_v2.pdf>
-Package pdftex.def Info: figures/real_pressure_threshold_curves_95_v2.pdf  used
- on input line 138.
-(pdftex.def)             Requested size: 483.69684pt x 324.26302pt.
+Underfull \hbox (badness 1668) in paragraph at lines 126--127
+[]\T1/ppl/m/n/9 Descriptor dis-tri-bu-tions were first sum-marised across all r
+e-tained vortex-track as-so-ci-a-tions. A phys-i-cal track
+ []
+
 
 Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
 [6]
-Underfull \hbox (badness 1132) in paragraph at lines 155--156
-[]\T1/ppl/m/n/9 Figure [][]4[][][] shows these ef-fects for the anal-ysed sub-s
-et. Cylinder-like vor-tices, rep-re-sented by pos-i-tive clas-si-fier
- []
-
-<figures/vortex_shap_boai_95_thr0.99.pdf, id=416, 560.25357pt x 568.17305pt>
-File: figures/vortex_shap_boai_95_thr0.99.pdf Graphic file (type pdf)
-<use figures/vortex_shap_boai_95_thr0.99.pdf>
-Package pdftex.def Info: figures/vortex_shap_boai_95_thr0.99.pdf  used on input
- line 158.
-(pdftex.def)             Requested size: 483.69684pt x 490.53528pt.
-LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 159.
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <8.5> not available
-(Font)              size <8> substituted on input line 159.
-
-
-LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <4.25> not available
-(Font)              size <5> substituted on input line 159.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <8.5> not available
-(Font)              size <8> substituted on input line 159.
-
-
-LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <4.25> not available
-(Font)              size <5> substituted on input line 159.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <8.5> not available
-(Font)              size <8> substituted on input line 159.
-
-
-LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <4.25> not available
-(Font)              size <5> substituted on input line 159.
-
-<figures/paper_ready_distribution_min_distance.pdf, id=418, 859.5312pt x 576.20
-33pt>
-File: figures/paper_ready_distribution_min_distance.pdf Graphic file (type pdf)
-
-<use figures/paper_ready_distribution_min_distance.pdf>
-Package pdftex.def Info: figures/paper_ready_distribution_min_distance.pdf  use
-d on input line 166.
+<figures/real_pressure_threshold_curves_95_v2.pdf, id=417, 859.5312pt x 576.203
+3pt>
+File: figures/real_pressure_threshold_curves_95_v2.pdf Graphic file (type pdf)
+<use figures/real_pressure_threshold_curves_95_v2.pdf>
+Package pdftex.def Info: figures/real_pressure_threshold_curves_95_v2.pdf  used
+ on input line 148.
 (pdftex.def)             Requested size: 483.69684pt x 324.26302pt.
 
 Overfull \vbox (21.4162pt too high) has occurred while \output is active []
 
 
 [7 <./figures/real_pressure_threshold_curves_95_v2.pdf>]
+<figures/vortex_paired_video_differences_forest_boai_95_thr0.99.pdf, id=445, 78
+6.80835pt x 637.00006pt>
+File: figures/vortex_paired_video_differences_forest_boai_95_thr0.99.pdf Graphi
+c file (type pdf)
+<use figures/vortex_paired_video_differences_forest_boai_95_thr0.99.pdf>
+Package pdftex.def Info: figures/vortex_paired_video_differences_forest_boai_95
+_thr0.99.pdf  used on input line 166.
+(pdftex.def)             Requested size: 454.67621pt x 368.10922pt.
+<figures/paper_ready_distribution_min_distance_x_deformation.pdf, id=447, 440.3
+652pt x 301.57732pt>
+File: figures/paper_ready_distribution_min_distance_x_deformation.pdf Graphic f
+ile (type pdf)
+<use figures/paper_ready_distribution_min_distance_x_deformation.pdf>
+Package pdftex.def Info: figures/paper_ready_distribution_min_distance_x_deform
+ation.pdf  used on input line 174.
+(pdftex.def)             Requested size: 483.69684pt x 331.2667pt.
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
-[8 <./figures/vortex_shap_boai_95_thr0.99.pdf>]
+[8]
 Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
-[9 <./figures/paper_ready_distribution_min_distance.pdf>]
-Underfull \hbox (badness 1776) in paragraph at lines 210--211
+[9 <./figures/vortex_paired_video_differences_forest_boai_95_thr0.99.pdf>]
+Overfull \vbox (21.51176pt too high) has occurred while \output is active []
+
+
+[10 <./figures/paper_ready_distribution_min_distance_x_deformation.pdf>]
+Overfull \vbox (21.4162pt too high) has occurred while \output is active []
+
+
+[11]
+Underfull \hbox (badness 1776) in paragraph at lines 221--222
 []\T1/ppl/m/n/9 The next step is to com-bine three-dimensional re-con-struc-tio
 n, richer sens-ing and data as-sim-i-la-tion be-tween
  []
 
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 21
-6.
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 22
+7.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
-Overfull \vbox (21.51176pt too high) has occurred while \output is active []
-
-
-[10]
-Underfull \hbox (badness 1067) in paragraph at lines 220--221
+Underfull \hbox (badness 1067) in paragraph at lines 231--232
 \T1/ppl/m/n/8 re-sources, data cu-ra-tion, writ-ing -- re-view and edit-ing; F.
 R.: su-per-vi-sion, project ad-min-is-tra-tion, writ-ing -- re-view and edit-in
 g;
  []
 
 
-Underfull \hbox (badness 2213) in paragraph at lines 231--231
+Overfull \vbox (21.4162pt too high) has occurred while \output is active []
+
+
+[12]
+Underfull \hbox (badness 2213) in paragraph at lines 242--242
 []\T1/ppl/m/n/9 Verma S, No-vati G, Koumout-sakos P. Ef-fi-cient col-lec-tive s
 wim-ming by har-ness-ing vor-tices through deep
  []
 
-
-Overfull \vbox (21.4162pt too high) has occurred while \output is active []
-
-
-[11] Setting LastPage
-Overfull \vbox (21.4162pt too high) has occurred while \output is active []
+Setting LastPage
+Overfull \vbox (21.51176pt too high) has occurred while \output is active []
 
 
-[12] (./main.aux)
+[13] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1159,19 +1187,19 @@ LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.25pt have occurred.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 502A6E83F20E8922BFD544EAEEFC7D06;5310.
+(rerunfilecheck)             Checksum: 5B21DDE8129639E1508474BD56151C2E;5215.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 20852 strings out of 476182
- 368309 string characters out of 5795596
- 1948975 words of memory out of 5000000
- 42478 multiletter control sequences out of 15000+600000
+ 20859 strings out of 476182
+ 368745 string characters out of 5795596
+ 1950975 words of memory out of 5000000
+ 42485 multiletter control sequences out of 15000+600000
  625880 words of font info for 161 fonts, out of 8000000 for 9000
  24 hyphenation exceptions out of 8191
- 90i,13n,95p,1533b,1458s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,13n,95p,2285b,1461s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb>
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/s
 hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/te
@@ -1186,10 +1214,10 @@ sfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
 ve/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/urw/palatino/uplr8a.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/urw/palatino/uplri8a.pfb>
-Output written on main.pdf (12 pages, 11306881 bytes).
+Output written on main.pdf (13 pages, 12081326 bytes).
 PDF statistics:
- 646 PDF objects out of 1000 (max. 8388607)
- 380 compressed objects within 4 object streams
+ 662 PDF objects out of 1000 (max. 8388607)
+ 384 compressed objects within 4 object streams
  76 named destinations out of 1000 (max. 500000)
- 206 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 203 words of extra memory for PDF output out of 10000 (max. 10000000)
 

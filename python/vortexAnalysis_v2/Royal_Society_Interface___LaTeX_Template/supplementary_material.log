@@ -1,6 +1,7 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  28 AUG 2026 18:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  30 SEP 2026 14:55
 entering extended mode
  restricted \write18 enabled.
+ file:line:error style messages enabled.
  %&-line parsing enabled.
 **supplementary_material.tex
 (./supplementary_material.tex
@@ -365,7 +366,19 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip53
 )
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 21
+(/usr/share/texlive/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
+
+(/usr/share/texlive/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
+Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PD
+F (HO)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+)
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+))
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 22
 .
 
 (/usr/share/texmf/tex/latex/lm/t1lmr.fd
@@ -379,24 +392,24 @@ File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 (./supplementary_material.aux)
 \openout1 = `supplementary_material.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -457,50 +470,50 @@ e
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 21.
+Package hyperref Info: Link coloring OFF on input line 22.
 
 (./supplementary_material.out) (./supplementary_material.out)
 \@outlinefile=\write3
 \openout3 = `supplementary_material.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 3
-5.
+6.
 
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<ot1.cmap>>
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 3
-5.
+6.
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<oml.cmap>>
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-35.
+36.
 
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )<<oms.cmap>>
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-35.
+36.
 
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 35.
+(Font)              <10.95> on input line 36.
 <<omx.cmap>>
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 35.
+(Font)              <8> on input line 36.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 35.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 35.
+(Font)              <6> on input line 36.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 36.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 35.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 36.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -508,35 +521,76 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/
-dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/sha
-re/texmf/fonts/enc/dvips/lm/lm-rm.enc}]
+dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/t
+exmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-m
+athex.enc}]
+[2{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 84.
+(Font)              <10> on input line 108.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 84.
+(Font)              <7> on input line 108.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 84.
- [2{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}]
-[3{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}] [4]
-<supplementary_media/real_pressure_threshold_curves_75.pdf, id=50, 859.5312pt x
- 576.2033pt>
+(Font)              <5> on input line 108.
+ [3] [4] [5] [6] [7]
+<supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf, id=70, 86
+2.18927pt x 943.67558pt>
+File: supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf Graph
+ic file (type pdf)
+<use supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf>
+Package pdftex.def Info: supplementary_media/vortex_pooled_distributions_boai_9
+5_thr0.99.pdf  used on input line 245.
+(pdftex.def)             Requested size: 427.93057pt x 468.3808pt.
+
+[8 <./supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf>]
+[9]
+<supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf, id=123, 
+862.18927pt x 1131.36078pt>
+File: supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf Grap
+hic file (type pdf)
+<use supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf>
+Package pdftex.def Info: supplementary_media/vortex_segment_distributions_boai_
+95_thr0.99.pdf  used on input line 285.
+(pdftex.def)             Requested size: 427.93057pt x 561.53584pt.
+ [10 <./supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf>] 
+[11]
+<supplementary_media/real_pressure_threshold_curves_75.pdf, id=186, 859.5312pt 
+x 576.2033pt>
 File: supplementary_media/real_pressure_threshold_curves_75.pdf Graphic file (t
 ype pdf)
 <use supplementary_media/real_pressure_threshold_curves_75.pdf>
 Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_75.
-pdf  used on input line 195.
+pdf  used on input line 330.
 (pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
-<supplementary_media/real_pressure_threshold_curves_99.pdf, id=51, 859.5312pt x
- 576.2033pt>
+<supplementary_media/real_pressure_threshold_curves_99.pdf, id=187, 859.5312pt 
+x 576.2033pt>
 File: supplementary_media/real_pressure_threshold_curves_99.pdf Graphic file (t
 ype pdf)
 <use supplementary_media/real_pressure_threshold_curves_99.pdf>
 Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_99.
-pdf  used on input line 201.
+pdf  used on input line 336.
 (pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
- [5] [6 <./supplementary_media/real_pressure_threshold_curves_75.pdf>] [7 <./su
-pplementary_media/real_pressure_threshold_curves_99.pdf>] (./supplementary_mate
-rial.aux)
+ [12
+
+
+
+
+
+
+
+ <./supplementary_media/real_pressure_threshold_curves_75.pdf>]
+[13 <./supplementary_media/real_pressure_threshold_curves_99.pdf>]
+<supplementary_media/paper_ready_distribution_min_distance_all_models.pdf, id=2
+16, 859.5312pt x 576.2033pt>
+File: supplementary_media/paper_ready_distribution_min_distance_all_models.pdf 
+Graphic file (type pdf)
+<use supplementary_media/paper_ready_distribution_min_distance_all_models.pdf>
+Package pdftex.def Info: supplementary_media/paper_ready_distribution_min_dista
+nce_all_models.pdf  used on input line 346.
+(pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
+ [14
+
+ <./supplementary_media/paper_ready_distribution_min_distance_all_models.pdf>]
+(./supplementary_material.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -546,23 +600,25 @@ Package rerunfilecheck Info: File `supplementary_material.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 11911 strings out of 476182
- 186476 string characters out of 5795596
+ 12028 strings out of 476182
+ 190536 string characters out of 5795596
  1940975 words of memory out of 5000000
- 33692 multiletter control sequences out of 15000+600000
+ 33780 multiletter control sequences out of 15000+600000
  601392 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,11n,79p,991b,449s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,1369b,470s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></u
 sr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/p
 ublic/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/shar
-e/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/
-lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb>
-Output written on supplementary_material.pdf (7 pages, 177827 bytes).
+e/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/
+lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/f
+onts/type1/public/lm/lmsy7.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pf
+b>
+Output written on supplementary_material.pdf (14 pages, 492617 bytes).
 PDF statistics:
- 128 PDF objects out of 1000 (max. 8388607)
- 96 compressed objects within 1 object stream
- 26 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 286 PDF objects out of 1000 (max. 8388607)
+ 156 compressed objects within 2 object streams
+ 45 named destinations out of 1000 (max. 500000)
+ 46 words of extra memory for PDF output out of 10000 (max. 10000000)
 

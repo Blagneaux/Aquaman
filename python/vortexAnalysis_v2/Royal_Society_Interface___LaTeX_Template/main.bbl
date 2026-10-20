@@ -1280,37 +1280,6 @@
       \verb 10.5281/zenodo.19224932
       \endverb
     \endentry
-    \entry{lundberg2017}{inproceedings}{}
-      \name{author}{2}{}{%
-        {{hash=2a1075150e1e1dad8127b019f7ca9031}{%
-           family={Lundberg},
-           familyi={L\bibinitperiod},
-           given={Scott\bibnamedelima M.},
-           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
-        {{hash=ee964079d93879aaef2382a5fff343d3}{%
-           family={Lee},
-           familyi={L\bibinitperiod},
-           given={Su-In},
-           giveni={S\bibinithyphendelim I\bibinitperiod}}}%
-      }
-      \strng{namehash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \strng{fullhash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \strng{bibnamehash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \strng{authorbibnamehash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \strng{authornamehash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \strng{authorfullhash}{9cd6e49767b1dfa9f5df9a46216a8739}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{Advances in Neural Information Processing Systems}
-      \field{title}{A unified approach to interpreting model predictions}
-      \field{volume}{30}
-      \field{year}{2017}
-      \verb{doi}
-      \verb https://doi.org/10.48550/arXiv.1705.07874
-      \endverb
-    \endentry
     \entry{wilson1927}{article}{}
       \name{author}{1}{}{%
         {{hash=97c17720b08538db4ed8190a1c7bee58}{%
@@ -1364,8 +1333,8 @@
       \strng{authorbibnamehash}{555b4918fbdbead098623731a7b9c2ea}
       \strng{authornamehash}{f0eae80f91f748b3f01b1410fd26f1a0}
       \strng{authorfullhash}{555b4918fbdbead098623731a7b9c2ea}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE J Ocean Eng}

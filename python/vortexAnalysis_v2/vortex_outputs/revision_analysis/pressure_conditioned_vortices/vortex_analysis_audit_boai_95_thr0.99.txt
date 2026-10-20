@@ -1,0 +1,38 @@
+Pressure-conditioned vortex analysis audit
+
+Dataset: boai
+Architecture: linear
+Pressure-mode energy: 0.95
+Pressure confidence threshold: 0.99
+Minimum pressure-segment length: 100 frames
+Minimum consecutive visible track detections: 10 frames
+Class balancing: disabled
+Classifier training: not performed
+SHAP calculation: not performed
+
+Selection audit:
+- duplicate_track_associations: 206
+- matched_pressure_segments: 135
+- metadata_exact_matches: 58
+- metadata_fallback_matches: 86
+- physical_tracks_reused_across_associations: 23
+- prediction_class_cylinder: 19
+- prediction_class_fish: 132
+- prediction_class_none: 285
+- prediction_rows: 436
+- predictions_without_matching_metadata: 7
+- retained_track_associations_cylinder: 65
+- retained_track_associations_fish: 574
+- segments_below_minimum_length: 9
+- track_associations_below_minimum_consecutive_visible_frames: 430
+
+Retained analysis units:
+- fish: 574 vortex tracks, 88 pressure segments, 21 source videos
+- cylinder: 65 vortex tracks, 15 pressure segments, 10 source videos
+- paired source videos: 10
+
+Segment-level quantities:
+- vortex_count: fish median 6.5, cylinder median 4, cylinder-fish -2.5
+- total_vortex_frames: fish median 678, cylinder median 395, cylinder-fish -283
+- mean_simultaneous_vortices: fish median 2.78668, cylinder median 2.66667, cylinder-fish -0.120013
+- max_simultaneous_vortices: fish median 5, cylinder median 4, cylinder-fish -1
