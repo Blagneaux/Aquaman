@@ -26,6 +26,7 @@ class Field{
   int n,m,btype=0;
   float bval=0,bval_top=0;
   boolean gradientExit=false,waveInlet=false,waveTop=false;
+  boolean noSlipBottom=false,noSlipTop=false;
   
   Field( int n, int m, int btype, float bval ){
     this.n = n;
@@ -36,6 +37,11 @@ class Field{
     this.eq(bval);
   }
   Field( int n, int m){this(n,m,0,0);}
+
+  void setHorizontalNoSlip(boolean bottom, boolean top){
+    noSlipBottom = bottom;
+    noSlipTop = top;
+  }
 
   Field( Field b, int is, int n, int js, int m ){
     this.n = n;
@@ -227,8 +233,10 @@ class Field{
           a[n-1][j] = bval;
     }}}
     for (int i=0 ; i<n ; i++ ) {  
-      a[i][0]   = a[i][1];
-      a[i][m-1] = a[i][m-2];
+      // Odd reflection of tangential velocity places u=0 at a horizontal
+      // boundary. All other fields retain the original zero-gradient rule.
+      a[i][0]   = (btype==1 && noSlipBottom) ? -a[i][1] : a[i][1];
+      a[i][m-1] = (btype==1 && noSlipTop) ? -a[i][m-2] : a[i][m-2];
       if(btype==2){
         if(waveTop){
           a[i][1] = bval_top;

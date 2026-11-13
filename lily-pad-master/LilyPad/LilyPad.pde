@@ -78,92 +78,248 @@
 ////}
 
 
-////// ----------------------------------------------------------------------------------------------------------------------------------------------
-////// Sandbox for INA
-////// ----------------------------------------------------------------------------------------------------------------------------------------------
-////BDIM flow;
-////Body circle;
-////FloodPlot flood;
-////SaveData dat;
+// ----------------------------------------------------------------------------------------------------------------------------------------------
+// Sandbox for INA
+// ----------------------------------------------------------------------------------------------------------------------------------------------
+BDIM flow;
+Body circle;
+FloodPlot flood;
+SaveData dat;
 
-////Table parameters;
+Table parameters;
 
-////int _n=(int)pow(2, 7);
-////float _L=_n/20;
-////float Re = 9000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
-////float origin = 2.33*_L;
-////PrintWriter outputFullMap;
-////float dt;
-////float t = 0;
-////int line = 0;
-////ArrayList<float[]> pressureDataList = new ArrayList<>();
-////int numTimeStep = 0;
-////String name;
+int baseN=(int)pow(2, 7);
+int resolutionScale=1;
+int _n=baseN;
+float _L=_n/20.0f;
+float Re = 1000;     // Reynolds number                                                            Read from coordinates file generates by python GPR code
+float gapRatio = 0.44;
+float origin = (gapRatio + 0.5)*_L;
+float scenarioHeight = origin;
+PrintWriter outputVorticityMap;
+PrintWriter outputPressureMap;
+float dt;
+float t = 0;
+float saveInterval = 0.5;
+float endTime = 500;
+int nextSnapshot = 1;
+float minSolverDt = Float.MAX_VALUE;
+float maxSolverDt = 0;
+float maxSavedPressure = 0;
+int line = 0;
+ArrayList<float[]> vorticityDataList = new ArrayList<>();
+ArrayList<float[]> pressureDataList = new ArrayList<>();
+int numTimeStep = 0;
+String name;
+String outputRoot = "E:/simuChina/newBDD";
+String outputDirectory;
+boolean savePressure = true;
+String motionMode = "stationary";
+float translationSpeed = 1.0f;
+float translatedDistance = 0;
 
-////void setup() {
-////  size(1400, 700);                             // display window size
-////  int n=_n;                                   // number of grid points      n = 1m
-////  float L = _L;                            // length-scale in grid units    L = 5cm, so L = n/20
-////  Window view = new Window(2*n, n);
-////  name = "Re"+(int)Re+"_h"+origin;
+void setup() {
+ size(1400, 700);                             // display window size
+ configureRunFromArgs();
+ int n=_n;                                   // number of grid points      n = 1m
+ float L = _L;                            // length-scale in grid units    L = 5cm, so L = n/20
+ int nx = 2*n;
+ int ny = n;
+ Window view = new Window(nx, ny);
+ name = "Re"+(int)Re+"_h"+scenarioHeight;
+ if (outputDirectory == null) {
+   outputDirectory = outputRoot+"/"+name;
+ }
+ if (!new java.io.File(outputDirectory).mkdirs() && !new java.io.File(outputDirectory).isDirectory()) {
+   throw new RuntimeException("Cannot create output directory: "+outputDirectory);
+ }
+ println("Run configuration: Re="+Re+", h="+scenarioHeight+", gap/D="+gapRatio);
+ println("Grid: "+nx+" x "+ny+", resolution scale="+resolutionScale+", internal h="+origin);
+ println("Output directory: "+outputDirectory);
+ println("Output interval="+saveInterval+", end time="+endTime);
 
-////  circle = new CircleBody(4*n/7, origin, L, view);     // define geom
-////  flow = new BDIM(2*n, n, 0, circle, (float)L/Re, true, 1);             // solve for flow using BDIM
-////  flood = new FloodPlot(view);               // initialize a flood plot...
-////  flood.setLegend("vorticity", -.5, .5);       //    and its legend
+ float initialX = motionMode.equals("translate") ? 3*n/2.0f : 4*n/7.0f;
+ println("Motion mode="+motionMode+", initial x="+initialX);
+ circle = new CircleBody(initialX, origin, L, view);
+ if (motionMode.equals("translate")) {
+   // Article translation case: the cylinder moves from right to left through
+   // initially still fluid over half the 2 m domain (one physical metre).
+   flow = new BDIM(nx, ny, 0, circle, (float)L/Re, true);
+ } else {
+   flow = new BDIM(nx, ny, 0, circle, (float)L/Re, true, 1);
+ }
+ // Normal velocity is already zero at the horizontal edges. Odd reflection
+ // of the tangential velocity completes the no-slip boundary condition.
+ flow.u.x.setHorizontalNoSlip(true, true);
+ flow.u.setBC();
+ flood = new FloodPlot(view);               // initialize a flood plot...
+ flood.setLegend("vorticity", -.5, .5);       //    and its legend
   
-////  outputFullMap = createWriter("E:/simuChina/"+name+"/FullMap.csv");
-////  dat = new SaveData("E:/simuChina/"+name+"/Time.txt", circle.coords, (int)L, 2*n, n, 1);    // initialize the output data file with header information
-////}
-////void draw() {
-////  if (flow.QUICK) {
-////    dt = flow.checkCFL();
-////    flow.dt = dt;//modify
-////  }
-////  t += dt;
-////  dat.addData(t, flow.p);    // add the pressure arounf the foil to the data file
-////  circle.follow();
-////  flow.update(circle);
-////  flow.update2();
-////  flood.display(flow.u.curl());              // compute and display vorticity
-////  circle.display();                            // display the body
+ outputVorticityMap = createWriter(outputDirectory+"/FullVorticityMap.csv");
+ if (savePressure) {
+   outputPressureMap = createWriter(outputDirectory+"/FullPressureMap.csv");
+   dat = new SaveData(outputDirectory+"/Time.txt", circle.coords, L, nx, ny, 1);    // initialize the output data file with header information
+ }
+}
 
+void configureRunFromArgs() {
+ // Batch interface:
+ //   processing-java --sketch=... --run --args RE H OUTPUT_DIR [END_TIME] [SAVE_INTERVAL] [FIELDS] [RESOLUTION_SCALE] [MOTION]
+ // H is the cylinder-centre height in grid units, matching the paper's scenario grid.
+ // FIELDS may be "both" (default) or "vorticity".
+ if (args == null || args.length == 0) {
+   return;
+ }
 
-////  // Store pressure data for every point in the window
-////  float[] pressureData = new float[2*_n * _n];
-////  int index = 0;
-////  for (int i = 0; i < 2*_n; i++) {
-////    for (int j = 0; j < _n; j++) {
-////      pressureData[index] = flow.u.curl().extract(i, j);
-////      index++;
-////    }
-////  }
-////  // Add the pressure data array to the list for this time step
-////  pressureDataList.add(pressureData);
-////  numTimeStep++;
-  
-////  if (t > 500) {  // close and save everything when t>Time
-////    dataAdd();
-////    dat.finish();
-////    println("Finsihed");
-////    exit();
-////  }
-////}
+ int offset = args[0].equals("--args") ? 1 : 0;
+ int argumentCount = args.length-offset;
+ if (argumentCount < 3) {
+   throw new RuntimeException("Expected arguments: RE H OUTPUT_DIR [END_TIME] [SAVE_INTERVAL]");
+ }
 
-////void dataAdd() {
-////  // Write the pressure data to the CSV file as a single column
-////  for (int i = 0; i < _n * 2*_n; i++) {
-////    for (int tStep = 0; tStep < numTimeStep; tStep++) {
-////      float[] pressure = pressureDataList.get(tStep);
-////      outputFullMap.print(pressure[i]);
-////      if (tStep < numTimeStep - 1) {
-////        outputFullMap.print(","); // Separate values with newlines
-////      }
-////    }
-////    outputFullMap.println(); // Move to the next row
-////  }
-////  outputFullMap.close();
-////}
+ Re = float(args[offset]);
+ scenarioHeight = float(args[offset+1]);
+ outputDirectory = args[offset+2].replace('\\', '/');
+ if (argumentCount >= 4) {
+   endTime = float(args[offset+3]);
+ }
+ if (argumentCount >= 5) {
+   saveInterval = float(args[offset+4]);
+ }
+ if (argumentCount >= 6) {
+   String fields = args[offset+5].toLowerCase();
+   if (fields.equals("vorticity")) {
+     savePressure = false;
+   } else if (!fields.equals("both")) {
+     throw new RuntimeException("FIELDS must be either 'both' or 'vorticity'");
+   }
+ }
+ if (argumentCount >= 7) {
+   resolutionScale = int(args[offset+6]);
+   if (resolutionScale < 1 || resolutionScale > 2) {
+     throw new RuntimeException("RESOLUTION_SCALE must be 1 or 2");
+   }
+ }
+ if (argumentCount >= 8) {
+   motionMode = args[offset+7].toLowerCase();
+   if (!motionMode.equals("stationary") && !motionMode.equals("translate")) {
+     throw new RuntimeException("MOTION must be either 'stationary' or 'translate'");
+   }
+ }
+ // Preserve the physical geometry and convective time U*t/D. Every grid-space
+ // length and solver time therefore scales with the spatial resolution, while
+ // the number of saved snapshots remains unchanged.
+ _n = baseN*resolutionScale;
+ _L = _n/20.0f;
+ origin = scenarioHeight*resolutionScale;
+ gapRatio = scenarioHeight/(baseN/20.0f)-0.5f;
+ endTime *= resolutionScale;
+ saveInterval *= resolutionScale;
+ if (motionMode.equals("translate")) {
+   // A one-metre path is _n cells. Unit speed therefore gives an _n-time-unit run.
+   endTime = _n/translationSpeed;
+ }
+ if (Re <= 0 || origin <= 0 || endTime <= 0 || saveInterval <= 0) {
+   throw new RuntimeException("RE, H, END_TIME, and SAVE_INTERVAL must all be positive");
+ }
+ float snapshotCount = endTime/saveInterval;
+ if (abs(snapshotCount-round(snapshotCount)) > 1e-5) {
+   throw new RuntimeException("END_TIME must be an integer multiple of SAVE_INTERVAL");
+ }
+}
+void draw() {
+ float targetTime = min(nextSnapshot*saveInterval, endTime);
+ float stableDt = flow.QUICK ? flow.checkCFL() : flow.dt;
+ float remaining = targetTime-t;
+ // Divide the remaining interval into equal stable steps. This lands exactly
+ // on each output time without creating a very small final residual step,
+ // which can corrupt the pressure projection.
+ int stepsRemaining = max(1, (int)ceil(remaining/stableDt));
+ dt = remaining/stepsRemaining;
+ flow.dt = dt;
+ minSolverDt = min(minSolverDt, dt);
+ maxSolverDt = max(maxSolverDt, dt);
+
+ if (motionMode.equals("translate")) {
+   float totalDistance = _n;
+   float stepDistance = min(translationSpeed*dt, totalDistance-translatedDistance);
+   circle.translate(-stepDistance, 0);
+   translatedDistance += stepDistance;
+ } else {
+   circle.follow();
+ }
+ flow.update(circle);
+ flow.update2();
+ t += dt;
+
+ Field vorticity = flow.u.curl();
+ flood.display(vorticity);                  // display the vorticity computed for this timestep
+ circle.display();                            // display the body
+
+ if (abs(t-targetTime) < 1e-5) {
+   float pressureInf = flow.p.L_inf();
+   maxSavedPressure = max(maxSavedPressure, pressureInf);
+   if (pressureInf > 10) {
+     println("Warning: |p|_inf="+pressureInf+" at output time "+targetTime);
+   }
+   if (savePressure) {
+     dat.addData(targetTime, flow.p);
+   }
+
+   float[] vorticityData = new float[2*_n * _n];
+   float[] pressureData = savePressure ? new float[2*_n * _n] : null;
+   int index = 0;
+   for (int i = 0; i < 2*_n; i++) {
+     for (int j = 0; j < _n; j++) {
+       vorticityData[index] = vorticity.extract(i, j);
+       if (savePressure) {
+         pressureData[index] = flow.p.extract(i, j);
+       }
+       index++;
+     }
+   }
+   vorticityDataList.add(vorticityData);
+   if (savePressure) {
+     pressureDataList.add(pressureData);
+   }
+   numTimeStep++;
+   nextSnapshot++;
+
+   if (targetTime >= endTime) {
+     dataAdd();
+     if (savePressure) {
+       dat.finish();
+     }
+     println("Solver dt range: "+minSolverDt+" to "+maxSolverDt);
+     println("Maximum saved |p|: "+maxSavedPressure);
+     println("Finished");
+     exit();
+   }
+ }
+}
+
+void dataAdd() {
+ writeFullMap(outputVorticityMap, vorticityDataList);
+ outputVorticityMap.close();
+ if (savePressure) {
+   writeFullMap(outputPressureMap, pressureDataList);
+   outputPressureMap.close();
+ }
+}
+
+void writeFullMap(PrintWriter output, ArrayList<float[]> dataList) {
+ // Write one spatial point per row and one timestep per column.
+ for (int i = 0; i < _n * 2*_n; i++) {
+   for (int tStep = 0; tStep < numTimeStep; tStep++) {
+     float[] fieldData = dataList.get(tStep);
+     output.print(fieldData[i]);
+     if (tStep < numTimeStep - 1) {
+       output.print(",");
+     }
+   }
+   output.println();
+ }
+}
 
 //// //----------------------------------------------------------------------------------------------------------------------------------------------
 //// //Digital twin of the experiments held in China to generate a dataset for future data fusion between physical sensors and the result of HAACHAMA
@@ -303,251 +459,251 @@
 ////  outputFullMap.close();
 ////}
 
-// -------------------------------------------------------------------------------------------------------------
-// HAACHAMA pipeline for automatic generation of digital twin from csv files resulting from YOLOv8 segmentation
-// -------------------------------------------------------------------------------------------------------------
-BDIM flow;
-TestLine upWall;
-TestLine bottomWall;
-BodyUnion twin;
-BodyUnion wall;
-FloodPlot flood;
-SaveData dat;
-PrintWriter output;
-float time=0;
-float[] a={0,.2,-.1};
-float pas = 0.686778;
-float mu = 0.00095;
+// // -------------------------------------------------------------------------------------------------------------
+// // HAACHAMA pipeline for automatic generation of digital twin from csv files resulting from YOLOv8 segmentation
+// // -------------------------------------------------------------------------------------------------------------
+// BDIM flow;
+// TestLine upWall;
+// TestLine bottomWall;
+// BodyUnion twin;
+// BodyUnion wall;
+// FloodPlot flood;
+// SaveData dat;
+// PrintWriter output;
+// float time=0;
+// float[] a={0,.2,-.1};
+// float pas = 0.686778;
+// float mu = 0.00095;
 
-int startIndex=0;
-int Uturn;
-int haato=1;
-int haachama=2;
+// int startIndex=0;
+// int Uturn;
+// int haato=1;
+// int haachama=2;
 
-Boolean fish=true;
+// Boolean fish=true;
 
-Boolean pressure = false;
-Boolean automated = false;
+// Boolean pressure = false;
+// Boolean automated = false;
 
-CSV2DigitalTwin body;
-CSV2CircleTwin circle_body;
+// CSV2DigitalTwin body;
+// CSV2CircleTwin circle_body;
 
-String xFile;
-String yFile;
-String yDotFile;
+// String xFile;
+// String yFile;
+// String yDotFile;
 
-String spine;
+// String spine;
 
-//String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
-//String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
-//String yDotFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv";
+// //String xFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/x.csv";
+// //String yFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y.csv";
+// //String yDotFile = "C:/Users/blagn771/Documents/Aquaman/Aquaman/y_dot.csv";
 
-Table xTable; // Variable to store x-coordinate data
-Table yTable; // Variable to store y-coordinate data
-Table spineTable; // Variable to store xy1 xy2 xy3 ... for the spine coordinates
+// Table xTable; // Variable to store x-coordinate data
+// Table yTable; // Variable to store y-coordinate data
+// Table spineTable; // Variable to store xy1 xy2 xy3 ... for the spine coordinates
 
-ArrayList<float[]> pressureDataList = new ArrayList<>();
-int numTimeStep = 0;
-int numRows = (int)pow(2,7);                                   // Number of rows
-int numCols = (int)pow(2,8);                                 // Number of columns
+// ArrayList<float[]> pressureDataList = new ArrayList<>();
+// int numTimeStep = 0;
+// int numRows = (int)pow(2,7);                                   // Number of rows
+// int numCols = (int)pow(2,8);                                 // Number of columns
 
 
-void setup(){
+// void setup(){
   
-  // Debug: print all args
-  if (args != null) {
-    println("Args received:");
-    for (int i = 0; i < args.length; i++) {
-      println("args[" + i + "] = " + args[i]);
-    }
-  }
-  // Important: skip args[0] == "--args" if you're using processing-java
-  int offset = (args != null && args.length >= 6 && args[0].equals("--args")) ? 1 : 0;
+//   // Debug: print all args
+//   if (args != null) {
+//     println("Args received:");
+//     for (int i = 0; i < args.length; i++) {
+//       println("args[" + i + "] = " + args[i]);
+//     }
+//   }
+//   // Important: skip args[0] == "--args" if you're using processing-java
+//   int offset = (args != null && args.length >= 6 && args[0].equals("--args")) ? 1 : 0;
   
-  if (automated) {
-    try {
-      if (args != null && args.length >= offset + 5) {
-        Uturn = int(args[offset]);
-        startIndex = int(args[offset + 1]);
-        haato = int(args[offset + 2]);
-        haachama = int(args[offset + 3]);
-        fish = args[offset + 4].equalsIgnoreCase("true");
-      }
-    } catch (Exception e) {
-      println("Error parsing command-line arguments: " + e.getMessage());
-    }
-  }
+//   if (automated) {
+//     try {
+//       if (args != null && args.length >= offset + 5) {
+//         Uturn = int(args[offset]);
+//         startIndex = int(args[offset + 1]);
+//         haato = int(args[offset + 2]);
+//         haachama = int(args[offset + 3]);
+//         fish = args[offset + 4].equalsIgnoreCase("true");
+//       }
+//     } catch (Exception e) {
+//       println("Error parsing command-line arguments: " + e.getMessage());
+//     }
+//   }
   
-  xFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/x.csv";
-  yFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/y.csv";
-  yDotFile = "C:/Users/blagn771/Downloads/y_dot_lowpass_30Hz_fs100.csv";
+//   xFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/x.csv";
+//   yFile = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/y.csv";
+//   yDotFile = "C:/Users/blagn771/Downloads/y_dot_lowpass_30Hz_fs100.csv";
   
-  spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
+//   spine = "D:/thomas_files/"+str(haato)+"/"+str(haachama)+"/final/spines_interpolated.csv";
 
-  int n=(int)pow(2,8);
-  int m=(int)pow(2,7);
-  size(1000,600);
-  Window view = new Window(n,m);
+//   int n=(int)pow(2,8);
+//   int m=(int)pow(2,7);
+//   size(1000,600);
+//   Window view = new Window(n,m);
 
-  // Load x-coordinate data from CSV file
-  xTable = loadTable(xFile, "header");
-  // Load y-coordinate data from CSV file
-  yTable = loadTable(yFile, "header");
-  // Load x and y coordinates data from CSV file
-  spineTable = loadTable(spine, "header");
+//   // Load x-coordinate data from CSV file
+//   xTable = loadTable(xFile, "header");
+//   // Load y-coordinate data from CSV file
+//   yTable = loadTable(yFile, "header");
+//   // Load x and y coordinates data from CSV file
+//   spineTable = loadTable(spine, "header");
 
-  upWall = new TestLine(0, 36.5, 256, view);                 // 37 because 39 grid is the gap between the top and the begining of the tank, but it is 2 grid thick
-  if (fish) {
-    body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
-  } else {
-    circle_body = new CSV2CircleTwin(3.5, spineTable, view, startIndex);
-  };
-  bottomWall = new TestLine(0, 37+43.5, 256, view);
-  wall = new BodyUnion(upWall, bottomWall);
-  if (fish) {
-    twin = new BodyUnion(body, wall);
-  } else {
-    twin = new BodyUnion(circle_body, wall);
-  };
-  flow = new BDIM(n,m,pas,twin,mu,true, 0);
-  //
-  //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
-  //
-  flood = new FloodPlot(view);
-  flood.range = new Scale(-.5,.5);
-  flood.setLegend("vorticity");
-  flood.setColorMode(1);
+//   upWall = new TestLine(0, 36.5, 256, view);                 // 37 because 39 grid is the gap between the top and the begining of the tank, but it is 2 grid thick
+//   if (fish) {
+//     body = new CSV2DigitalTwin(xTable.getFloat(0,0), yTable.getFloat(0,0), xTable.getRowCount(), xFile, yFile, yDotFile,view, startIndex);
+//   } else {
+//     circle_body = new CSV2CircleTwin(3.5, spineTable, view, startIndex);
+//   };
+//   bottomWall = new TestLine(0, 37+43.5, 256, view);
+//   wall = new BodyUnion(upWall, bottomWall);
+//   if (fish) {
+//     twin = new BodyUnion(body, wall);
+//   } else {
+//     twin = new BodyUnion(circle_body, wall);
+//   };
+//   flow = new BDIM(n,m,pas,twin,mu,true, 0);
+//   //
+//   //Don't forget to adapt line 171 in CSV2DigitalTwin accordingly
+//   //
+//   flood = new FloodPlot(view);
+//   flood.range = new Scale(-.5,.5);
+//   flood.setLegend("vorticity");
+//   flood.setColorMode(1);
 
 
-  if (fish) {
-    //dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
-  };
-  if (fish) {
-    if (pressure) {
-      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
-    }
-    else {
-      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
-    }
-  }
-  else {
-    if (pressure) {
-      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
-    }
-    else {
-      //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
-    }
-  }
-}
+//   if (fish) {
+//     //dat = new SaveData("D:/crop_nadia/test_vortex/circle_"+str(haato)+"_"+str(haachama)+"_bodyPressure.txt", body.coords, 0,n,n,1);
+//   };
+//   if (fish) {
+//     if (pressure) {
+//       //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/pressure_map.csv"); // open output file
+//     }
+//     else {
+//       //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/vorticity_map.csv"); // open output file
+//     }
+//   }
+//   else {
+//     if (pressure) {
+//       //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_pressure_map.csv"); // open output file
+//     }
+//     else {
+//       //output = createWriter("D:/crop_nadia/"+str(haato)+"/"+str(haachama)+"/circle_vorticity_map.csv"); // open output file
+//     }
+//   }
+// }
 
-void draw(){
-  if ((int)(flow.t / pas -1) < loadTable(xFile, "header").getColumnCount() - 2 - startIndex){
-    time += flow.dt;
-    // Check if the nose changes direction (U-turn)
-    //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
-    //if (fish && body.isUTurn() && Uturn == 0) {
-    //    println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
+// void draw(){
+//   if ((int)(flow.t / pas -1) < loadTable(xFile, "header").getColumnCount() - 2 - startIndex){
+//     time += flow.dt;
+//     // Check if the nose changes direction (U-turn)
+//     //uTurn = 0 means there is a uTurn, uTurn = 1 means there is not
+//     //if (fish && body.isUTurn() && Uturn == 0) {
+//     //    println("Nose direction changed! Replacing fish at index ", (int)(flow.t / pas -1));
 
-    //    // Replace fish with a new instance
-    //    CSV2DigitalTwin newBody = new CSV2DigitalTwin(
-    //        body.coords.get(0).x, 
-    //        body.coords.get(0).y, 
-    //        body.coords.size(), 
-    //        xFile, 
-    //        yFile, 
-    //        yDotFile, 
-    //        new Window(numCols,numRows),
-    //        (int)(flow.t / pas -1) + startIndex
-    //    );
+//     //    // Replace fish with a new instance
+//     //    CSV2DigitalTwin newBody = new CSV2DigitalTwin(
+//     //        body.coords.get(0).x, 
+//     //        body.coords.get(0).y, 
+//     //        body.coords.size(), 
+//     //        xFile, 
+//     //        yFile, 
+//     //        yDotFile, 
+//     //        new Window(numCols,numRows),
+//     //        (int)(flow.t / pas -1) + startIndex
+//     //    );
 
-    //    // Replace the old fish instance
-    //    body = newBody;
+//     //    // Replace the old fish instance
+//     //    body = newBody;
         
-    //    // Rebuild the BodyUnion with the new fish
-    //    twin = new BodyUnion(body, wall);
-    //    time = flow.dt;
-    //}
+//     //    // Rebuild the BodyUnion with the new fish
+//     //    twin = new BodyUnion(body, wall);
+//     //    time = flow.dt;
+//     //}
 
-    // Regular update of the fish and fluid
-    if (fish) {
-      body.update(time);
-    } else {
-      circle_body.update(time);
-    };
-    flow.update(twin); 
-    flow.update2(); // 2-step fluid update
+//     // Regular update of the fish and fluid
+//     if (fish) {
+//       body.update(time);
+//     } else {
+//       circle_body.update(time);
+//     };
+//     flow.update(twin); 
+//     flow.update2(); // 2-step fluid update
 
-    // Display vorticity and objects
-    flood.display(flow.u.curl());
-    if (fish) {
-      body.display();
-    } else {
-      circle_body.display();
-    };
-    upWall.display();
-    bottomWall.display();    
+//     // Display vorticity and objects
+//     flood.display(flow.u.curl());
+//     if (fish) {
+//       body.display();
+//     } else {
+//       circle_body.display();
+//     };
+//     upWall.display();
+//     bottomWall.display();    
 
-    // Save the x and y values for every points of the body at each time step
-    // This is used to create the labels for YOLO quick training
-    //if (fish) {
-    //  int size = body.coords.size();
-    //  //dat.output.print(0 + " ");
-    //  for(int i=0; i<size; i++){
-    //    dat.output.print("Point numero " + i + " : ");
-    //    dat.output.print("x: ");
-    //    dat.output.print(body.coords.get(i).x +" ");
-    //    dat.output.print("y: ");
-    //    dat.output.print(body.coords.get(i).y +" ");
-    //    dat.output.print("p: ");
-    //    dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
-    //  }
-    //  dat.output.println("");
-    //};
+//     // Save the x and y values for every points of the body at each time step
+//     // This is used to create the labels for YOLO quick training
+//     //if (fish) {
+//     //  int size = body.coords.size();
+//     //  //dat.output.print(0 + " ");
+//     //  for(int i=0; i<size; i++){
+//     //    dat.output.print("Point numero " + i + " : ");
+//     //    dat.output.print("x: ");
+//     //    dat.output.print(body.coords.get(i).x +" ");
+//     //    dat.output.print("y: ");
+//     //    dat.output.print(body.coords.get(i).y +" ");
+//     //    dat.output.print("p: ");
+//     //    dat.output.print(flow.p.extract(body.coords.get(i).x, body.coords.get(i).y)+" ");
+//     //  }
+//     //  dat.output.println("");
+//     //};
 
-    // Store pressure data for every point in the window
-    float[] pressureData = new float[numCols * numRows];
-    int index = 0;
-    for (int i = 0; i < numCols; i++) {
-      for (int j = 0; j < numRows; j++) {
-        if (pressure) {
-          pressureData[index] = flow.p.extract(i, j);
-        }
-        else {
-          pressureData[index] = flow.u.curl().extract(i,j);
-        }
-        index++;
-      }
-    }
-    // Add the pressure data array to the list for this time step
-    pressureDataList.add(pressureData);
-    numTimeStep++;
+//     // Store pressure data for every point in the window
+//     float[] pressureData = new float[numCols * numRows];
+//     int index = 0;
+//     for (int i = 0; i < numCols; i++) {
+//       for (int j = 0; j < numRows; j++) {
+//         if (pressure) {
+//           pressureData[index] = flow.p.extract(i, j);
+//         }
+//         else {
+//           pressureData[index] = flow.u.curl().extract(i,j);
+//         }
+//         index++;
+//       }
+//     }
+//     // Add the pressure data array to the list for this time step
+//     pressureDataList.add(pressureData);
+//     numTimeStep++;
 
-    if (automated == false) {
-      saveFrame("saved/frame-####.png");
-    }
+//     if (automated == false) {
+//       saveFrame("saved/frame-####.png");
+//     }
 
-  //  saveFrame("saved/frame-####.png");
-  } else {
-    //dat.finish();
-    dataAdd();
-    exit();
-  }
-}
+//   //  saveFrame("saved/frame-####.png");
+//   } else {
+//     //dat.finish();
+//     dataAdd();
+//     exit();
+//   }
+// }
 
-void dataAdd() {
-  // Write the pressure data to the CSV file as a single column
-  for (int i = 0; i < numRows * numCols; i++) {
-    for (int tStep = 0; tStep < numTimeStep; tStep++) {
-      float[] pressure = pressureDataList.get(tStep);
-      output.print(pressure[i]);
-      if (tStep < numTimeStep - 1) {
-        output.print(","); // Separate values with newlines
-      }
-    }
-    output.println(); // Move to the next row
-  }
-  output.close();
-}
+// void dataAdd() {
+//   // Write the pressure data to the CSV file as a single column
+//   for (int i = 0; i < numRows * numCols; i++) {
+//     for (int tStep = 0; tStep < numTimeStep; tStep++) {
+//       float[] pressure = pressureDataList.get(tStep);
+//       output.print(pressure[i]);
+//       if (tStep < numTimeStep - 1) {
+//         output.print(","); // Separate values with newlines
+//       }
+//     }
+//     output.println(); // Move to the next row
+//   }
+//   output.close();
+// }
 
 //// Plot the average field, which need to be computed beforehand in python
 //Table mean_field;

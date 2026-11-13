@@ -762,10 +762,12 @@ def plot_threshold_curves(
     import matplotlib.pyplot as plt
 
     apply_cambridge_style()
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    # Drawn close to the printed text width (~5.8 in) so fonts keep their nominal size in the article.
+    fig, axes = plt.subplots(2, 2, figsize=(6.6, 4.8))
     fig.patch.set_facecolor("none")
     fig.patch.set_alpha(0.0)
     class_colors = {"fish": "#1F4E79", "none": "#B0B0B0", "cylinder": "#B58900"}
+    class_labels = {"fish": "fish-like", "none": "undetermined", "cylinder": "cylinder-like"}
     linestyles = ["-", "--", ":"]
 
     for idx, dataset in enumerate(datasets[:4]):
@@ -789,7 +791,7 @@ def plot_threshold_curves(
                     linestyle="None" if marker_only else ls,
                     marker="o" if marker_only else None,
                     color=class_colors[label],
-                    label=f" {label}" if arch_idx == 0 else None,
+                    label=class_labels[label] if arch_idx == 0 else None,
                 )
                 if show_markers and not marker_only:
                     annotate_last = annotate_last_dataset == dataset and label in ("fish", "cylinder")
@@ -819,38 +821,40 @@ def plot_threshold_curves(
                     if class_counts and total:
                         last_count = class_counts[-1]
                         last_value = values[-1]
-                        label_text = f"{last_value * 100:.1f}% ({last_count}/{total})"
-                        offset_y = -9 if label == "fish" else 10
+                        # Percentages only (counts are given in the caption) so the two labels fit
+                        # between the fish-like and cylinder-like curves at print size.
+                        label_text = f"{last_value * 100:.1f}%"
+                        offset_y = -8 if label == "fish" else 10
                         ax.annotate(
                             label_text,
                             xy=(thresholds[-1], last_value),
-                            xytext=(11, offset_y),
+                            xytext=(4, offset_y),
                             textcoords="offset points",
                             color=class_colors[label],
-                            fontsize=9,
+                            fontsize=8,
                             ha="right",
                             va="center",
                         )
 
+        # Variant names match the article; the retained-variance level is given in the caption.
         title_map = {
-            "nadia": "raw model",
-            "thomas": "constrained model",
-            "boai": "x deformation model",
-            "full": "full model",
+            "nadia": "Raw",
+            "thomas": "Size-constrained",
+            "boai": "X-deformation",
+            "full": "Full",
         }
-        title = title_map.get(dataset, dataset)
-        if energy_tag:
-            title = f"{title} ({energy_tag}%)"
-        ax.set_title(title)
-        ax.set_xlabel("confidence threshold")
-        ax.set_ylabel("fraction of samples")
+        ax.set_title(title_map.get(dataset, dataset))
+        if idx // 2 == 1:
+            ax.set_xlabel("confidence threshold")
+        if idx % 2 == 0:
+            ax.set_ylabel("fraction of segments")
         ax.set_ylim(0.0, 1.0)
         ax.grid(alpha=0.2)
 
     handles, labels = axes[0, 0].get_legend_handles_labels()
     if handles:
-        fig.legend(handles, labels, loc="upper center", ncol=3)
-    fig.tight_layout(rect=[0.0, 0.0, 1.0, 0.92])
+        fig.legend(handles, labels, loc="upper center", ncol=3, frameon=False)
+    fig.tight_layout(rect=[0.0, 0.0, 1.0, 0.94])
     if save_path is not None:
         save_path.parent.mkdir(parents=True, exist_ok=True)
         save_figure_multi(fig, save_path, transparent=True)

@@ -3,6 +3,7 @@ class CSV2CircleTwin extends CircleBody {
   int numRows;
   float time = 0;
   int index = 0;
+  int startIndex;
 
   CSV2CircleTwin(float d, Table spineFilePath, Window window, int st) {
     super(0, 0, d, window); // Initialize at origin for now

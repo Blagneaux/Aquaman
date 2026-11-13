@@ -22,7 +22,7 @@
 \begin{document}
 \begin{center}
 
-{\Large\bfseries Supplementary material for: Motion and Representation Influence Numeriacal-Experimental Agreement in Fish Wake Pressure\par}
+{\Large\bfseries Supplementary material for: Body shape and deformation improve agreement between simulations and measured pressure signatures of swimming fish\par}
 
 \end{center}
 
@@ -202,13 +202,21 @@ In the updated implementation, boundary velocity was computed directly from cont
 
 \section*{S8. Distributional analysis of pressure-conditioned vortices}
 
-The vortex analysis used measured-pressure segments evaluated by the first-stage classifier for the x-deformation variant with 95\% of simulated pressure variance retained. At the 0.99 confidence threshold, measured segments classified as fish-like were linked to the corresponding fish-model vortex tracks and measured segments classified as cylinder-like were linked to the corresponding cylinder-model tracks. Undetermined segments were excluded. The resulting descriptors therefore characterise pressure-conditioned subsets and should not be interpreted as distributions of every vortex produced by either model.
+The vortex analysis used measured-pressure segments evaluated by the first-stage classifier for the X-deformation variant with 95\% of simulated pressure variance retained. At the 0.99 confidence threshold, measured segments classified as fish-like were linked to the corresponding fish-model vortex tracks and measured segments classified as cylinder-like were linked to the corresponding cylinder-model tracks. Undetermined segments were excluded. The resulting descriptors therefore characterise pressure-conditioned subsets and should not be interpreted as distributions of every vortex produced by either model.
 
 The upstream detection procedure was unchanged. Q-criterion maps were smoothed with a Gaussian filter with a standard deviation of one grid cell. Connected regions above $Q=0.002$ were retained when their area was at least six grid cells. Vortex cores within six grid cells of the body or more than 32 grid cells from their nearest sensor were excluded. Only detections marked visible by the occlusion filter were considered. Detections were linked across frames when their cores were separated by no more than three grid cells, with a maximum frame-index separation of eight. Within each pressure segment, a vortex track was retained when it contained at least 10 consecutive valid visible detections assigned to the same sensor. Classes were not balanced.
 
 Seventeen track-level descriptors were calculated: maximum area, mean area, displacement, path length, straightness, duration in detected frames, duration relative to pressure-segment length, mean distance to the body, mean distance to the sensor, maximum speed, mean speed, maximum equivalent-circle radius, mean equivalent-circle radius, maximum core Q-criterion value, mean core Q-criterion value, mean core $x$-position and mean core $y$-position. Straightness was displacement divided by path length. Radius was calculated as $\sqrt{A/\pi}$ from region area.
 
-Three complementary summaries were calculated. First, all retained vortex-track associations were pooled within each pressure-based class. A physical track intersecting more than one sensor-specific pressure segment was represented once in each relevant association. The pooled subset contained 574 fish-model associations representing 551 distinct physical tracks and 65 cylinder-model associations representing 65 distinct physical tracks. Second, track-level descriptors were averaged within pressure segments so that every segment received equal weight. The number of unique vortices, total vortex-frame occupancy, and mean and maximum simultaneous visible-vortex count were calculated for each segment. This level included 88 fish-associated and 15 cylinder-associated segments. Third, segment summaries were averaged within each source video and model class, giving 21 fish-associated and 10 cylinder-associated videos. Cylinder-minus-fish paired differences were calculated for the 10 source videos represented in both groups. Sample counts, medians and interquartile ranges were reported at each analysis level. At the paired-video level each video contributes a single difference, so mean differences and 95\% confidence intervals from Student's $t$-distribution on $n-1=9$ degrees of freedom were also reported.
+Three complementary summaries were calculated. First, all retained vortex-track associations were pooled within each pressure-based class. A physical track intersecting more than one sensor-specific pressure segment was represented once in each relevant association. The pooled subset contained 574 fish-model associations representing 551 distinct physical tracks and 65 cylinder-model associations representing 65 distinct physical tracks. Second, track-level descriptors were averaged within pressure segments so that every segment received equal weight. The number of unique vortices, total vortex-frame occupancy, and mean and maximum simultaneous visible-vortex count were calculated for each segment. This level included 88 fish-associated and 15 cylinder-associated segments. Third, segment summaries were averaged within each source video and model class, giving 21 fish-associated and 10 cylinder-associated videos. Cylinder-minus-fish paired differences were calculated for the 10 source videos represented in both groups. Sample counts, medians and interquartile ranges were reported at each analysis level. At the paired-video level each video contributes a single difference, so mean differences and 95\% confidence intervals from Student's $t$-distribution on $n-1=9$ degrees of freedom were also reported. Twenty-three fish-model tracks intersected two sensor-specific pressure segments and were therefore represented by two associations.
+
+The paired-video comparison is presented in the main text (Figure 5). The pooled and segment-level summaries reported below were used to check that its conclusions did not depend on the level of aggregation.
+
+\textbf{Pooled associations.} At the pooled association level (Table S5, Supplementary Figure 1), cylinder-associated vortices were larger and had higher core $Q$. The median track mean area was 32.1 grid cells (interquartile range 22.9--38.7) for cylinder-associated vortices and 13.8 grid cells (9.4--22.9) for fish-associated vortices. Median mean equivalent-circle radii were 3.18 grid cells (2.70--3.51) and 2.09 grid cells (1.72--2.68), respectively. Median mean core $Q$ was 0.0331 (0.0198--0.0440) for cylinder-associated vortices and 0.00976 (0.00627--0.0165) for fish-associated vortices. Fish-associated tracks had greater median straightness at 0.825 (0.739--0.934), compared with 0.784 (0.717--0.863) for cylinder-associated tracks. Absolute displacement, path length, maximum speed and mean distance from the body showed comparatively little median separation. Absolute tracked duration was also similar between the classes, at 81.0 frames (54.0--115.0) for cylinder-associated vortices and 86.5 frames (36.0--165.0) for fish-associated vortices. Relative to the length of the pressure segment in which they were measured, however, cylinder-associated vortices persisted considerably longer, with a median duration ratio of 0.625 (0.385--0.855) compared with 0.401 (0.152--0.751). These pooled summaries give more weight to source segments that contained more retained tracks.
+
+\textbf{Equal-weight pressure segments.} Giving each pressure segment equal weight (Table S6, Supplementary Figure 2) preserved the differences in area, equivalent-circle radius, mean core $Q$, relative vortex duration and straightness. The pressure segments themselves differed markedly in length: cylinder-associated segments had a median duration of 137 frames (126.5--155.0), compared with 253.5 frames (176.0--303.5) for fish-associated segments. Because a segment was defined by the continued visibility of a retained vortex at a sensor, this difference is a property of the simulated wakes rather than a preprocessing choice, and it governs how the two duration descriptors should be read. Cylinder-associated segments contained a median of 4 retained vortex tracks (2--7), compared with 6.5 tracks (4--8) in fish-associated segments. Median total vortex-frame occupancy was also lower for cylinder-associated segments at 395 frames (216.5--525.5), compared with 678 frames (465.8--883.0). Mean simultaneous-vortex counts were similar at 2.67 (1.31--3.81) and 2.79 (2.10--3.65), respectively. Median segment-mean straightness was 0.767 (0.733--0.833) for cylinder-associated segments and 0.822 (0.765--0.871) for fish-associated segments, while path lengths were similar. Absolute segment mean tracked duration was not clearly separated at 87.6 frames (77.2--105.8) and 107.9 frames (83.1--143.2), respectively. Relative to their own segment length, however, cylinder-associated vortices occupied a substantially greater fraction, with a median duration ratio of 0.607 (0.539--0.686) compared with 0.444 (0.364--0.579). Cylinder-associated vortices therefore persisted for a similar absolute time within pressure events that were roughly half as long.
+
+\textbf{Source videos.} Video-informed summaries and median paired differences are given in Table S7. Together with the paired-video comparison in the main text, the pooled, segment-level and video-level summaries agreed in direction for vortex area, equivalent-circle radius, mean core $Q$, straightness and duration relative to segment length.
 
 \begin{landscape}
 \begin{table}[p]
@@ -327,13 +335,13 @@ Maximum simultaneous vortices & 5.2 (4.3--5.6) & 3.5 (2.0--5.8) & -1.5 (-2.8--0.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_75.pdf}
+\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_75_v2.pdf}
 \caption*{\textbf{Supplementary Figure 3.} Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 75\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_99.pdf}
+\includegraphics[width=1\textwidth]{supplementary_media/real_pressure_threshold_curves_99_v2.pdf}
 \caption*{\textbf{Supplementary Figure 4.} Fractions of measured pressure-signal segments classified as fish-like, cylinder-like or undetermined when 99\% of variance was retained. Across most configurations, measured signals were more frequently associated with the fish-shaped model than with the cylinder surrogate.}
 \end{figure}
 
@@ -341,10 +349,41 @@ Maximum simultaneous vortices & 5.2 (4.3--5.6) & 3.5 (2.0--5.8) & -1.5 (-2.8--0.
 
 \section*{S10. Body-distance sensitivity across model variants}
 
+To determine whether the classification results depended on excluding vortices close to the generating body, the minimum vortex-to-body distance used during vortex detection was varied from its baseline value of six grid cells to three and 12 grid cells, and the subsequent pipeline was repeated for each simulation variant (Table S8, Supplementary Figure 5). For the X-deformation variant at the 0.99 confidence threshold, the baseline exclusion gave 30.3\% fish-like and 4.4\% cylinder-like segments. Reducing the exclusion distance to three grid cells produced 24.8\% fish-like and 10.6\% cylinder-like classifications, and increasing it to 12 grid cells produced 37.9\% and 7.2\%, respectively.
+
+In all four variants and at all three exclusion distances, more measured segments were classified as fish-like than as cylinder-like. Relative to the baseline, reducing the exclusion distance increased the cylinder-like fraction in every variant, whereas increasing it to 12 grid cells increased the fish-like fraction in every variant. The changes were not strictly monotonic: for example, the cylinder-like fraction also increased slightly at 12 grid cells, and the fish-like fraction of the Size-constrained variant was lowest at the baseline distance.
+
+\begin{table}[htbp]
+\centering
+\caption*{Table S8. Classification of measured pressure segments at the 0.99 confidence threshold for three minimum vortex-to-body distances. Values are counts (percentages of the total number of measured segments for that variant and distance).}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Variant & Distance (cells) & Segments & Fish-like & Undetermined & Cylinder-like \\
+\midrule
+Raw & 3 & 488 & 65 (13.3) & 403 (82.6) & 20 (4.1) \\
+Raw & 6 & 474 & 67 (14.1) & 393 (82.9) & 14 (3.0) \\
+Raw & 12 & 435 & 87 (20.0) & 326 (74.9) & 22 (5.1) \\
+\midrule
+Size-constrained & 3 & 411 & 52 (12.7) & 328 (79.8) & 31 (7.5) \\
+Size-constrained & 6 & 391 & 38 (9.7) & 343 (87.7) & 10 (2.6) \\
+Size-constrained & 12 & 351 & 81 (23.1) & 252 (71.8) & 18 (5.1) \\
+\midrule
+X-deformation & 3 & 463 & 115 (24.8) & 299 (64.6) & 49 (10.6) \\
+X-deformation & 6 & 436 & 132 (30.3) & 285 (65.4) & 19 (4.4) \\
+X-deformation & 12 & 390 & 148 (37.9) & 214 (54.9) & 28 (7.2) \\
+\midrule
+Full & 3 & 432 & 52 (12.0) & 350 (81.0) & 30 (6.9) \\
+Full & 6 & 397 & 56 (14.1) & 333 (83.9) & 8 (2.0) \\
+Full & 12 & 350 & 88 (25.1) & 245 (70.0) & 17 (4.9) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=1\textwidth]{supplementary_media/paper_ready_distribution_min_distance_all_models.pdf}
-\caption*{\textbf{Supplementary Figure 5.} Effect of the minimum vortex-to-body distance on measured pressure classification for the raw, size-constrained, x-deformation and full model variants at 0.99 confidence. The x-axis gives the exclusion threshold in 1 mm simulation-grid cells. Blue, grey and orange represent fish-like, undetermined and cylinder-like fractions, respectively. Across the four variants, stronger exclusion of near-body vortices generally increased the fish-like fraction.}
+\caption*{\textbf{Supplementary Figure 5.} Effect of the minimum vortex-to-body distance on measured pressure classification for the Raw, Size-constrained, X-deformation and Full model variants at 0.99 confidence. The x-axis gives the exclusion threshold in simulation-grid cells. Blue, grey and orange represent fish-like, undetermined and cylinder-like fractions, respectively. Across the four variants, stronger exclusion of near-body vortices generally increased the fish-like fraction.}
 \end{figure}
 
 \end{document}

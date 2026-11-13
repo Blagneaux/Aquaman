@@ -1,7 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  30 SEP 2026 14:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.6.1)  12 NOV 2026 14:43
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
 **supplementary_material.tex
 (./supplementary_material.tex
@@ -532,44 +531,44 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 108.
  [3] [4] [5] [6] [7]
-<supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf, id=70, 86
+[8]
+<supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf, id=74, 86
 2.18927pt x 943.67558pt>
 File: supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf Graph
 ic file (type pdf)
 <use supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf>
 Package pdftex.def Info: supplementary_media/vortex_pooled_distributions_boai_9
-5_thr0.99.pdf  used on input line 245.
+5_thr0.99.pdf  used on input line 253.
 (pdftex.def)             Requested size: 427.93057pt x 468.3808pt.
-
-[8 <./supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf>]
-[9]
-<supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf, id=123, 
+ [9 <./supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf>] [1
+0]
+<supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf, id=127, 
 862.18927pt x 1131.36078pt>
 File: supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf Grap
 hic file (type pdf)
 <use supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf>
 Package pdftex.def Info: supplementary_media/vortex_segment_distributions_boai_
-95_thr0.99.pdf  used on input line 285.
+95_thr0.99.pdf  used on input line 293.
 (pdftex.def)             Requested size: 427.93057pt x 561.53584pt.
- [10 <./supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf>] 
-[11]
-<supplementary_media/real_pressure_threshold_curves_75.pdf, id=186, 859.5312pt 
-x 576.2033pt>
-File: supplementary_media/real_pressure_threshold_curves_75.pdf Graphic file (t
-ype pdf)
-<use supplementary_media/real_pressure_threshold_curves_75.pdf>
-Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_75.
-pdf  used on input line 330.
-(pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
-<supplementary_media/real_pressure_threshold_curves_99.pdf, id=187, 859.5312pt 
-x 576.2033pt>
-File: supplementary_media/real_pressure_threshold_curves_99.pdf Graphic file (t
-ype pdf)
-<use supplementary_media/real_pressure_threshold_curves_99.pdf>
-Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_99.
-pdf  used on input line 336.
-(pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
- [12
+ [11 <./supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf>] 
+[12]
+<supplementary_media/real_pressure_threshold_curves_75_v2.pdf, id=190, 468.6637
+pt x 344.93933pt>
+File: supplementary_media/real_pressure_threshold_curves_75_v2.pdf Graphic file
+ (type pdf)
+<use supplementary_media/real_pressure_threshold_curves_75_v2.pdf>
+Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_75_
+v2.pdf  used on input line 338.
+(pdftex.def)             Requested size: 455.24411pt x 335.06444pt.
+<supplementary_media/real_pressure_threshold_curves_99_v2.pdf, id=191, 468.6637
+pt x 344.93933pt>
+File: supplementary_media/real_pressure_threshold_curves_99_v2.pdf Graphic file
+ (type pdf)
+<use supplementary_media/real_pressure_threshold_curves_99_v2.pdf>
+Package pdftex.def Info: supplementary_media/real_pressure_threshold_curves_99_
+v2.pdf  used on input line 344.
+(pdftex.def)             Requested size: 455.24411pt x 335.06444pt.
+ [13
 
 
 
@@ -577,20 +576,21 @@ pdf  used on input line 336.
 
 
 
- <./supplementary_media/real_pressure_threshold_curves_75.pdf>]
-[13 <./supplementary_media/real_pressure_threshold_curves_99.pdf>]
+ <./supplementary_media/real_pressure_threshold_curves_75_v2.pdf>] [14 <./suppl
+ementary_media/real_pressure_threshold_curves_99_v2.pdf>]
 <supplementary_media/paper_ready_distribution_min_distance_all_models.pdf, id=2
-16, 859.5312pt x 576.2033pt>
+44, 859.5312pt x 576.2033pt>
 File: supplementary_media/paper_ready_distribution_min_distance_all_models.pdf 
 Graphic file (type pdf)
 <use supplementary_media/paper_ready_distribution_min_distance_all_models.pdf>
 Package pdftex.def Info: supplementary_media/paper_ready_distribution_min_dista
-nce_all_models.pdf  used on input line 346.
+nce_all_models.pdf  used on input line 385.
 (pdftex.def)             Requested size: 455.24411pt x 305.18407pt.
- [14
+ [15
 
- <./supplementary_media/paper_ready_distribution_min_distance_all_models.pdf>]
-(./supplementary_material.aux)
+]
+[16 <./supplementary_media/paper_ready_distribution_min_distance_all_models.pdf
+>] (./supplementary_material.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -600,13 +600,13 @@ Package rerunfilecheck Info: File `supplementary_material.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 12028 strings out of 476182
- 190536 string characters out of 5795596
+ 12031 strings out of 476182
+ 190608 string characters out of 5795596
  1940975 words of memory out of 5000000
  33780 multiletter control sequences out of 15000+600000
  601392 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,11n,79p,1369b,470s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,1815b,470s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></u
 sr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/p
@@ -615,10 +615,10 @@ e/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/
 lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/f
 onts/type1/public/lm/lmsy7.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pf
 b>
-Output written on supplementary_material.pdf (14 pages, 492617 bytes).
+Output written on supplementary_material.pdf (16 pages, 508779 bytes).
 PDF statistics:
- 286 PDF objects out of 1000 (max. 8388607)
- 156 compressed objects within 2 object streams
- 45 named destinations out of 1000 (max. 500000)
+ 319 PDF objects out of 1000 (max. 8388607)
+ 163 compressed objects within 2 object streams
+ 48 named destinations out of 1000 (max. 500000)
  46 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1790772915.08155 "supplementary_material.tex" "supplementary_material.pdf" "supplementary_material" 1790772918.43308 0
+["pdflatex"] 1794491038.72101 "supplementary_material.tex" "supplementary_material.pdf" "supplementary_material" 1794491041.93482 0
   "/etc/texmf/web2c/texmf.cnf" 1780306690.61548 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm" 1136768653 3584 929cdff2b7a8c11bd4d49fd68cb0ae70 ""
@@ -121,12 +121,12 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1780306700.15948 128028 f533b797fba58d231669ea19e894e23e ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1780306714 6800792 8d5a913ccb28468ae555f594f873361c ""
-  "supplementary_material.aux" 1790772917.90055 163 f44a1096e1a18ae00d50398f789cd867 "pdflatex"
-  "supplementary_material.out" 1790772916.91702 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "supplementary_material.tex" 1790772914.49774 29014 4eadb102c58a46aa336c7f3d4dcbf3e8 ""
+  "supplementary_material.aux" 1794491044.34031 163 7ed6127883b2b69a438ca81fea2f3d8c "pdflatex"
+  "supplementary_material.out" 1794491043.42321 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "supplementary_material.tex" 1794491019.8473 35327 4fbc780badd015263293e2822516d9e9 ""
   "supplementary_media/paper_ready_distribution_min_distance_all_models.pdf" 1789493783.35968 15558 3e4e8ffbcaadcdbdd905d2c3af2644f0 ""
-  "supplementary_media/real_pressure_threshold_curves_75.pdf" 1775223484.59191 14610 2467f67a291eb2c8607f80327f9d9890 ""
-  "supplementary_media/real_pressure_threshold_curves_99.pdf" 1775223544.73167 14591 7dc7b51e53d3a2f98a3218577c4b9db5 ""
+  "supplementary_media/real_pressure_threshold_curves_75_v2.pdf" 1794491008.56206 19811 8c4803227d4784b3a0ff55b6059bc572 ""
+  "supplementary_media/real_pressure_threshold_curves_99_v2.pdf" 1794491008.56472 19758 79236bb265cbf7241a1234440270c913 ""
   "supplementary_media/vortex_pooled_distributions_boai_95_thr0.99.pdf" 1788973443.3913 192159 13ad79fc05a2c14d44ad0c115a3a112c ""
   "supplementary_media/vortex_segment_distributions_boai_95_thr0.99.pdf" 1788973447.63948 75293 97ffce71fb4bad1cdbcb7820a2b31a50 ""
   (generated)

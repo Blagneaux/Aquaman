@@ -15,7 +15,7 @@ class SaveData{
   PrintWriter output;
   int n;
   
-  SaveData(String name, ArrayList<PVector> coords, int resolution, int xLengths, int yLengths, int zoom){
+  SaveData(String name, ArrayList<PVector> coords, float resolution, int xLengths, int yLengths, int zoom){
     output = createWriter(name);
     this.coords = coords;
     n = coords.size();
